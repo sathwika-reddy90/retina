@@ -397,12 +397,16 @@ const productCols = [productNav.slice(0, 2), productNav.slice(2, 5), productNav.
   @media (max-width: 1180px) {
     .nav { display: none; }
     .site-header__menu { display: inline-grid; }
-    .site-header__actions { margin-left: auto; }
+    /* Must out-rank `.nav + .site-header__actions`, or search and menu stop short of the right edge. */
+    .nav + .site-header__actions { margin-left: auto; }
+  }
+  @media (max-width: 560px), (max-height: 540px) and (orientation: landscape) {
+    :root { --header-h: 64px; }
+    .brand :global(img) { height: 44px; }
   }
   @media (max-width: 560px) {
-    :root { --header-h: 64px; }
+    .site-header__inner { gap: var(--s-3); }
     .site-header__cta { display: none; }
-    .brand :global(img) { height: 44px; }
   }
 
   /* Drawer */

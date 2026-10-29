@@ -136,8 +136,8 @@ const ld = [organization, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd
   main:focus { outline: none; }
   .whatsapp {
     position: fixed;
-    right: clamp(1rem, 0.5rem + 1.5vw, 1.75rem);
-    bottom: clamp(1rem, 0.5rem + 1.5vw, 1.75rem);
+    right: calc(clamp(1rem, 0.5rem + 1.5vw, 1.75rem) + env(safe-area-inset-right, 0px));
+    bottom: calc(clamp(1rem, 0.5rem + 1.5vw, 1.75rem) + env(safe-area-inset-bottom, 0px));
     z-index: 90;
     display: inline-flex;
     align-items: center;
@@ -152,8 +152,9 @@ const ld = [organization, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd
     font-size: 0.925rem;
     text-decoration: none;
     box-shadow: 0 14px 30px -12px rgb(16 90 50 / 0.65);
-    transition: transform var(--t-base) var(--ease-out), box-shadow var(--t-base), background-color var(--t-fast);
+    transition: transform var(--t-base) var(--ease-out), box-shadow var(--t-base), background-color var(--t-fast), opacity var(--t-base), visibility var(--t-base);
   }
+  .whatsapp[data-away] { opacity: 0; visibility: hidden; pointer-events: none; }
   .whatsapp:hover { transform: translateY(-2px); background: #188548; }
   .whatsapp :global(.icon) { width: 1.6rem; height: 1.6rem; }
   /* Collapses to an icon once the visitor scrolls, so it never sits over page controls. */

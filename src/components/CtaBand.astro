@@ -62,4 +62,8 @@ const {
     .cta-band__card { grid-template-columns: minmax(0, 1fr); }
     .cta-band__card :global(.cta-band__mark) { width: 56px; height: 56px; }
   }
+  @media (max-width: 480px) {
+    .cta-band__card { gap: var(--s-5); padding: var(--s-6) var(--s-5); }
+    .cta-band__actions .btn { flex: 1 1 100%; }
+  }
 </style>

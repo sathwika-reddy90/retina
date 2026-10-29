@@ -131,7 +131,8 @@ const tel = (p: string) => `tel:${p.replace(/-/g, '')}`;
     align-items: center;
     justify-content: space-between;
     gap: var(--s-4);
-    padding-block: var(--s-5);
+    /* Extra bottom room for the floating WhatsApp button, so it never covers the last line of the page. */
+    padding-block: var(--s-5) calc(var(--s-5) + 4.5rem + env(safe-area-inset-bottom, 0px));
     border-top: 1px solid var(--line-strong);
     font-size: 0.875rem;
     color: var(--ink-soft);

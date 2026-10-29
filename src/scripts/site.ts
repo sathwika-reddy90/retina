@@ -10,12 +10,24 @@ function initHeader() {
   const header = $('[data-header]');
   if (!header) return;
   const chat = $('.whatsapp');
+  const avoid = $$('[data-float-avoid]');
   const update = () => {
     header.toggleAttribute('data-scrolled', window.scrollY > 8);
-    chat?.toggleAttribute('data-collapsed', window.scrollY > 240);
+    if (!chat) return;
+    chat.toggleAttribute('data-collapsed', window.scrollY > 240);
+    // Fade out (no movement, so its box stays put) while it would sit on top of a tool such as the colour visualizer.
+    const c = chat.getBoundingClientRect();
+    chat.toggleAttribute(
+      'data-away',
+      avoid.some((el) => {
+        const r = el.getBoundingClientRect();
+        return r.top < c.bottom && r.bottom > c.top && r.left < c.right && r.right > c.left;
+      }),
+    );
   };
   update();
   window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
 }
 
 /* ---------- Desktop menus ---------- */
