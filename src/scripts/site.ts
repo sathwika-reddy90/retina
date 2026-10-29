@@ -95,6 +95,15 @@ function initDialogs() {
 
 /* ---------- Scroll reveal ---------- */
 function initReveal() {
+  // Lists marked data-reveal-stagger reveal their children in sequence.
+  $$('[data-reveal-stagger]').forEach((list) => {
+    const step = Number(list.dataset.revealStagger) || 70;
+    Array.from(list.children).forEach((child, i) => {
+      const el = child as HTMLElement;
+      if (!el.hasAttribute('data-reveal')) el.setAttribute('data-reveal', '');
+      el.style.setProperty('--reveal-delay', `${i * step}ms`);
+    });
+  });
   const els = $$('[data-reveal]');
   if (!els.length) return;
   if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

@@ -163,22 +163,30 @@ p, li, dd { text-wrap: pretty; }
   line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
-  transition: background-color var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out),
-    border-color var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out),
-    box-shadow var(--t-base) var(--ease-out);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.35) inset, 0 1px 2px rgb(60 30 10 / 0.12);
+  transition: background-color 220ms var(--ease-out), color 220ms var(--ease-out),
+    border-color 220ms var(--ease-out), transform 260ms var(--ease-out),
+    box-shadow 260ms var(--ease-out);
 }
-.btn:hover { --btn-bg: var(--orange-600); box-shadow: 0 10px 24px -12px rgb(224 106 18 / 0.7); }
-.btn:active { transform: translateY(1px); }
-.btn .icon { width: 1.125rem; height: 1.125rem; transition: transform var(--t-base) var(--ease-out); }
-.btn:hover .icon--arrow { transform: translateX(3px); }
+.btn:hover {
+  --btn-bg: var(--orange-600);
+  transform: translateY(-2px);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.25) inset, 0 14px 28px -14px rgb(217 92 22 / 0.75), 0 4px 10px -6px rgb(217 92 22 / 0.5);
+}
+.btn:active { transform: translateY(0) scale(0.98); transition-duration: 80ms; }
+.btn:focus-visible { outline: 2.5px solid var(--ink-deep); outline-offset: 3px; box-shadow: 0 0 0 6px rgb(242 129 33 / 0.25); }
+.btn .icon { width: 1.125rem; height: 1.125rem; transition: transform 260ms var(--ease-out); }
+.btn:hover .icon--arrow { transform: translateX(4px); }
+.btn--lg { min-height: 3.5rem; padding: 0.9rem 1.75rem; font-size: 1.0625rem; }
 
-.btn--secondary { --btn-bg: transparent; --btn-fg: var(--ink-deep); --btn-bd: var(--line-strong); }
-.btn--secondary:hover { --btn-bg: var(--white); --btn-bd: var(--ink-deep); box-shadow: none; }
+.btn--secondary { --btn-bg: var(--white); --btn-fg: var(--ink-deep); --btn-bd: var(--line-strong); box-shadow: 0 1px 2px rgb(60 30 10 / 0.06); }
+.btn--secondary:hover { --btn-bg: var(--white); --btn-bd: var(--ink-deep); box-shadow: 0 12px 24px -16px rgb(27 23 20 / 0.45); }
+.btn--secondary:hover .icon { color: var(--orange-600); }
 .btn--dark { --btn-bg: var(--ink-deep); --btn-fg: var(--white); }
-.btn--dark:hover { --btn-bg: #000; box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.5); }
+.btn--dark:hover { --btn-bg: #000; box-shadow: 0 14px 28px -14px rgb(0 0 0 / 0.55); }
 .btn--white { --btn-bg: var(--white); --btn-fg: var(--ink-deep); }
-.btn--white:hover { --btn-bg: var(--orange-50); box-shadow: none; }
-.btn--ghost-light { --btn-bg: transparent; --btn-fg: var(--white); --btn-bd: rgb(255 255 255 / 0.5); }
+.btn--white:hover { --btn-bg: var(--orange-50); box-shadow: 0 12px 24px -16px rgb(27 23 20 / 0.45); }
+.btn--ghost-light { --btn-bg: transparent; --btn-fg: var(--white); --btn-bd: rgb(255 255 255 / 0.5); box-shadow: none; }
 .btn--ghost-light:hover { --btn-bg: rgb(255 255 255 / 0.12); --btn-bd: var(--white); box-shadow: none; }
 .btn--sm { min-height: 2.5rem; padding: 0.5rem 1.125rem; font-size: 0.9rem; }
 .btn--block { width: 100%; }
@@ -307,15 +315,22 @@ p, li, dd { text-wrap: pretty; }
 /* ---------- Icon base ---------- */
 .icon { width: 1.25rem; height: 1.25rem; flex: none; }
 
-/* ---------- Reveal on scroll (progressive enhancement) ---------- */
+/* ---------- Reveal on scroll (progressive enhancement) ----------
+ * One shared system: add data-reveal to an element (fade-up) or
+ * data-reveal="zoom" for imagery. data-reveal-stagger on a list reveals its
+ * children one after another. Each element animates once, never on scroll-back.
+ */
 @media (prefers-reduced-motion: no-preference) {
-  .js [data-reveal] {
+  .js [data-reveal],
+  .js [data-reveal-stagger] > * {
     opacity: 0;
-    transform: translateY(18px);
-    transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
+    transform: translateY(22px);
+    transition: opacity 750ms var(--ease-out), transform 750ms var(--ease-out);
     transition-delay: var(--reveal-delay, 0ms);
   }
-  .js [data-reveal].is-visible { opacity: 1; transform: none; }
+  .js [data-reveal='zoom'] { transform: scale(0.965); }
+  .js [data-reveal].is-visible,
+  .js [data-reveal-stagger] > .is-visible { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -25,6 +25,11 @@ import { posts, announcements, blogTitle } from '@/data/news';
 import { findShade, shadeCount } from '@/data/colours';
 import { docUrl } from '@/data/site';
 
+const inkOn = (hex: string) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? 'dark' : 'light';
+};
+const shadeTotal = shadeCount.toLocaleString('en-IN');
 const heroShades = ['QC0263', 'QC1213', 'QC0164', 'QC1013', 'QC0604', 'QC0465', 'QC1105'].map((c) => findShade(c)!);
 const heroRoom = await getImage({ src: livingRoom, width: 1280, format: 'webp', quality: 80 });
 const heroShade = await getImage({ src: livingRoomShade, width: 1280, format: 'webp', quality: 72 });
@@ -65,66 +70,94 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
 
   <!-- ============ HERO ============ -->
   <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__bg" aria-hidden="true">
+      <span class="hero__glow"></span>
+      <span class="hero__ring hero__ring--lg"></span>
+      <span class="hero__ring hero__ring--sm"></span>
+    </div>
     <div class="container hero__grid">
       <div class="hero__copy">
-        <p class="eyebrow">{company.tagline}</p>
-        <h1 class="t-display" id="hero-title">
-          Transform your space with <span class="hero__accent">superior paints</span>
+        <p class="eyebrow hero__in" style="--i:0">{company.tagline}</p>
+        <h1 class="t-display hero__title hero__in" style="--i:1" id="hero-title">
+          Transform your space with
+          <span class="stroke">
+            <span class="stroke__text">superior paints</span>
+            <svg class="stroke__paint" viewBox="0 0 500 60" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+              <path class="stroke__body" d="M6 34C18 18 70 14 140 15c80 1 160-5 240-3 50 1 92 2 110 10 9 5 7 18-4 23-16 7-66 5-126 6-80 2-160-1-230 2-50 2-100 3-118-3-9-3-11-10-6-16Z" />
+              <path class="stroke__streak" d="M28 25c96-5 236-8 420-5M34 44c126 3 276 0 436-3" />
+              <path class="stroke__shine" d="M60 31c120-3 250-5 380-3" />
+            </svg>
+          </span>
         </h1>
-        <p class="t-lead hero__lead">{company.intro.split('. With')[0]}.</p>
-        <div class="cluster hero__ctas">
-          <a class="btn" href="/products/">Browse Products <Icon name="arrow-right" /></a>
-          <a class="btn btn--secondary" href="/colors/"><Icon name="palette" /> Explore Colours</a>
+        <p class="t-lead hero__lead hero__in" style="--i:2">{company.intro.split('. With')[0]}.</p>
+        <div class="hero__ctas">
+          <a class="btn btn--lg hero__in" style="--i:3" href="/products/">Browse Products <Icon name="arrow-right" /></a>
+          <a class="btn btn--lg btn--secondary hero__in" style="--i:4" href="/colors/"><Icon name="palette" /> Explore Colours</a>
         </div>
-        <ul role="list" class="hero__trust">
-          <li><Icon name="certificate" /> ISO 9001:2015 certified</li>
-          <li><Icon name="trending-up" /> Listed on BSE SME</li>
-          <li><Icon name="shield" /> Up to 8 years warranty</li>
+        <ul role="list" class="hero__trust hero__in" style="--i:5">
+          <li><span class="hero__trust-icon"><Icon name="certificate" /></span><span>ISO 9001:2015 <br />certified</span></li>
+          <li><span class="hero__trust-icon"><Icon name="trending-up" /></span><span>Listed on <br />BSE SME</span></li>
+          <li><span class="hero__trust-icon"><Icon name="shield" /></span><span>Up to 8 years <br />warranty</span></li>
         </ul>
       </div>
 
       <div class="hero__visual" data-hero-room style={`--wall:${heroShades[0].hex}`}>
-        <div class="hero__room">
-          <div class="hero__layers" aria-hidden="true">
-            <img src={heroShade.src} alt="" class="hero__shade" width={heroShade.attributes.width} height={heroShade.attributes.height} decoding="async" />
-            <img src={heroLight.src} alt="" class="hero__light" width={heroLight.attributes.width} height={heroLight.attributes.height} decoding="async" />
+        <div class="hero__stage">
+          <div class="hero__frame">
+            <div class="hero__scene">
+              <div class="hero__paint" aria-hidden="true"></div>
+              <img src={heroShade.src} alt="" class="hero__shade" width={heroShade.attributes.width} height={heroShade.attributes.height} decoding="async" aria-hidden="true" />
+              <img src={heroLight.src} alt="" class="hero__light" width={heroLight.attributes.width} height={heroLight.attributes.height} decoding="async" aria-hidden="true" />
+              <img
+                class="hero__photo"
+                src={heroRoom.src}
+                srcset={`${heroRoomSm.src} 760w, ${heroRoom.src} 1280w`}
+                sizes="(max-width: 960px) 100vw, 52vw"
+                width={heroRoom.attributes.width}
+                height={heroRoom.attributes.height}
+                alt="A bright living room with a white sofa, curtains and a plant, its walls painted in a Retina shade"
+                fetchpriority="high"
+                decoding="async"
+              />
+            </div>
+            <div class="hero__card">
+              <span class="hero__card-chip"></span>
+              <span class="hero__card-text">
+                <span class="hero__card-label">On the wall</span>
+                <strong data-hero-code>{heroShades[0].code}</strong>
+              </span>
+              <a href={`/colors/#${heroShades[0].code}`} class="hero__card-link" data-hero-link aria-label={`Open ${heroShades[0].code} in the colour visualizer`}><Icon name="arrow-up-right" /></a>
+            </div>
           </div>
-          <img
-            class="hero__photo"
-            src={heroRoom.src}
-            srcset={`${heroRoomSm.src} 760w, ${heroRoom.src} 1280w`}
-            sizes="(max-width: 960px) 100vw, 52vw"
-            width={heroRoom.attributes.width}
-            height={heroRoom.attributes.height}
-            alt="A bright living room with a white sofa, bookshelf and window, its walls painted in a Retina shade"
-            fetchpriority="high"
-            decoding="async"
-          />
-          <div class="hero__card">
-            <span class="hero__card-chip"></span>
-            <span class="hero__card-text">
-              <span class="hero__card-label">On the wall</span>
-              <strong data-hero-code>{heroShades[0].code}</strong>
-            </span>
-            <a href={`/colors/#${heroShades[0].code}`} class="hero__card-link" data-hero-link aria-label="Open this shade in the colour visualizer"><Icon name="arrow-up-right" /></a>
+
+          <div class="palette" role="radiogroup" aria-label="Try a Retina shade on the wall" data-palette>
+            <p class="palette__title" aria-hidden="true">Shades</p>
+            {heroShades.map((s, i) => (
+              <button
+                type="button"
+                role="radio"
+                class="hero__chip"
+                style={`--c:${s.hex};--i:${i}`}
+                data-code={s.code}
+                data-hex={s.hex}
+                data-ink={inkOn(s.hex)}
+                aria-checked={i === 0 ? 'true' : 'false'}
+                tabindex={i === 0 ? 0 : -1}
+                aria-label={`Paint the wall ${s.code}`}
+              >
+                <Icon name="check" class="hero__chip-check" />
+                <span class="palette__tip" aria-hidden="true">{s.code}</span>
+              </button>
+            ))}
+            <a class="palette__more" href="/colors/" style={`--i:${heroShades.length}`} aria-label={`Explore all ${shadeTotal} Retina shades in the colour visualizer`}>
+              <Icon name="plus" />
+              <span class="palette__tip" aria-hidden="true">All {shadeTotal} shades</span>
+            </a>
           </div>
+
           <Image src={royalVogue} alt="" width={240} height={250} class="hero__pack" loading="eager" />
         </div>
-        <div class="hero__rail" role="group" aria-label="Try a Retina shade on the wall">
-          {heroShades.map((s, i) => (
-            <button
-              type="button"
-              class="hero__chip"
-              style={`--c:${s.hex}`}
-              data-code={s.code}
-              data-hex={s.hex}
-              aria-pressed={i === 0 ? 'true' : 'false'}
-              aria-label={`Paint the wall ${s.code}`}
-              title={s.code}
-            ></button>
-          ))}
-        </div>
-        <p class="hero__hint">Tap a shade to repaint the room</p>
+        <p class="hero__hint"><Icon name="hand" /> Tap a shade to repaint the room · <a href="/colors/">Open the colour visualizer</a></p>
       </div>
     </div>
   </section>
@@ -223,9 +256,9 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   </section>
 
   <!-- ============ COLOUR VISUALIZER ============ -->
-  <section class="section section--cream" aria-labelledby="viz-title" id="visualizer">
+  <section class="section viz-section" aria-labelledby="viz-title" id="visualizer">
     <div class="container">
-      <div style="--viz-bg: var(--cream)">
+      <div style="--viz-bg: var(--orange-50)">
         <Visualizer variant="compact" id="home-viz" initialRoom="bed-room" headingLevel="h3">
           <div class="stack viz-head" style="--stack: var(--s-3)" slot="intro">
             <p class="eyebrow">Color Visualizer</p>
@@ -245,9 +278,9 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
         <h2 class="t-h2" id="why-title">{whyChooseUs.title}</h2>
         <p class="t-lead">{whyChooseUs.intro}</p>
       </div>
-      <ol role="list" class="why__list">
+      <ol role="list" class="why__list" data-reveal-stagger="90">
         {whyChooseUs.items.map((item, i) => (
-          <li class="why__item" data-reveal style={`--reveal-delay:${i * 80}ms`}>
+          <li class="why__item">
             <span class="why__num">{String(i + 1).padStart(2, '0')}</span>
             <span class="why__icon"><Icon name={item.icon} /></span>
             <h3 class="t-h4">{item.title}</h3>
@@ -289,7 +322,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
       </div>
     </div>
     <div class="container">
-      <ul role="list" class="creds" data-reveal>
+      <ul role="list" class="creds" data-reveal-stagger="80">
         {credentials.map((c) => <li><Icon name={c.icon} /><span>{c.text}</span></li>)}
       </ul>
     </div>
@@ -300,6 +333,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     <div class="container quote">
       <Image src={mdPortrait} alt="Rakesh Dommati, Managing Director" width={200} height={200} class="quote__img" />
       <figure class="quote__body" data-reveal>
+        <Icon name="quote" class="quote__mark" />
         <p class="eyebrow" id="quote-title">{mdMessage.title}</p>
         <blockquote>
           <p>“{mdMessage.closingQuote}”</p>
@@ -401,17 +435,36 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
 </BaseLayout>
 
 <script>
-  // Hero: repaint the room with the chosen shade.
+  // Hero: the docked palette repaints the room (radio group with arrow-key support).
   const hero = document.querySelector<HTMLElement>('[data-hero-room]');
   if (hero) {
-    const code = hero.querySelector('[data-hero-code]')!;
+    const code = hero.querySelector<HTMLElement>('[data-hero-code]')!;
     const link = hero.querySelector<HTMLAnchorElement>('[data-hero-link]')!;
-    hero.querySelectorAll<HTMLButtonElement>('.hero__chip').forEach((chip) => {
-      chip.addEventListener('click', () => {
-        hero.style.setProperty('--wall', chip.dataset.hex!);
+    const chips = Array.from(hero.querySelectorAll<HTMLButtonElement>('.hero__chip'));
+    const pick = (chip: HTMLButtonElement, focus = false) => {
+      hero.style.setProperty('--wall', chip.dataset.hex!);
+      chips.forEach((c) => {
+        const on = c === chip;
+        c.setAttribute('aria-checked', String(on));
+        c.tabIndex = on ? 0 : -1;
+      });
+      if (code.textContent !== chip.dataset.code) {
         code.textContent = chip.dataset.code!;
-        link.href = `/colors/#${chip.dataset.code}`;
-        hero.querySelectorAll('.hero__chip').forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+        code.removeAttribute('data-swap');
+        void code.offsetWidth; // restart the label animation
+        code.setAttribute('data-swap', '');
+      }
+      link.href = `/colors/#${chip.dataset.code}`;
+      link.setAttribute('aria-label', `Open ${chip.dataset.code} in the colour visualizer`);
+      if (focus) chip.focus();
+    };
+    chips.forEach((chip, i) => {
+      chip.addEventListener('click', () => pick(chip));
+      chip.addEventListener('keydown', (e) => {
+        const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+        if (step === undefined) return;
+        e.preventDefault();
+        pick(chips[(i + step + chips.length) % chips.length], true);
       });
     });
   }
@@ -487,12 +540,25 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   /* ---------- Hero ---------- */
   .hero {
     position: relative;
-    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5.5rem) clamp(3rem, 2rem + 4vw, 6rem);
-    background:
-      radial-gradient(60rem 30rem at 85% -10%, var(--orange-50), transparent 70%),
-      var(--white);
+    isolation: isolate;
+    padding-block: clamp(2.25rem, 1.25rem + 4vw, 5rem) clamp(3.5rem, 2.5rem + 4vw, 6.5rem);
+    background: var(--paper);
     overflow: hidden;
   }
+  .hero__bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .hero__glow {
+    position: absolute;
+    right: -12%;
+    top: -18%;
+    width: min(70rem, 78vw);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 214 184 / 0.75), rgb(255 240 229 / 0.55) 45%, rgb(255 254 252 / 0) 100%);
+  }
+  .hero__ring { position: absolute; border-radius: 50%; border-style: solid; border-color: rgb(242 129 33 / 0.08); }
+  .hero__ring--lg { right: -15rem; top: -17rem; width: 46rem; aspect-ratio: 1; border-width: 5.5rem; }
+  .hero__ring--sm { left: -8rem; bottom: -11rem; width: 22rem; aspect-ratio: 1; border-width: 2.75rem; border-color: rgb(242 129 33 / 0.06); }
+
   .hero__grid {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
@@ -500,66 +566,62 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     align-items: center;
   }
   .hero__copy { display: grid; gap: var(--s-5); justify-items: start; }
-  .hero__copy h1 { max-width: 12ch; }
-  .hero__accent {
-    position: relative;
-    white-space: nowrap;
-    color: var(--ink-deep);
-    background: linear-gradient(transparent 68%, var(--orange-200) 68%, var(--orange-200) 92%, transparent 92%);
+  .hero__title { max-width: 12ch; }
+
+  /* Paint-stroke highlight behind the key phrase */
+  .stroke { position: relative; display: inline-block; isolation: isolate; white-space: nowrap; }
+  .stroke__text { position: relative; }
+  .stroke__paint {
+    position: absolute;
+    left: -0.08em;
+    bottom: 0.13em;
+    z-index: -1;
+    width: calc(100% + 0.2em);
+    height: 0.46em;
+    overflow: visible;
   }
-  .hero__lead { max-width: 34rem; }
-  .hero__ctas { --cluster: var(--s-3); margin-top: var(--s-2); }
+  .stroke__body { fill: var(--orange-300); }
+  .stroke__streak { fill: none; stroke: var(--orange-400); stroke-width: 3; stroke-linecap: round; opacity: 0.55; }
+  .stroke__shine { fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; opacity: 0.35; }
+
+  .hero__lead { max-width: 33rem; }
+  .hero__ctas { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-2); }
   .hero__trust {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-2) var(--s-5);
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    justify-content: start;
     margin: var(--s-4) 0 0;
     padding: var(--s-5) 0 0;
     list-style: none;
     border-top: 1px solid var(--line);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
+    line-height: 1.35;
     color: var(--ink-soft);
   }
-  .hero__trust li { display: inline-flex; align-items: center; gap: 0.45rem; }
-  .hero__trust :global(.icon) { width: 1.1rem; height: 1.1rem; color: var(--orange-600); }
+  .hero__trust li { display: flex; align-items: center; gap: 0.6rem; padding-right: var(--s-5); }
+  .hero__trust li + li { padding-left: var(--s-5); border-left: 1px solid var(--line); }
+  .hero__trust-icon { display: grid; place-items: center; flex: none; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--orange-100); color: var(--orange-700); }
+  .hero__trust-icon :global(.icon) { width: 1.1rem; height: 1.1rem; }
 
-  .hero__visual {
+  /* Room preview */
+  .hero__visual { position: relative; }
+  .hero__stage { position: relative; padding-right: 2.25rem; }
+  .hero__frame {
     position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto auto;
-    column-gap: var(--s-4);
-  }
-  .hero__visual::before {
-    content: '';
-    position: absolute;
-    inset: 8% -6% -6% 12%;
-    border-radius: var(--r-xl);
-    background: var(--orange-100);
-    z-index: 0;
-  }
-  .hero__room {
-    position: relative;
-    z-index: 1;
     aspect-ratio: 5 / 4;
-    border-radius: var(--r-xl);
-    overflow: visible;
-    background: var(--wall);
-    box-shadow: var(--shadow-lg);
-    transition: background-color 700ms var(--ease-in-out);
+    border-radius: 28px;
+    overflow: hidden;
+    background: var(--sand);
+    box-shadow: 0 2px 4px rgb(60 30 10 / 0.05), 0 24px 48px -20px rgb(60 30 10 / 0.35), 0 60px 90px -50px rgb(217 92 22 / 0.35);
   }
-  .hero__layers { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
-  .hero__layers img, .hero__room > .hero__photo {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: inherit;
-  }
+  .hero__scene { position: absolute; inset: 0; isolation: isolate; transition: transform 1400ms var(--ease-out); }
+  .hero__frame:hover .hero__scene { transform: scale(1.025); }
+  .hero__paint { position: absolute; inset: 0; background: var(--wall); transition: background-color 700ms var(--ease-in-out); }
+  .hero__scene img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .hero__shade { mix-blend-mode: multiply; }
   .hero__light { mix-blend-mode: screen; }
+
   .hero__card {
     position: absolute;
     left: var(--s-5);
@@ -567,73 +629,171 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     display: inline-flex;
     align-items: center;
     gap: 0.65rem;
-    padding: 0.5rem 0.5rem 0.5rem 0.55rem;
+    padding: 0.45rem 0.45rem 0.45rem 0.5rem;
     border-radius: var(--r-pill);
     background: rgb(255 255 255 / 0.94);
     backdrop-filter: blur(8px);
     box-shadow: var(--shadow-sm);
   }
   .hero__card-chip { width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--wall); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); transition: background-color 700ms var(--ease-in-out); }
-  .hero__card-text { display: grid; line-height: 1.15; padding-right: 0.25rem; }
-  .hero__card-label { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
-  .hero__card-text strong { font-family: var(--font-display); font-size: 1rem; color: var(--ink-deep); }
-  .hero__card-link { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--ink-deep); color: var(--white); }
+  .hero__card-text { display: grid; line-height: 1.15; padding-right: 0.25rem; min-width: 4.5rem; }
+  .hero__card-label { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange-700); }
+  .hero__card-text strong { font-family: var(--font-display); font-size: 1.0625rem; color: var(--ink-deep); }
+  .hero__card-link { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--ink-deep); color: var(--white); transition: background-color 220ms, transform 260ms var(--ease-out); }
+  .hero__card-link:hover { background: var(--orange-600); transform: rotate(45deg); }
   .hero__card-link :global(.icon) { width: 1rem; height: 1rem; }
-  .hero__room :global(.hero__pack) {
+
+  /* Palette docked to the right edge of the room */
+  .palette {
     position: absolute;
-    right: -1.5rem;
-    bottom: -2.25rem;
-    width: clamp(7rem, 4rem + 8vw, 11rem);
-    height: auto;
-    filter: drop-shadow(0 22px 24px rgb(40 20 6 / 0.35));
-  }
-  .hero__rail {
-    position: relative;
-    z-index: 1;
+    right: 0;
+    top: 50%;
+    z-index: 2;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 0.6rem;
-    padding: 0.6rem;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.7rem 0.6rem 0.6rem;
     border-radius: var(--r-pill);
     background: var(--white);
-    box-shadow: var(--shadow-md);
-    align-self: center;
+    box-shadow: 0 2px 6px rgb(60 30 10 / 0.08), 0 24px 40px -18px rgb(60 30 10 / 0.35);
+    transform: translateY(-50%);
   }
-  .hero__chip {
-    width: 2.5rem;
-    height: 2.5rem;
+  .palette__title { font-size: 0.5625rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--orange-700); margin-bottom: 0.1rem; }
+  .hero__chip, .palette__more {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: 0;
     border: 0;
     border-radius: 50%;
     background: var(--c);
     box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
-    transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-fast);
+    transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out);
   }
-  .hero__chip:hover { transform: scale(1.1); }
-  .hero__chip[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--white), 0 0 0 5px var(--ink-deep); }
+  .hero__chip::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 2.5px solid var(--orange-500);
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 240ms var(--ease-out), transform 300ms var(--ease-out);
+  }
+  .hero__chip:hover, .palette__more:hover { transform: scale(1.12); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08), 0 8px 16px -8px rgb(0 0 0 / 0.45); }
+  .hero__chip:focus-visible, .palette__more:focus-visible { outline: 2.5px solid var(--ink-deep); outline-offset: 6px; }
+  .hero__chip[aria-checked='true']::after { opacity: 1; transform: none; }
+  .hero__chip :global(.hero__chip-check) { width: 1.05rem; height: 1.05rem; stroke-width: 3; opacity: 0; transform: scale(0.4); transition: opacity 220ms, transform 300ms var(--ease-out); }
+  .hero__chip[data-ink='dark'] { color: var(--ink-deep); }
+  .hero__chip[data-ink='light'] { color: var(--white); }
+  .hero__chip[aria-checked='true'] :global(.hero__chip-check) { opacity: 1; transform: none; }
+  .palette__more { background: var(--orange-50); color: var(--orange-700); box-shadow: inset 0 0 0 1.5px var(--orange-200); text-decoration: none; }
+  .palette__more :global(.icon) { width: 1.1rem; height: 1.1rem; stroke-width: 2.25; }
+  .palette__tip {
+    position: absolute;
+    right: calc(100% + 0.85rem);
+    top: 50%;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--r-pill);
+    background: var(--ink-deep);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(6px, -50%);
+    transition: opacity 180ms var(--ease-out), transform 240ms var(--ease-out);
+  }
+  .hero__chip:hover .palette__tip, .hero__chip:focus-visible .palette__tip,
+  .palette__more:hover .palette__tip, .palette__more:focus-visible .palette__tip { opacity: 1; transform: translate(0, -50%); }
+
+  .hero__stage :global(.hero__pack) {
+    position: absolute;
+    left: -2rem;
+    bottom: -2.25rem;
+    z-index: 2;
+    width: clamp(6.5rem, 3.5rem + 7vw, 10rem);
+    height: auto;
+    filter: drop-shadow(0 22px 22px rgb(40 20 6 / 0.35));
+    pointer-events: none;
+  }
   .hero__hint {
-    position: relative;
-    z-index: 1;
-    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
     margin-top: var(--s-5);
+    padding-right: 2.25rem;
     font-size: 0.8125rem;
     color: var(--ink-soft);
-    text-align: right;
-    padding-right: 4.5rem;
   }
+  .hero__hint :global(.icon) { width: 1rem; height: 1rem; color: var(--orange-600); }
+  .hero__hint a { color: var(--ink-deep); font-weight: 600; text-decoration-color: var(--orange-400); text-underline-offset: 0.2em; }
+  .hero__hint a:hover { color: var(--orange-700); }
+
+  /* Entrance choreography (once, on load) */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__in { animation: hero-rise 800ms var(--ease-out) backwards; animation-delay: calc(80ms + var(--i, 0) * 90ms); }
+    .hero__title { animation-duration: 950ms; }
+    .stroke__paint { animation: stroke-in 900ms cubic-bezier(0.65, 0, 0.35, 1) 650ms backwards; }
+    .hero__visual { animation: hero-visual 1000ms var(--ease-out) 120ms backwards; }
+    .hero__card { animation: hero-rise 700ms var(--ease-out) 620ms backwards; }
+    .hero__stage :global(.hero__pack) { animation: pack-in 900ms var(--ease-out) 700ms backwards; }
+    .palette { animation: palette-in 700ms var(--ease-out) 520ms backwards; }
+    .hero__chip, .palette__more { animation: chip-in 420ms var(--ease-out) backwards; animation-delay: calc(720ms + var(--i) * 55ms); }
+    .hero__ring { animation: ring-in 1800ms var(--ease-out) 100ms backwards; }
+    .hero__glow { animation: glow-in 1600ms var(--ease-out) backwards; }
+    [data-hero-code][data-swap] { animation: code-swap 360ms var(--ease-out); }
+  }
+  @keyframes hero-rise { from { opacity: 0; transform: translateY(22px); } }
+  @keyframes hero-visual { from { opacity: 0.01; transform: translateY(28px) scale(0.985); } }
+  @keyframes stroke-in { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes pack-in { from { opacity: 0; transform: translateY(18px) rotate(-6deg); } }
+  @keyframes palette-in { from { opacity: 0; transform: translate(12px, -50%); } }
+  @keyframes chip-in { from { opacity: 0; transform: scale(0.4); } }
+  @keyframes ring-in { from { opacity: 0; transform: scale(0.82); } }
+  @keyframes glow-in { from { opacity: 0; } }
+  @keyframes code-swap { from { opacity: 0; transform: translateY(6px); } }
 
   @media (max-width: 960px) {
-    .hero__grid { grid-template-columns: minmax(0, 1fr); }
-    .hero__copy h1 { max-width: 14ch; }
-    .hero__visual { grid-template-columns: minmax(0, 1fr); margin-right: 0.5rem; }
-    .hero__visual::before { inset: 10% -0.5rem -4% 8%; }
-    .hero__rail { flex-direction: row; justify-content: space-between; margin-top: var(--s-6); align-self: auto; }
-    .hero__room :global(.hero__pack) { right: -0.5rem; bottom: -1.75rem; }
-    .hero__hint { text-align: left; padding-right: 0; margin-top: var(--s-3); }
+    .hero__grid { grid-template-columns: minmax(0, 1fr); gap: var(--s-8); }
+    .hero__title { max-width: 14ch; }
+    .hero__glow { right: -40%; top: 30%; width: 120vw; }
+    .hero__ring--lg { right: -20rem; top: auto; bottom: -6rem; width: 34rem; border-width: 4rem; }
+    .hero__ring--sm { display: none; }
+    .hero__stage { padding-right: 0; padding-bottom: 1.9rem; }
+    .palette { top: auto; right: auto; left: 50%; bottom: 0; flex-direction: row; padding: 0.5rem 0.6rem; transform: translateX(-50%); }
+    .palette__title { display: none; }
+    .palette__tip { right: auto; left: 50%; top: auto; bottom: calc(100% + 0.7rem); transform: translate(-50%, 6px); }
+    .hero__chip:hover .palette__tip, .hero__chip:focus-visible .palette__tip,
+    .palette__more:hover .palette__tip, .palette__more:focus-visible .palette__tip { transform: translate(-50%, 0); }
+    .hero__stage :global(.hero__pack) { left: auto; right: -0.5rem; bottom: auto; top: -1.75rem; width: 5.75rem; }
+    .hero__hint { justify-content: center; padding-right: 0; text-align: center; }
+    @media (prefers-reduced-motion: no-preference) {
+      .palette { animation-name: palette-in-m; }
+    }
   }
-  @media (max-width: 420px) {
-    .hero__chip { width: 2.15rem; height: 2.15rem; }
-    .hero__rail { gap: 0.35rem; padding: 0.5rem; }
+  @keyframes palette-in-m { from { opacity: 0; transform: translate(-50%, 12px); } }
+  @media (max-width: 560px) {
+    .hero__trust { grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; font-size: 0.75rem; }
+    .hero__trust li { flex-direction: column; align-items: flex-start; gap: 0.4rem; padding-right: var(--s-3); }
+    .hero__trust li + li { padding-left: var(--s-3); }
+    .hero__trust-icon { width: 2rem; height: 2rem; }
+    .hero__ctas { width: 100%; }
+    .hero__ctas :global(.btn) { flex: 1 1 auto; }
+    .hero__chip, .palette__more { width: 2.3rem; height: 2.3rem; }
+    .palette { gap: 0.35rem; }
+    .hero__card { left: var(--s-3); top: var(--s-3); }
+  }
+  @media (max-width: 380px) {
+    .hero__chip, .palette__more { width: 2.1rem; height: 2.1rem; }
+    .palette { gap: 0.3rem; padding: 0.45rem 0.5rem; }
   }
 
   /* ---------- Quick discovery ---------- */
@@ -662,7 +822,10 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .quick__item:first-child { border-radius: var(--r-lg) 0 0 var(--r-lg); }
   .quick__item:last-child { border-radius: 0 var(--r-lg) var(--r-lg) 0; }
   .quick__item:hover { background: var(--orange-50); }
-  .quick__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%; background: var(--orange-100); color: var(--orange-700); }
+  .quick__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%; background: var(--orange-100); color: var(--orange-700); transition: background-color 260ms var(--ease-out), color 260ms var(--ease-out), transform 300ms var(--ease-out); }
+  .quick__item:hover .quick__icon { background: var(--orange-500); color: var(--ink-deep); transform: rotate(-8deg) scale(1.06); }
+  .quick__item::before { content: ''; position: absolute; left: var(--s-5); right: var(--s-5); top: -1px; height: 3px; border-radius: 0 0 3px 3px; background: var(--orange-500); transform: scaleX(0); transform-origin: left; transition: transform 400ms var(--ease-out); }
+  .quick__item:hover::before { transform: scaleX(1); }
   .quick__text { display: grid; gap: 0.3rem; }
   .quick__title {
     padding: 0;
@@ -715,7 +878,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     transition: all var(--t-fast);
   }
   .tabs__list [role='tab']:hover { color: var(--ink-deep); border-color: var(--ink-mute); }
-  .tabs__list [role='tab'][aria-selected='true'] { background: var(--ink-deep); border-color: var(--ink-deep); color: var(--white); }
+  .tabs__list [role='tab'][aria-selected='true'] { background: var(--orange-500); border-color: var(--orange-500); color: var(--ink-deep); box-shadow: 0 8px 18px -12px rgb(217 92 22 / 0.8); }
   .tabs__panel:focus-visible { outline-offset: 8px; }
 
   .rail { position: relative; }
@@ -810,11 +973,20 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     .exterior::before { background: linear-gradient(180deg, rgb(20 16 14 / 0.55) 0%, rgb(20 16 14 / 0.86) 60%); }
   }
 
+  /* ---------- Section tones ---------- */
+  .viz-section { position: relative; background: linear-gradient(180deg, var(--orange-50) 0%, var(--cream) 100%); }
+  .viz-section::before { content: ''; position: absolute; left: 50%; top: 0; width: min(var(--container), 100% - 2 * var(--gutter)); height: 3px; transform: translateX(-50%); background: linear-gradient(90deg, var(--orange-500) 0 18%, var(--orange-300) 18% 26%, var(--orange-100) 26% 32%, transparent 32%); border-radius: 0 0 3px 3px; }
+  .news { background: linear-gradient(180deg, var(--white) 30%, var(--cream) 100%); }
+
   /* ---------- Why ---------- */
   .why__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 1rem + 4vw, 6rem); align-items: start; }
   .why__head { position: sticky; top: calc(var(--header-h) + 2rem); display: grid; gap: var(--s-4); }
   .why__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--grid-gap); margin: 0; padding: 0; list-style: none; }
   .why__item { position: relative; display: grid; gap: var(--s-3); align-content: start; padding: var(--s-6) 0 var(--s-7); border-top: 1px solid var(--line-strong); }
+  .why__item::before { content: ''; position: absolute; left: 0; top: -1px; width: 3rem; height: 2px; background: var(--orange-500); transition: width 600ms var(--ease-out); }
+  .why__item:hover::before { width: 100%; }
+  .why__item .why__icon { transition: background-color 260ms var(--ease-out), color 260ms var(--ease-out); }
+  .why__item:hover .why__icon { background: var(--orange-500); color: var(--ink-deep); }
   .why__num { position: absolute; top: var(--s-6); right: 0; font-family: var(--font-display); font-size: 0.875rem; font-weight: 700; color: var(--orange-700); }
   .why__icon { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; border-radius: var(--r-md); background: var(--orange-100); color: var(--orange-700); margin-bottom: var(--s-2); }
   .why__icon :global(.icon) { width: 1.5rem; height: 1.5rem; }
@@ -827,7 +999,8 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
 
   /* ---------- Story ---------- */
   .story__grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: clamp(2rem, 1rem + 4vw, 6rem); align-items: center; }
-  .story__media { position: relative; padding: 0 12% 12% 0; }
+  .story__media { position: relative; padding: 0 12% 12% 0; isolation: isolate; }
+  .story__media::before { content: ''; position: absolute; z-index: -1; left: -14%; top: -12%; width: 62%; aspect-ratio: 1; border-radius: 50%; border: 3.5rem solid rgb(242 129 33 / 0.08); }
   .story__media :global(.story__img) { border-radius: var(--r-lg); object-fit: cover; }
   .story__media :global(.story__img--main) { width: 100%; aspect-ratio: 4 / 3.4; box-shadow: var(--shadow-md); }
   .story__media :global(.story__img--small) {
@@ -859,7 +1032,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .story__vm dd { margin: 0; color: var(--ink-soft); }
   .story__stats { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: var(--s-7); margin: 0; }
   .story__stats div { display: flex; flex-direction: column-reverse; }
-  .story__stats dd { margin: 0; font-family: var(--font-display); font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem); font-weight: 750; letter-spacing: -0.03em; color: var(--ink-deep); line-height: 1.1; }
+  .story__stats dd { margin: 0; font-family: var(--font-display); font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem); font-weight: 750; letter-spacing: -0.03em; color: var(--orange-600); line-height: 1.1; }
   .story__stats dt { font-size: 0.875rem; color: var(--ink-soft); }
   .creds {
     display: grid;
@@ -884,7 +1057,9 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   }
 
   /* ---------- Quote ---------- */
-  .quote-band { background: var(--cream); border-block: 1px solid var(--line); }
+  .quote-band { position: relative; overflow: hidden; background: var(--orange-100); border-block: 1px solid var(--orange-200); }
+  .quote-band::after { content: ''; position: absolute; right: -6rem; top: -8rem; width: 22rem; aspect-ratio: 1; border-radius: 50%; border: 3rem solid rgb(242 129 33 / 0.1); pointer-events: none; }
+  .quote__body :global(.quote__mark) { width: 2.5rem; height: 2.5rem; color: var(--orange-500); }
   .quote { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(1.5rem, 1rem + 3vw, 4rem); align-items: center; max-width: 64rem; }
   .quote :global(.quote__img) { width: clamp(7rem, 5rem + 6vw, 12rem); height: auto; border-radius: 50%; }
   .quote__body { display: grid; gap: var(--s-4); }
@@ -959,7 +1134,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .post h3 a { text-decoration: none; color: inherit; }
   .post h3 a::after { content: ''; position: absolute; inset: 0; }
   .post:hover h3 a { color: var(--orange-700); }
-  .ann { display: grid; gap: var(--s-4); align-content: start; padding: var(--s-6); border-radius: var(--r-lg); background: var(--cream); }
+  .ann { display: grid; gap: var(--s-4); align-content: start; padding: var(--s-6); border-radius: var(--r-lg); background: var(--orange-50); border: 1px solid var(--orange-100); }
   .ann__title { font-size: var(--fs-label); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-deep); }
   .ann ul { margin: 0; padding: 0; list-style: none; display: grid; }
   .ann li + li { border-top: 1px solid var(--line-strong); }

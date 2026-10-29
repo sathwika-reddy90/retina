@@ -1,18 +1,18 @@
 /*
  * Retina Paints design tokens.
- * Orange values are tuned to the logo orange (#F08020 sampled from the mark).
+ * Orange values are tuned to the logo orange (#F28121, sampled from logo.png and mark.png).
  * --orange-500 is the brand orange for fills and accents; it is NOT used for
  * small text on white. Text-weight orange uses --orange-700 (5.6:1 on white).
  */
 :root {
   /* Brand */
   --orange-50: #fff8f2;
-  --orange-100: #fff0e7; /* soft peach */
+  --orange-100: #fff0e5; /* soft peach */
   --orange-200: #ffdcc4;
   --orange-300: #fdbb8c;
   --orange-400: #f89a4c;
-  --orange-500: #f28020; /* Retina orange */
-  --orange-600: #e06a12; /* hover / pressed */
+  --orange-500: #f28121; /* Retina orange — exact logo value */
+  --orange-600: #d95c16; /* deep orange: hover / pressed */
   --orange-700: #ad4c0a; /* accessible orange text */
   --orange-800: #7c3608;
   --leaf: #a0cc38; /* logo green — logo only */
@@ -22,7 +22,7 @@
   --paper: #fffefc; /* warm white */
   --cream: #fbf7f2; /* alternate section background */
   --sand: #f4ede5;
-  --line: #ede7e2; /* subtle borders */
+  --line: #eae2db; /* subtle borders */
   --line-strong: #ddd3ca;
   --ink: #242424; /* primary text */
   --ink-deep: #1b1714; /* headings on light, text on orange */

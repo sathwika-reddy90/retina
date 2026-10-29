@@ -79,7 +79,10 @@ Every route on the live site is preserved, including legacy slugs: `/products/em
 - **Colour**: white and warm white dominate. `--orange-500` (#F28020, matched to the logo) is used for fills and accents. Text on orange is near-black (#1B1714, 6.4:1). Orange text on white uses `--orange-700` (#AD4C0A, 5.6:1). See `src/styles/tokens.css`.
 - **Type**: Manrope (display and UI) with Inter (body), self-hosted via Fontsource and preloaded. Fluid `clamp()` scale: display 42→76px, H2 30→48px, body 16→17px.
 - **Layout**: 1320px container, fluid gutters, 8px spacing rhythm, 12-column grids.
-- **Motion**: CSS only. Restrained reveal-on-scroll and hover states, all disabled under `prefers-reduced-motion`.
+- **Motion**: CSS only, with no animation library. All of it is disabled under `prefers-reduced-motion`.
+  - **Homepage hero**: a one-time staggered entrance (label → headline → copy → buttons → room → palette), then the paint-stroke highlight drawing in left to right.
+  - **Scroll reveals**: add `data-reveal` (fade-up) or `data-reveal="zoom"` to an element, or `data-reveal-stagger="90"` to a list to reveal its children in sequence. Each element animates once and never again on scroll-back.
+  - **Controls**: buttons lift on hover, and nav links draw an orange underline from the left. Only `transform` and `opacity` are animated, so there is no layout shift (CLS 0).
 
 ## Quality checks (last run)
 
