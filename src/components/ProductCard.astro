@@ -1,0 +1,149 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { categoryById, type Product } from '@/data/products';
+
+interface Props {
+  product: Product;
+  headingLevel?: 'h2' | 'h3' | 'h4';
+  showSummary?: boolean;
+  eager?: boolean;
+}
+const { product: p, headingLevel = 'h3', showSummary = true, eager = false } = Astro.props;
+const H = headingLevel;
+const cat = categoryById(p.category);
+const tags = p.features.slice(0, p.warranty ? 2 : 3);
+---
+
+<article class:list={['pcard', { 'pcard--static': !p.href }]}>
+  <div class="pcard__stage">
+    <Image
+      src={p.image}
+      alt={`${p.name} pack`}
+      widths={[200, 300, 420]}
+      sizes="(max-width: 640px) 46vw, 220px"
+      loading={eager ? 'eager' : 'lazy'}
+      class="pcard__pack"
+    />
+    {p.warranty && (
+      <span class="pcard__warranty" aria-label={`${p.warranty} years warranty`}>
+        <strong>{p.warranty}</strong><span>yr<br />warranty</span>
+      </span>
+    )}
+  </div>
+  <div class="pcard__body">
+    <p class="pcard__cat">{cat.label}</p>
+    <H class="pcard__name">
+      {p.href ? <a href={p.href} class="pcard__link">{p.name}</a> : p.name}
+    </H>
+    {showSummary && p.summary && <p class="pcard__summary">{p.summary}</p>}
+    {tags.length > 0 && (
+      <ul role="list" class="pcard__tags">
+        {tags.map((t) => <li class="tag">{t}</li>)}
+      </ul>
+    )}
+    <div class="pcard__foot">
+      {p.href ? (
+        <span class="pcard__cta" aria-hidden="true">View details <Icon name="arrow-right" /></span>
+      ) : (
+        <button type="button" class="pcard__enquire" data-open-dialog="dialog-advice">
+          Enquire about {p.name} <Icon name="arrow-right" />
+        </button>
+      )}
+    </div>
+  </div>
+</article>
+
+<style>
+  .pcard {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--white);
+    overflow: hidden;
+    transition: border-color var(--t-base), box-shadow var(--t-base) var(--ease-out), transform var(--t-base) var(--ease-out);
+  }
+  .pcard:hover { border-color: var(--orange-200); box-shadow: var(--shadow-md); transform: translateY(-3px); }
+  .pcard:focus-within { border-color: var(--orange-300); }
+
+  .pcard__stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 5 / 4;
+    background:
+      radial-gradient(60% 50% at 50% 92%, rgb(60 32 12 / 0.12), transparent 70%),
+      radial-gradient(90% 80% at 50% 40%, var(--white) 0%, var(--cream) 70%);
+    transition: background-color var(--t-base);
+  }
+  .pcard:hover .pcard__stage { background-color: var(--orange-50); }
+  .pcard__stage :global(.pcard__pack) {
+    width: 62%;
+    max-width: 220px;
+    height: auto;
+    filter: drop-shadow(0 18px 18px rgb(60 32 12 / 0.18));
+    transition: transform var(--t-slow) var(--ease-out);
+  }
+  .pcard:hover .pcard__stage :global(.pcard__pack) { transform: translateY(-6px) scale(1.03); }
+
+  .pcard__warranty {
+    position: absolute;
+    top: var(--s-4);
+    left: var(--s-4);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.65rem 0.35rem 0.5rem;
+    border-radius: var(--r-pill);
+    background: var(--white);
+    box-shadow: var(--shadow-xs);
+    border: 1px solid var(--line);
+    font-family: var(--font-display);
+    line-height: 1;
+  }
+  .pcard__warranty strong { font-size: 1.25rem; font-weight: 800; color: var(--orange-700); letter-spacing: -0.03em; }
+  .pcard__warranty span { font-size: 0.625rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); line-height: 1.1; }
+
+  .pcard__body { display: flex; flex-direction: column; gap: 0.6rem; padding: var(--s-5) var(--s-5) var(--s-5); }
+  .pcard__cat { font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-text); }
+  .pcard__name { font-size: clamp(1.25rem, 1.15rem + 0.35vw, 1.45rem); line-height: 1.2; letter-spacing: var(--tracking-snug); }
+  .pcard__link { text-decoration: none; color: inherit; }
+  .pcard__link::after { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  .pcard__link:focus-visible { outline: none; }
+  .pcard__link:focus-visible::after { outline: 2.5px solid var(--focus); outline-offset: -2px; }
+  .pcard__summary { font-size: 0.925rem; line-height: 1.55; color: var(--ink-soft); }
+  .pcard__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.15rem 0 0; padding: 0; }
+  .pcard__foot { margin-top: auto; padding-top: var(--s-3); }
+  .pcard__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.925rem;
+    color: var(--ink-deep);
+  }
+  .pcard__cta :global(.icon) { width: 1.05rem; height: 1.05rem; color: var(--orange-600); transition: transform var(--t-base) var(--ease-out); }
+  .pcard:hover .pcard__cta { color: var(--orange-700); }
+  .pcard:hover .pcard__cta :global(.icon) { transform: translateX(4px); }
+  .pcard__enquire {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.925rem;
+    color: var(--ink-deep);
+    text-align: left;
+  }
+  .pcard__enquire :global(.icon) { width: 1.05rem; height: 1.05rem; color: var(--orange-600); }
+  .pcard__enquire:hover { color: var(--orange-700); }
+</style>

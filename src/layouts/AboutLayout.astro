@@ -1,0 +1,44 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import { aboutNav } from '@/data/site';
+interface Props {
+  title: string;
+  lead?: string;
+  description?: string;
+}
+const { title, lead, description } = Astro.props;
+const path = Astro.url.pathname;
+---
+
+<BaseLayout title={title} description={description ?? lead}>
+  <PageHeader eyebrow="About us" title={title} lead={lead} crumbs={[{ label: 'About us', href: '/about-us/company-profile/' }, { label: title }]} />
+  <nav class="subnav" aria-label="About us">
+    <div class="container">
+      <ul role="list">
+        {aboutNav.map((l) => <li><a href={l.href} aria-current={path === l.href ? 'page' : undefined}>{l.label}</a></li>)}
+      </ul>
+    </div>
+  </nav>
+  <slot />
+</BaseLayout>
+
+<style>
+  .subnav { position: sticky; top: var(--header-h); z-index: 20; background: rgb(255 255 255 / 0.96); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .subnav ul { display: flex; gap: var(--s-6); margin: 0; padding: 0; list-style: none; overflow-x: auto; scrollbar-width: none; }
+  .subnav ul::-webkit-scrollbar { display: none; }
+  .subnav a {
+    position: relative;
+    display: block;
+    padding: 1rem 0;
+    font-family: var(--font-display);
+    font-size: 0.925rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .subnav a:hover { color: var(--ink-deep); }
+  .subnav a[aria-current='page'] { color: var(--ink-deep); }
+  .subnav a[aria-current='page']::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--orange-500); }
+</style>

@@ -1,0 +1,139 @@
+---
+// Renders investor-relations document lists, grouped headings, Intimation/Outcome
+// tables and embedded PDF previews, exactly as structured on the live pages.
+import Icon from './Icon.astro';
+import { investorDocuments, type DocBlock, type DocLink } from '@/data/investors';
+import { docUrl } from '@/data/site';
+
+interface Props {
+  page?: string;
+  blocks?: DocBlock[];
+}
+const { page, blocks: given } = Astro.props;
+const blocks: DocBlock[] = given ?? (page ? investorDocuments[page] ?? [] : []);
+const fileType = (href: string) => (/\.pdf($|\?)/i.test(href) ? 'PDF' : /\.html?($|\?)/i.test(href) ? 'Web page' : 'Document');
+const H: Record<number, 'h2' | 'h3' | 'h4'> = { 2: 'h2', 3: 'h3', 4: 'h4' };
+---
+
+{blocks.length === 0 ? (
+  <div class="doc-empty">
+    <Icon name="file-text" />
+    <p>No documents have been published in this section yet.</p>
+  </div>
+) : (
+  <div class="docs">
+    {blocks.map((b) => {
+      if (b.type === 'heading') {
+        const Tag = H[b.level] ?? 'h3';
+        return <Tag class:list={['docs__h', `docs__h--${b.level}`]}>{b.text}</Tag>;
+      }
+      if (b.type === 'docs') {
+        return (
+          <ul role="list" class="doclist">
+            {b.items.map((d: DocLink) => (
+              <li>
+                <a href={docUrl(d.href)} target="_blank" rel="noopener">
+                  <span class="doclist__icon"><Icon name="file-text" /></span>
+                  <span class="doclist__label">{d.label}</span>
+                  <span class="doclist__meta">{fileType(d.href)}<Icon name="arrow-up-right" /></span>
+                  <span class="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        );
+      }
+      if (b.type === 'linktable') {
+        return (
+          <div class="linktable">
+            <table>
+              <thead><tr>{b.head.map((h) => <th scope="col">{h}</th>)}</tr></thead>
+              <tbody>
+                {b.rows.map((row) => (
+                  <tr>
+                    {row.map((cell, ci) => (
+                      <td data-label={b.head[ci]}>
+                        {cell.length === 0 ? (
+                          <span class="linktable__empty" aria-label="None">—</span>
+                        ) : (
+                          <ul role="list">
+                            {cell.map((d) => (
+                              <li><a href={docUrl(d.href)} target="_blank" rel="noopener"><Icon name="file-text" />{d.label}<span class="sr-only"> (PDF, opens in a new tab)</span></a></li>
+                            ))}
+                          </ul>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+      if (b.type === 'embed') {
+        return (
+          <details class="embed">
+            <summary><Icon name="file-text" /> Preview document <Icon name="chevron-down" class="embed__chev" /></summary>
+            <iframe src={b.src} title="Document preview" loading="lazy"></iframe>
+            {b.file && (
+              <a class="link-arrow" href={docUrl(b.file)} target="_blank" rel="noopener">Open the PDF in a new tab <Icon name="arrow-up-right" /></a>
+            )}
+          </details>
+        );
+      }
+      return null;
+    })}
+  </div>
+)}
+
+<style>
+  .docs { display: grid; gap: var(--s-4); }
+  .docs__h { color: var(--ink-deep); }
+  .docs__h--2 { margin-top: var(--s-6); font-size: var(--fs-h3); padding-bottom: var(--s-3); border-bottom: 2px solid var(--orange-500); }
+  .docs__h--2:first-child { margin-top: 0; }
+  .docs__h--3 { margin-top: var(--s-4); font-size: var(--fs-h4); }
+  .docs__h--4 { font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-text); }
+
+  .doclist { display: grid; margin: 0; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; background: var(--white); }
+  .doclist li + li { border-top: 1px solid var(--line); }
+  .doclist a { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s-4); align-items: center; padding: 0.9rem var(--s-5) 0.9rem var(--s-4); text-decoration: none; color: var(--ink); transition: background-color var(--t-fast); }
+  .doclist a:hover { background: var(--orange-50); }
+  .doclist__icon { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: var(--r-sm); background: var(--orange-100); color: var(--orange-700); }
+  .doclist__icon :global(.icon) { width: 1.15rem; height: 1.15rem; }
+  .doclist__label { font-weight: 500; line-height: 1.45; }
+  .doclist a:hover .doclist__label { color: var(--orange-800); }
+  .doclist__meta { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-mute); white-space: nowrap; }
+  .doclist__meta :global(.icon) { width: 1rem; height: 1rem; transition: transform var(--t-fast); }
+  .doclist a:hover .doclist__meta :global(.icon) { transform: translate(2px, -2px); color: var(--orange-600); }
+  @media (max-width: 520px) { .doclist__meta { display: none; } .doclist a { grid-template-columns: auto minmax(0, 1fr); padding-right: var(--s-4); } }
+
+  .linktable { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+  .linktable th { padding: var(--s-3) var(--s-5); background: var(--cream); text-align: left; font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); border-bottom: 1px solid var(--line); }
+  .linktable td { padding: var(--s-3) var(--s-5); vertical-align: top; border-top: 1px solid var(--line); width: 50%; }
+  .linktable tr:first-child td { border-top: 0; }
+  .linktable ul { display: grid; gap: var(--s-2); margin: 0; padding: 0; list-style: none; }
+  .linktable a { display: inline-flex; gap: 0.5rem; align-items: flex-start; font-size: 0.95rem; color: var(--ink); text-decoration: none; line-height: 1.45; }
+  .linktable a:hover { color: var(--orange-700); text-decoration: underline; }
+  .linktable a :global(.icon) { flex: none; width: 1rem; height: 1rem; margin-top: 0.2rem; color: var(--orange-600); }
+  .linktable__empty { color: var(--ink-mute); }
+  @media (max-width: 680px) {
+    .linktable thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .linktable tr { display: grid; border-top: 1px solid var(--line); padding: var(--s-3) var(--s-4); }
+    .linktable tr:first-child { border-top: 0; }
+    .linktable td { display: grid; gap: var(--s-2); width: auto; padding: var(--s-2) 0; border: 0; }
+    .linktable td::before { content: attr(data-label); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); }
+  }
+
+  .embed { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--white); overflow: hidden; }
+  .embed summary { display: flex; align-items: center; gap: 0.6rem; min-height: 52px; padding: 0 var(--s-5); font-weight: 600; color: var(--ink-deep); cursor: pointer; list-style: none; }
+  .embed summary::-webkit-details-marker { display: none; }
+  .embed summary :global(.icon) { color: var(--orange-600); }
+  .embed summary :global(.embed__chev) { margin-left: auto; color: var(--ink-soft); transition: transform var(--t-base); }
+  .embed[open] summary :global(.embed__chev) { transform: rotate(180deg); }
+  .embed iframe { width: 100%; height: min(80vh, 52rem); border: 0; border-top: 1px solid var(--line); }
+  .embed .link-arrow { margin: var(--s-4) var(--s-5); }
+
+  .doc-empty { display: flex; align-items: center; gap: var(--s-4); padding: var(--s-6); border: 1px dashed var(--line-strong); border-radius: var(--r-md); color: var(--ink-soft); }
+  .doc-empty :global(.icon) { width: 1.75rem; height: 1.75rem; color: var(--ink-mute); }
+</style>

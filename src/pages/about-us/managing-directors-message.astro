@@ -1,0 +1,81 @@
+---
+import { Image } from 'astro:assets';
+import AboutLayout from '@/layouts/AboutLayout.astro';
+import Icon from '@/components/Icon.astro';
+import portrait from '@/assets/team/md-portrait.png';
+import { mdMessage as m } from '@/data/about';
+---
+
+<AboutLayout title="Managing Director’s Message" lead={m.subtitle} description={m.lede}>
+  <section class="section">
+    <div class="container md">
+      <aside class="md__aside" data-reveal>
+        <div class="md__portrait">
+          <Image src={portrait} alt="Rakesh Dommati, Managing Director, Retina Paints Limited" widths={[320, 520]} sizes="(max-width: 960px) 60vw, 26vw" />
+          <div class="md__stat"><strong>{m.stat.value}</strong><span>{m.stat.label}</span></div>
+        </div>
+        <p class="md__sign"><strong>{m.name}</strong><span>{m.role}</span></p>
+      </aside>
+
+      <article class="md__body">
+        <header class="md__head" data-reveal>
+          <h2 class="t-h2">{m.title}</h2>
+          <p class="t-lead">{m.lede}</p>
+        </header>
+        <div class="prose md__prose" data-reveal>
+          <p>{m.opening}</p>
+          <h3>{m.approachTitle}</h3>
+          <p><strong>{m.approachIntro}</strong></p>
+        </div>
+        <ul role="list" class="md__approach" data-reveal>
+          {m.approach.map(([t, d]) => (
+            <li><Icon name="check" /><span><strong>{t}:</strong> {d}</span></li>
+          ))}
+        </ul>
+        <div class="md__sections">
+          {m.sections.map((s) => (
+            <section class="md__section" data-reveal>
+              <h3 class="t-h4">{s.title}</h3>
+              {s.body.map((b) => <p>{b}</p>)}
+            </section>
+          ))}
+        </div>
+        <footer class="md__foot" data-reveal>
+          <Icon name="quote" />
+          <p><strong>{m.name}</strong> — {m.role}</p>
+        </footer>
+      </article>
+    </div>
+  </section>
+</AboutLayout>
+
+<style>
+  .md { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(2rem, 1rem + 4vw, 6rem); align-items: start; }
+  .md__aside { position: sticky; top: calc(var(--header-h) + 5rem); display: grid; gap: var(--s-5); }
+  .md__portrait { position: relative; border-radius: 50%; background: var(--orange-100); padding: 6%; }
+  .md__portrait :global(img) { width: 100%; height: auto; border-radius: 50%; }
+  .md__stat { position: absolute; right: -0.5rem; bottom: 6%; display: grid; padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--orange-500); color: var(--ink-deep); box-shadow: var(--shadow-md); }
+  .md__stat strong { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+  .md__stat span { font-size: 0.8125rem; font-weight: 600; }
+  .md__sign { display: grid; text-align: center; }
+  .md__sign strong { font-family: var(--font-display); font-size: 1.25rem; color: var(--ink-deep); }
+  .md__sign span { color: var(--ink-soft); }
+  .md__body { display: grid; gap: var(--s-7); }
+  .md__head { display: grid; gap: var(--s-4); padding-bottom: var(--s-6); border-bottom: 1px solid var(--line); }
+  .md__prose { max-width: none; color: var(--ink-soft); }
+  .md__prose h3 { font-size: var(--fs-h3); color: var(--ink-deep); }
+  .md__approach { display: grid; gap: var(--s-3); margin: 0; padding: var(--s-5); list-style: none; border-radius: var(--r-lg); background: var(--cream); }
+  .md__approach li { display: flex; gap: var(--s-3); align-items: flex-start; color: var(--ink-soft); }
+  .md__approach strong { color: var(--ink-deep); }
+  .md__approach :global(.icon) { flex: none; width: 1.4rem; height: 1.4rem; padding: 0.2rem; border-radius: 50%; background: var(--orange-500); color: var(--ink-deep); margin-top: 0.1rem; }
+  .md__sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-6) var(--grid-gap); }
+  .md__section { display: grid; gap: var(--s-3); align-content: start; padding-top: var(--s-4); border-top: 2px solid var(--orange-500); color: var(--ink-soft); }
+  .md__foot { display: flex; align-items: center; gap: var(--s-3); padding-top: var(--s-5); border-top: 1px solid var(--line); color: var(--ink-soft); }
+  .md__foot :global(.icon) { width: 2rem; height: 2rem; color: var(--orange-500); }
+  .md__foot strong { color: var(--ink-deep); }
+  @media (max-width: 960px) {
+    .md { grid-template-columns: minmax(0, 1fr); }
+    .md__aside { position: static; max-width: 22rem; margin-inline: auto; }
+  }
+  @media (max-width: 640px) { .md__sections { grid-template-columns: minmax(0, 1fr); } }
+</style>

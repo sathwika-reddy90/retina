@@ -1,0 +1,104 @@
+---
+import Icon from './Icon.astro';
+const suggestions = [
+  { label: 'Exterior emulsions', q: 'exterior' },
+  { label: 'Waterproof primer', q: 'waterproof' },
+  { label: 'Warranty', q: 'warranty' },
+  { label: 'Annual report', q: 'annual report' },
+  { label: 'Careers', q: 'sales' },
+];
+---
+
+<dialog class="modal search" id="dialog-search" aria-label="Search Retina Paints">
+  <form class="search__bar" role="search" action="/" method="get" data-search-form>
+    <Icon name="search" />
+    <label for="site-search" class="sr-only">Search products, colours, investor documents and more</label>
+    <input
+      id="site-search"
+      name="s"
+      type="search"
+      placeholder="Type keyword and hit enter"
+      autocomplete="off"
+      spellcheck="false"
+      data-search-input
+      aria-controls="search-results"
+      aria-describedby="search-count"
+    />
+    <button type="button" class="search__close" data-close-dialog aria-label="Close search"><Icon name="close" /></button>
+  </form>
+  <div class="search__body">
+    <div class="search__suggest" data-search-suggest>
+      <p class="search__label">Popular searches</p>
+      <ul role="list" class="cluster">
+        {suggestions.map((s) => <li><button type="button" class="tag search__chip" data-search-term={s.q}>{s.label}</button></li>)}
+      </ul>
+    </div>
+    <p id="search-count" class="search__label" aria-live="polite" data-search-count></p>
+    <ul id="search-results" role="list" class="search__results" data-search-results></ul>
+  </div>
+</dialog>
+
+<style>
+  .search {
+    width: min(100% - 2rem, 46rem);
+    margin-top: min(12vh, 7rem);
+    max-height: min(80dvh, 44rem);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .search[open] { display: flex; }
+  .search__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-3) var(--s-3) var(--s-3) var(--s-5);
+    border-bottom: 1px solid var(--line);
+  }
+  .search__bar > :global(.icon) { color: var(--orange-600); width: 1.4rem; height: 1.4rem; }
+  .search__bar input {
+    flex: 1;
+    min-width: 0;
+    height: 3.25rem;
+    border: 0;
+    background: none;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--ink-deep);
+  }
+  .search__bar input:focus { outline: none; }
+  .search__bar input::-webkit-search-cancel-button { display: none; }
+  .search__close { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--cream); }
+  .search__body { overflow-y: auto; padding: var(--s-4) var(--s-5) var(--s-5); }
+  .search__label { font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: var(--s-3); }
+  .search__label:empty { display: none; }
+  .search__chip { cursor: pointer; }
+  .search__chip:hover { border-color: var(--orange-300); color: var(--orange-800); }
+  .search__suggest[hidden] { display: none; }
+  .search__results { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+  .search__results :global(a) {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+    gap: var(--s-3);
+    align-items: center;
+    padding: 0.7rem 0.75rem;
+    border-radius: var(--r-sm);
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .search__results :global(a:hover), .search__results :global(a:focus-visible) { background: var(--orange-50); }
+  .search__results :global(.sr-type) {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--r-sm);
+    background: var(--cream);
+    color: var(--orange-700);
+  }
+  .search__results :global(.sr-title) { display: block; font-weight: 600; color: var(--ink-deep); line-height: 1.35; }
+  .search__results :global(.sr-meta) { display: block; font-size: 0.8125rem; color: var(--ink-soft); }
+  .search__results :global(.sr-kind) { font-size: 0.75rem; font-weight: 600; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.06em; }
+  .search__results :global(mark) { background: var(--orange-100); color: inherit; border-radius: 3px; }
+</style>

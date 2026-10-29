@@ -1,0 +1,9 @@
+---
+import InvestorLayout from '@/layouts/InvestorLayout.astro';
+import InvestorContact from '@/components/InvestorContact.astro';
+import { investorContactPages } from '@/data/investors';
+---
+
+<InvestorLayout title="KMP Contact for Material Event Disclosure">
+  <InvestorContact paragraphs={investorContactPages.kmp.paragraphs} />
+</InvestorLayout>

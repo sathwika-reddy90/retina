@@ -1,0 +1,63 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import Visualizer from '@/components/Visualizer.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import Icon from '@/components/Icon.astro';
+import { shadeCount, rooms } from '@/data/colours';
+
+const total = shadeCount.toLocaleString('en-IN');
+---
+
+<BaseLayout
+  title="Colour Visualizer"
+  description={`Choose a room, explore ${total} Retina Paints shades and see your walls transform instantly — living room, bedroom, kids room, kitchen, dining, apartment and house.`}
+>
+  <section class="vz-page" aria-labelledby="vz-title">
+    <div class="container">
+      <Breadcrumbs items={[{ label: 'Colors' }]} />
+      <Visualizer variant="full" id="colour-viz">
+        <header class="vz-intro" slot="intro">
+          <p class="eyebrow">Colour Visualizer · {total} shades · {rooms.length} rooms</p>
+          <h1 class="t-h1" id="vz-title">See Your Space in a New Colour</h1>
+          <p class="t-lead">Choose a room, explore beautiful Retina shades, and see your walls transform instantly.</p>
+        </header>
+      </Visualizer>
+    </div>
+  </section>
+
+  <section class="section--sm section--cream tips" aria-labelledby="tips-title">
+    <div class="container tips__grid">
+      <h2 class="t-h3" id="tips-title">Choosing with confidence</h2>
+      <ul role="list" class="tips__list">
+        <li><Icon name="swatch" /><span><strong>Product Samples Available</strong> Experience colors and textures before making a decision.</span></li>
+        <li><Icon name="palette" /><span><strong>Colour Consultation Available</strong> Get expert guidance to choose the perfect shade.</span></li>
+        <li><Icon name="map-pin" /><span><strong>Visit a Retina store</strong> <a href="/find-a-store-near-you/">Locate your nearest Retina store</a> for top-quality paints and expert advice!</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .vz-page {
+    padding-block: clamp(1.25rem, 1rem + 1vw, 2rem) var(--section-y-sm);
+    background: linear-gradient(var(--cream), var(--white) 22rem);
+  }
+  .vz-page :global(.crumbs) { margin-bottom: var(--s-4); }
+  .vz-intro { display: grid; gap: var(--s-3); }
+  .vz-intro h1 { font-size: clamp(1.85rem, 1.5rem + 1.2vw, 2.5rem); }
+  .vz-intro .t-lead { max-width: 36rem; }
+
+  .tips__grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: var(--grid-gap); align-items: start; }
+  .tips__list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  .tips__list li { display: flex; gap: var(--s-3); font-size: 0.95rem; color: var(--ink-soft); }
+  .tips__list strong { display: block; color: var(--ink-deep); font-family: var(--font-display); margin-bottom: 0.2rem; }
+  .tips__list a { color: var(--orange-700); }
+  .tips__list :global(.icon) { flex: none; width: 1.5rem; height: 1.5rem; color: var(--orange-600); }
+  @media (max-width: 960px) {
+    .tips__grid { grid-template-columns: minmax(0, 1fr); }
+    .tips__list { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

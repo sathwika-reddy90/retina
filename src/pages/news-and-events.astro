@@ -1,0 +1,96 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import Icon from '@/components/Icon.astro';
+import { posts, announcements, blogTitle } from '@/data/news';
+import { docUrl } from '@/data/site';
+
+const fmt = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+const [lead, ...rest] = posts;
+---
+
+<BaseLayout title="News And Events" description="News, events and general announcements from Retina Paints Limited.">
+  <PageHeader eyebrow="News & Events" title="News And Events" lead={blogTitle} crumbs={[{ label: 'News And Events' }]} />
+
+  <section class="section">
+    <div class="container news">
+      <article class="feature" data-reveal>
+        <a href={`/${lead.slug}/`} class="feature__media" tabindex="-1" aria-hidden="true">
+          <Image src={lead.cover} alt="" widths={[640, 960, 1280]} sizes="(max-width: 960px) 100vw, 58vw" loading="eager" />
+        </a>
+        <div class="feature__body">
+          <p class="meta"><span class="cat">{lead.category}</span><time datetime={lead.date}>{fmt(lead.date)}</time></p>
+          <h2 class="t-h2"><a href={`/${lead.slug}/`}>{lead.title}</a></h2>
+          <p class="t-muted">{lead.excerpt}</p>
+          <a class="link-arrow" href={`/${lead.slug}/`}>Read More <Icon name="arrow-right" /><span class="sr-only">: {lead.title}</span></a>
+        </div>
+      </article>
+
+      {rest.map((p) => (
+        <article class="card" data-reveal>
+          <a href={`/${p.slug}/`} class="card__media" tabindex="-1" aria-hidden="true">
+            <Image src={p.cover} alt="" widths={[480, 720]} sizes="(max-width: 960px) 100vw, 40vw" />
+          </a>
+          <div class="card__body">
+            <p class="meta"><span class="cat">{p.category}</span><time datetime={p.date}>{fmt(p.date)}</time></p>
+            <h2 class="t-h3"><a href={`/${p.slug}/`}>{p.title}</a></h2>
+            <p class="t-muted">{p.excerpt}</p>
+            <a class="link-arrow" href={`/${p.slug}/`}>Read More <Icon name="arrow-right" /><span class="sr-only">: {p.title}</span></a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="section section--cream" id="announcements" aria-labelledby="ann-title">
+    <div class="container ann">
+      <div class="ann__head" data-reveal>
+        <p class="eyebrow">Announcements</p>
+        <h2 class="t-h2" id="ann-title">General announcements</h2>
+        <p class="t-muted">For statutory disclosures, see <a href="/investor-relations/announcements/">Investor Relations announcements</a>.</p>
+      </div>
+      <ul role="list" class="ann__list" data-reveal>
+        {announcements.map((a) => (
+          <li>
+            <a href={docUrl(a.href)} target="_blank" rel="noopener">
+              <span class="ann__icon"><Icon name="file-text" /></span>
+              <span>{a.label}</span>
+              <span class="ann__meta">PDF <Icon name="arrow-up-right" /></span>
+              <span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .news { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--grid-gap); align-items: start; }
+  .feature, .card { position: relative; display: grid; gap: var(--s-5); }
+  .feature__media, .card__media { display: block; overflow: hidden; border-radius: var(--r-lg); background: var(--sand); }
+  .feature__media { aspect-ratio: 16 / 10; }
+  .card__media { aspect-ratio: 3 / 2; }
+  .feature__media :global(img), .card__media :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform var(--t-slow) var(--ease-out); }
+  .feature:hover :global(img), .card:hover :global(img) { transform: scale(1.03); }
+  .feature__body, .card__body { display: grid; gap: var(--s-3); justify-items: start; }
+  .feature h2 a, .card h2 a { color: inherit; text-decoration: none; }
+  .feature h2 a:hover, .card h2 a:hover { color: var(--orange-700); }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); font-size: 0.875rem; color: var(--ink-soft); }
+  .cat { padding: 0.15rem 0.65rem; border-radius: var(--r-pill); background: var(--orange-100); color: var(--orange-800); font-weight: 600; font-size: 0.8125rem; }
+  @media (max-width: 960px) { .news { grid-template-columns: minmax(0, 1fr); gap: var(--s-9); } }
+
+  .ann { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: start; }
+  .ann__head { display: grid; gap: var(--s-4); }
+  .ann__head a { color: var(--orange-700); }
+  .ann__list { display: grid; margin: 0; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--white); overflow: hidden; }
+  .ann__list li + li { border-top: 1px solid var(--line); }
+  .ann__list a { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s-4); align-items: center; padding: 0.9rem var(--s-5) 0.9rem var(--s-4); color: var(--ink); text-decoration: none; font-weight: 500; }
+  .ann__list a:hover { background: var(--orange-50); color: var(--orange-800); }
+  .ann__icon { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: var(--r-sm); background: var(--orange-100); color: var(--orange-700); }
+  .ann__meta { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; color: var(--ink-mute); }
+  .ann__meta :global(.icon) { width: 1rem; height: 1rem; }
+  @media (max-width: 860px) { .ann { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 520px) { .ann__meta { display: none; } .ann__list a { grid-template-columns: auto minmax(0, 1fr); } }
+</style>

@@ -1,0 +1,66 @@
+---
+import Breadcrumbs from './Breadcrumbs.astro';
+interface Props {
+  title: string;
+  eyebrow?: string;
+  lead?: string;
+  crumbs: { label: string; href?: string }[];
+  align?: 'left' | 'split';
+  tone?: 'cream' | 'white' | 'peach';
+}
+const { title, eyebrow, lead, crumbs, align = 'left', tone = 'cream' } = Astro.props;
+const hasAside = Astro.slots.has('aside');
+---
+
+<header class:list={['phead', `phead--${tone}`, { 'phead--split': hasAside || align === 'split' }]}>
+  <div class="container phead__inner">
+    <div class="phead__main">
+      <Breadcrumbs items={crumbs} />
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h1 class="t-h1">{title}</h1>
+      {lead && <p class="t-lead phead__lead">{lead}</p>}
+      <slot />
+    </div>
+    {hasAside && <div class="phead__aside"><slot name="aside" /></div>}
+  </div>
+  <span class="phead__swatches" aria-hidden="true"><i></i><i></i><i></i></span>
+</header>
+
+<style>
+  .phead {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem) clamp(2.5rem, 1.75rem + 3vw, 4.5rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .phead--cream { background: var(--cream); }
+  .phead--white { background: var(--white); }
+  .phead--peach { background: var(--orange-100); }
+  .phead__inner { position: relative; z-index: 1; display: grid; gap: var(--s-7); align-items: end; }
+  .phead__main { display: grid; gap: var(--s-4); justify-items: start; max-width: 52rem; }
+  .phead__main :global(.crumbs) { margin-bottom: var(--s-3); }
+  .phead__lead { max-width: 42rem; }
+  .phead--split .phead__inner { grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 960px) {
+    .phead--split .phead__inner { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  }
+
+  /* A quiet signature: three paint-chip bars on the right edge. */
+  .phead__swatches {
+    position: absolute;
+    right: clamp(-2rem, -1rem + -2vw, 0rem);
+    top: 0;
+    bottom: 0;
+    display: flex;
+    gap: 6px;
+    transform: skewX(-12deg);
+    transform-origin: top right;
+    pointer-events: none;
+  }
+  .phead__swatches i { display: block; width: clamp(10px, 1vw, 16px); }
+  .phead__swatches i:nth-child(1) { background: var(--orange-200); }
+  .phead__swatches i:nth-child(2) { background: var(--orange-400); }
+  .phead__swatches i:nth-child(3) { background: var(--orange-500); }
+  .phead--split .phead__swatches { display: none; }
+  @media (max-width: 720px) { .phead__swatches { display: none; } }
+</style>

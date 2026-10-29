@@ -1,0 +1,74 @@
+---
+import { Image } from 'astro:assets';
+import AboutLayout from '@/layouts/AboutLayout.astro';
+import Icon from '@/components/Icon.astro';
+import officeBuilding from '@/assets/imagery/office-building.jpg';
+import { companyProfile } from '@/data/about';
+import { docUrl } from '@/data/site';
+
+const [lead, ...rest] = companyProfile.paragraphs;
+---
+
+<AboutLayout
+  title="Company Profile"
+  lead="Retina Paints Limited — incorporated in 2010, ISO 9001:2015 certified, and a Public Limited Company since 2022."
+  description="Company profile of Retina Paints Limited: incorporation, certifications, manufacturing, CIN, registered office and registrar & transfer agents."
+>
+  <section class="section">
+    <div class="container profile">
+      <div class="profile__body">
+        <p class="profile__lead" data-reveal>{lead}</p>
+        <div class="prose profile__text" data-reveal>
+          {rest.map((p) => <p>{p}</p>)}
+        </div>
+        <ul role="list" class="profile__highlights" data-reveal>
+          <li><Icon name="certificate" /><span>ISO 9001:2015 certified company</span></li>
+          <li><Icon name="badge-check" /><span>Logo registered with the Trademarks Act, 1999</span></li>
+          <li><Icon name="factory" /><span>Own Land and Building at Rayaraopet near Ghatkesar, Hyderabad</span></li>
+        </ul>
+      </div>
+
+      <aside class="facts" data-reveal>
+        <Image src={officeBuilding} alt="Retina Paints Limited building with company signage" widths={[400, 640]} sizes="(max-width: 960px) 100vw, 30vw" class="facts__img" />
+        <dl>
+          {companyProfile.facts.map((f) => (
+            <div>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <div class="facts__doc">
+          <p class="facts__doc-title">MOA and AOA</p>
+          <a class="btn btn--secondary btn--sm" href={docUrl(companyProfile.moa.href)} target="_blank" rel="noopener">
+            <Icon name="file-text" /> {companyProfile.moa.label}<span class="sr-only"> (PDF, opens in a new tab)</span>
+          </a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</AboutLayout>
+
+<style>
+  .profile { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(2rem, 1rem + 4vw, 6rem); align-items: start; }
+  .profile__body { display: grid; gap: var(--s-7); }
+  .profile__lead { font-family: var(--font-display); font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.85rem); font-weight: 500; line-height: 1.4; letter-spacing: -0.015em; color: var(--ink-deep); }
+  .profile__text { color: var(--ink-soft); }
+  .profile__highlights { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: var(--s-6) 0 0; list-style: none; border-top: 1px solid var(--line); }
+  .profile__highlights li { display: grid; gap: var(--s-3); font-size: 0.95rem; color: var(--ink); }
+  .profile__highlights :global(.icon) { width: 1.75rem; height: 1.75rem; color: var(--orange-600); }
+  .facts { position: sticky; top: calc(var(--header-h) + 5rem); display: grid; gap: var(--s-5); padding: var(--s-5); border-radius: var(--r-xl); background: var(--cream); border: 1px solid var(--line); }
+  .facts :global(.facts__img) { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--r-lg); }
+  .facts dl { display: grid; margin: 0; }
+  .facts dl div { display: grid; gap: 0.2rem; padding: var(--s-4) 0; border-top: 1px solid var(--line-strong); }
+  .facts dl div:first-child { border-top: 0; padding-top: 0; }
+  .facts dt { font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .facts dd { margin: 0; font-size: 0.95rem; color: var(--ink-deep); overflow-wrap: anywhere; }
+  .facts__doc { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); padding-top: var(--s-4); border-top: 1px solid var(--line-strong); }
+  .facts__doc-title { font-family: var(--font-display); font-weight: 700; color: var(--ink-deep); }
+  @media (max-width: 960px) {
+    .profile { grid-template-columns: minmax(0, 1fr); }
+    .facts { position: static; }
+  }
+  @media (max-width: 640px) { .profile__highlights { grid-template-columns: minmax(0, 1fr); } }
+</style>

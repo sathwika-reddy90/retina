@@ -1,0 +1,91 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import Icon from '@/components/Icon.astro';
+import { investorNav, emails } from '@/data/site';
+import { LODR_HEADING } from '@/data/investors';
+
+interface Props {
+  title: string;
+  lead?: string;
+  description?: string;
+  parent?: { label: string; href: string };
+}
+const { title, lead, description, parent } = Astro.props;
+const path = Astro.url.pathname;
+// Company Profile etc. live in the About section; keep them in the investor menu as on the live site.
+const groups = investorNav;
+const crumbs = [
+  { label: 'Investor Relations', href: '/investor-relations/' },
+  ...(parent ? [parent] : []),
+  { label: title },
+];
+---
+
+<BaseLayout title={`${title} — Investor Relations`} description={description ?? lead ?? `${title} — investor information for Retina Paints Limited.`}>
+  <PageHeader eyebrow="Investor Relations" title={title} lead={lead} crumbs={crumbs} />
+  <div class="section ir">
+    <div class="container ir__grid">
+      <aside class="ir__side">
+        <details class="ir__menu" open data-ir-menu>
+          <summary><Icon name="grid" /> Investor menu <Icon name="chevron-down" class="ir__chev" /></summary>
+          <nav aria-label="Investor Relations">
+            <p class="ir__lodr">{LODR_HEADING}</p>
+            {groups.map((g) => (
+              <div class="ir__group">
+                <p class="ir__group-title">{g.href ? <a href={g.href} aria-current={path === g.href ? 'page' : undefined}>{g.title}</a> : g.title}</p>
+                <ul role="list">
+                  {g.links.map((l) => <li><a href={l.href} aria-current={path === l.href ? 'page' : undefined}>{l.label}</a></li>)}
+                </ul>
+              </div>
+            ))}
+          </nav>
+        </details>
+        <div class="ir__contact">
+          <p>Investor queries</p>
+          <a href={`mailto:${emails.investors}`}><Icon name="mail" />{emails.investors}</a>
+        </div>
+      </aside>
+      <div class="ir__content">
+        <slot />
+      </div>
+    </div>
+  </div>
+  <Fragment slot="after"><slot name="after" /></Fragment>
+</BaseLayout>
+
+<script>
+  // Collapse the investor menu by default on small screens.
+  const menu = document.querySelector<HTMLDetailsElement>('[data-ir-menu]');
+  if (menu && window.matchMedia('(max-width: 960px)').matches) menu.open = false;
+</script>
+
+<style>
+  .ir__grid { display: grid; grid-template-columns: minmax(0, 3.4fr) minmax(0, 8.6fr); gap: clamp(2rem, 1rem + 3vw, 4.5rem); align-items: start; }
+  .ir__side { position: sticky; top: calc(var(--header-h) + 1.5rem); display: grid; gap: var(--s-5); max-height: calc(100dvh - var(--header-h) - 3rem); overflow-y: auto; scrollbar-width: thin; padding-right: 4px; }
+  .ir__menu summary { display: none; }
+  .ir__lodr { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--ink-deep); padding-bottom: var(--s-3); margin-bottom: var(--s-3); border-bottom: 1px solid var(--line); }
+  .ir__group + .ir__group { margin-top: var(--s-5); }
+  .ir__group-title { margin-bottom: var(--s-2); font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .ir__group-title a { color: inherit; text-decoration: none; }
+  .ir__group ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 1px; }
+  .ir__group li a { display: block; padding: 0.45rem 0.75rem; border-radius: var(--r-sm); font-size: 0.925rem; line-height: 1.4; color: var(--ink); text-decoration: none; border-left: 2px solid transparent; }
+  .ir__group li a:hover { background: var(--cream); }
+  .ir__group a[aria-current='page'] { background: var(--orange-50); color: var(--orange-800); font-weight: 600; border-left-color: var(--orange-500); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+  .ir__contact { display: grid; gap: var(--s-2); padding: var(--s-4); border-radius: var(--r-md); background: var(--cream); font-size: 0.875rem; color: var(--ink-soft); }
+  .ir__contact a { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--ink-deep); }
+  .ir__contact :global(.icon) { width: 1rem; height: 1rem; color: var(--orange-600); }
+  .ir__content { min-width: 0; }
+
+  @media (max-width: 960px) {
+    .ir__grid { grid-template-columns: minmax(0, 1fr); }
+    .ir__side { position: static; max-height: none; overflow: visible; }
+    .ir__menu { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--white); }
+    .ir__menu summary { display: flex; align-items: center; gap: 0.6rem; min-height: 52px; padding: 0 var(--s-4); font-family: var(--font-display); font-weight: 700; color: var(--ink-deep); list-style: none; cursor: pointer; }
+    .ir__menu summary::-webkit-details-marker { display: none; }
+    .ir__menu summary :global(.ir__chev) { margin-left: auto; transition: transform var(--t-base); }
+    .ir__menu[open] summary :global(.ir__chev) { transform: rotate(180deg); }
+    .ir__menu nav { padding: 0 var(--s-4) var(--s-4); }
+    .ir__contact { display: none; }
+  }
+</style>

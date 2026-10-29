@@ -1,0 +1,111 @@
+/*
+ * Retina Paints design tokens.
+ * Orange values are tuned to the logo orange (#F08020 sampled from the mark).
+ * --orange-500 is the brand orange for fills and accents; it is NOT used for
+ * small text on white. Text-weight orange uses --orange-700 (5.6:1 on white).
+ */
+:root {
+  /* Brand */
+  --orange-50: #fff8f2;
+  --orange-100: #fff0e7; /* soft peach */
+  --orange-200: #ffdcc4;
+  --orange-300: #fdbb8c;
+  --orange-400: #f89a4c;
+  --orange-500: #f28020; /* Retina orange */
+  --orange-600: #e06a12; /* hover / pressed */
+  --orange-700: #ad4c0a; /* accessible orange text */
+  --orange-800: #7c3608;
+  --leaf: #a0cc38; /* logo green — logo only */
+
+  /* Neutrals (warm) */
+  --white: #ffffff;
+  --paper: #fffefc; /* warm white */
+  --cream: #fbf7f2; /* alternate section background */
+  --sand: #f4ede5;
+  --line: #ede7e2; /* subtle borders */
+  --line-strong: #ddd3ca;
+  --ink: #242424; /* primary text */
+  --ink-deep: #1b1714; /* headings on light, text on orange */
+  --ink-soft: #68635f; /* secondary text */
+  --ink-mute: #756e68; /* ≥4.7:1 on white and cream */
+
+  /* Semantic */
+  --bg: var(--white);
+  --text: var(--ink);
+  --text-muted: var(--ink-soft);
+  --accent: var(--orange-500);
+  --accent-text: var(--orange-700);
+  --focus: #1b1714;
+  --success: #2f7d4f;
+  --danger: #b42318;
+
+  /* Typography */
+  --font-display: 'Manrope Variable', 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --fs-display: clamp(2.625rem, 1.55rem + 4.3vw, 4.75rem);  /* 42 → 76 */
+  --fs-h1: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);          /* 36 → 60 */
+  --fs-h2: clamp(1.875rem, 1.45rem + 1.7vw, 3rem);           /* 30 → 48 */
+  --fs-h3: clamp(1.25rem, 1.12rem + 0.5vw, 1.625rem);        /* 20 → 26 */
+  --fs-h4: clamp(1.0625rem, 1.02rem + 0.2vw, 1.1875rem);     /* 17 → 19 */
+  --fs-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);        /* 17 → 20 */
+  --fs-body: clamp(1rem, 0.98rem + 0.1vw, 1.0625rem);        /* 16 → 17 */
+  --fs-small: 0.9375rem;                                      /* 15 */
+  --fs-label: 0.8125rem;                                      /* 13 */
+
+  --lh-tight: 1.06;
+  --lh-heading: 1.15;
+  --lh-snug: 1.3;
+  --lh-body: 1.65;
+
+  --tracking-display: -0.035em;
+  --tracking-heading: -0.022em;
+  --tracking-snug: -0.012em;
+  --tracking-label: 0.12em;
+
+  /* Spacing — 8px rhythm (4px half-step for fine adjustments) */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 2.5rem;
+  --s-8: 3rem;
+  --s-9: 4rem;
+  --s-10: 5rem;
+  --s-11: 6rem;
+  --s-12: 8rem;
+
+  --section-y: clamp(4rem, 2.8rem + 5vw, 7.5rem);
+  --section-y-sm: clamp(3rem, 2.2rem + 3vw, 5rem);
+
+  /* Layout */
+  --container: 1320px;
+  --container-wide: 1440px;
+  --container-text: 720px;
+  --gutter: clamp(1rem, 0.4rem + 2.6vw, 2.5rem);
+  --grid-gap: clamp(1rem, 0.6rem + 1.6vw, 2rem);
+  --header-h: 76px;
+
+  /* Shape */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+  --r-pill: 999px;
+
+  /* Depth */
+  --shadow-xs: 0 1px 2px rgb(40 24 12 / 0.06);
+  --shadow-sm: 0 1px 2px rgb(40 24 12 / 0.05), 0 4px 12px -4px rgb(40 24 12 / 0.08);
+  --shadow-md: 0 2px 4px rgb(40 24 12 / 0.04), 0 18px 36px -18px rgb(60 32 12 / 0.22);
+  --shadow-lg: 0 4px 8px rgb(40 24 12 / 0.04), 0 36px 64px -28px rgb(60 32 12 / 0.32);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 160ms;
+  --t-base: 280ms;
+  --t-slow: 600ms;
+}

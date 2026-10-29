@@ -1,0 +1,36 @@
+---
+import AboutLayout from '@/layouts/AboutLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { visionMission } from '@/data/about';
+---
+
+<AboutLayout title="Vision & Mission" description="The Vision and Mission of Retina Paints Limited.">
+  <section class="section">
+    <div class="container vm">
+      <article class="vm__card vm__card--vision" data-reveal>
+        <span class="vm__icon"><Icon name="sun" /></span>
+        <h2 class="t-h2">Vision</h2>
+        <p>{visionMission.vision}</p>
+      </article>
+      <article class="vm__card vm__card--mission" data-reveal style="--reveal-delay: 100ms">
+        <span class="vm__icon"><Icon name="trending-up" /></span>
+        <h2 class="t-h2">Mission</h2>
+        <p>{visionMission.mission}</p>
+      </article>
+    </div>
+  </section>
+</AboutLayout>
+
+<style>
+  .vm { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap); }
+  .vm__card { position: relative; overflow: hidden; display: grid; gap: var(--s-5); align-content: start; padding: clamp(2rem, 1.5rem + 3vw, 4rem); border-radius: var(--r-xl); min-height: 22rem; }
+  .vm__card--vision { background: var(--orange-500); color: var(--ink-deep); }
+  .vm__card--mission { background: var(--cream); border: 1px solid var(--line); }
+  .vm__card p { font-family: var(--font-display); font-size: clamp(1.2rem, 1.05rem + 0.6vw, 1.6rem); font-weight: 500; line-height: 1.45; letter-spacing: -0.01em; max-width: 32rem; }
+  .vm__card--mission p { color: var(--ink-deep); }
+  .vm__icon { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border-radius: 50%; background: var(--white); color: var(--orange-700); }
+  .vm__icon :global(.icon) { width: 1.75rem; height: 1.75rem; }
+  .vm__card::after { content: ''; position: absolute; right: -5rem; bottom: -5rem; width: 16rem; aspect-ratio: 1; border-radius: 50%; border: 48px solid rgb(255 255 255 / 0.14); }
+  .vm__card--mission::after { border-color: var(--orange-100); }
+  @media (max-width: 860px) { .vm { grid-template-columns: minmax(0, 1fr); } .vm__card { min-height: 0; } }
+</style>

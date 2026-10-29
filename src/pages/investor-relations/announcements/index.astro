@@ -1,0 +1,41 @@
+---
+import InvestorLayout from '@/layouts/InvestorLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { investorNav } from '@/data/site';
+
+const group = investorNav.find((g) => g.title === 'Announcements')!;
+const blurbs: Record<string, string> = {
+  Board: 'Intimations and outcomes of Board meetings',
+  AGM: 'Annual General Meeting notices, reports and results',
+  EGM: 'Extra-Ordinary General Meeting documents',
+  'Postal Ballot': 'Postal ballot notices and results',
+  Others: 'Appointments, resignations and other disclosures',
+};
+---
+
+<InvestorLayout title="Announcements">
+  <ul role="list" class="ann-hub">
+    {group.links.map((l) => (
+      <li>
+        <a href={l.href}>
+          <span class="ann-hub__icon"><Icon name="file-text" /></span>
+          <span class="ann-hub__text"><strong>{l.label}</strong><span>{blurbs[l.label]}</span></span>
+          <Icon name="arrow-right" />
+        </a>
+      </li>
+    ))}
+  </ul>
+</InvestorLayout>
+
+<style>
+  .ann-hub { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); margin: 0; padding: 0; list-style: none; }
+  .ann-hub a { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s-4); align-items: center; padding: var(--s-5); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--white); color: var(--ink); text-decoration: none; transition: border-color var(--t-base), box-shadow var(--t-base); }
+  .ann-hub a:hover { border-color: var(--orange-300); box-shadow: var(--shadow-sm); }
+  .ann-hub__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: var(--r-sm); background: var(--orange-100); color: var(--orange-700); }
+  .ann-hub__text { display: grid; gap: 0.15rem; }
+  .ann-hub__text strong { font-family: var(--font-display); font-size: 1.125rem; color: var(--ink-deep); }
+  .ann-hub__text span { font-size: 0.875rem; color: var(--ink-soft); }
+  .ann-hub a > :global(.icon:last-child) { color: var(--orange-600); transition: transform var(--t-base); }
+  .ann-hub a:hover > :global(.icon:last-child) { transform: translateX(4px); }
+  @media (max-width: 680px) { .ann-hub { grid-template-columns: minmax(0, 1fr); } }
+</style>

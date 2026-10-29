@@ -1,0 +1,243 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import Icon from '@/components/Icon.astro';
+import VideoEmbed from '@/components/VideoEmbed.astro';
+import EnquiryForm from '@/components/EnquiryForm.astro';
+import storeInterior from '@/assets/imagery/store-interior.jpg';
+import storeIllustration from '@/assets/imagery/store-illustration.png';
+import { franchisePhone, emails } from '@/data/site';
+import { franchiseHero, storePromise, franchiseModels, successStories, growBusiness, franchiseFaqs, franchisePromo } from '@/data/franchise';
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: franchiseFaqs.items.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+---
+
+<BaseLayout title="Franchise" description={franchiseHero.lede} jsonLd={faqLd}>
+  <section class="fhero on-orange" aria-labelledby="fhero-title">
+    <div class="container fhero__grid">
+      <div class="fhero__copy">
+        <Breadcrumbs items={[{ label: 'Franchise' }]} />
+        <p class="eyebrow eyebrow--plain fhero__eyebrow">Franchise opportunity</p>
+        <h1 class="t-h1" id="fhero-title">{franchiseHero.title}</h1>
+        <p class="fhero__lede">{franchiseHero.lede}</p>
+        <div class="cluster">
+          <a class="btn btn--dark" href="#apply">Apply Now <Icon name="arrow-right" /></a>
+          <a class="btn btn--white" href={`tel:${franchisePhone}`}><Icon name="phone" /> Call us now: {franchisePhone}</a>
+        </div>
+        <dl class="fhero__stats">
+          {growBusiness.stats.map((s) => <div><dd>{s.value}</dd><dt>{s.label}</dt></div>)}
+        </dl>
+      </div>
+      <div class="fhero__media">
+        <Image src={storeIllustration} alt="Illustration of a Retina Paints exclusive showroom" widths={[480, 800, 1200]} sizes="(max-width: 960px) 100vw, 46vw" loading="eager" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section promise" aria-labelledby="promise-title">
+    <div class="container">
+      <div class="promise__head" data-reveal>
+        <div class="stack" style="--stack: var(--s-4)">
+          <p class="eyebrow">{storePromise.eyebrow}</p>
+          <h2 class="t-h2" id="promise-title">{storePromise.title}</h2>
+        </div>
+        <p class="t-lead">{storePromise.body}</p>
+      </div>
+      <ul role="list" class="promise__grid">
+        {storePromise.benefits.map((b, i) => (
+          <li data-reveal style={`--reveal-delay:${i * 50}ms`}>
+            <span class="promise__icon"><Icon name={b.icon} /></span>
+            <h3 class="t-h4">{b.title}</h3>
+            <p>{b.body}</p>
+          </li>
+        ))}
+        <li class="promise__video" data-reveal>
+          <VideoEmbed id={franchisePromo.youtubeId} title="Retina Paints franchise" />
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--cream models" aria-labelledby="models-title">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <p class="eyebrow">Franchise models</p>
+        <h2 class="t-h2" id="models-title">{franchiseModels.title}</h2>
+        <p class="t-lead">{franchiseModels.intro}</p>
+      </div>
+      <div class="models__grid">
+        {franchiseModels.models.map((m, i) => (
+          <article class:list={['model', { 'model--featured': i === 0 }]} data-reveal style={`--reveal-delay:${i * 90}ms`}>
+            <p class="model__kicker">{m.expansion}</p>
+            <h3 class="t-h3">{m.name}</h3>
+            {m.body.map((b) => <p class="model__body">{b}</p>)}
+            <ul role="list" class="model__points">
+              {m.points.map((pt) => <li><Icon name="check" /><span>{pt}</span></li>)}
+            </ul>
+            {m.footer && <p class="model__foot">{m.footer}</p>}
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section stories" aria-labelledby="stories-title">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <p class="eyebrow">Partner voices</p>
+        <h2 class="t-h2" id="stories-title">{successStories.title}</h2>
+        <p class="t-lead">{successStories.intro}</p>
+      </div>
+      <div class="stories__grid">
+        {successStories.stories.map((s) => (
+          <div data-reveal>
+            <VideoEmbed id={s.youtubeId} title={`Franchise success story: ${s.name}`} />
+            <p class="stories__name">{s.name}</p>
+            <p class="stories__place">{s.place}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section--sm grow" aria-labelledby="grow-title">
+    <div class="container">
+      <div class="grow__card" data-reveal>
+        <Image src={storeInterior} alt="Interior of a Retina Paints store" widths={[480, 800]} sizes="(max-width: 860px) 100vw, 40vw" class="grow__img" />
+        <div class="grow__copy">
+          <h2 class="t-h2" id="grow-title">{growBusiness.title}</h2>
+          <p>{growBusiness.body}</p>
+          <a class="btn" href="#apply">Become a Partner <Icon name="arrow-right" /></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section faq" aria-labelledby="faq-title">
+    <div class="container faq__grid">
+      <div class="faq__head" data-reveal>
+        <p class="eyebrow">FAQ</p>
+        <h2 class="t-h2" id="faq-title">{franchiseFaqs.title}</h2>
+        <p class="t-lead">{franchiseFaqs.intro}</p>
+        <p class="faq__contact"><Icon name="mail" /> <a href={`mailto:${emails.franchise}`}>{emails.franchise}</a></p>
+      </div>
+      <div class="faq__list">
+        {franchiseFaqs.items.map((f, i) => (
+          <details class="faq__item" open={i === 0}>
+            <summary><span>{f.q}</span><Icon name="plus" /></summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--cream apply" id="apply" aria-labelledby="apply-title">
+    <div class="container apply__grid">
+      <div class="apply__head">
+        <p class="eyebrow">Apply now</p>
+        <h2 class="t-h2" id="apply-title">Start Your Journey with Retina Paints!</h2>
+        <p class="t-lead">Fill out the form below to take the first step toward owning a successful franchise.</p>
+        <ul role="list" class="apply__contacts">
+          <li><Icon name="phone" /> <a href={`tel:${franchisePhone}`}>{franchisePhone}</a></li>
+          <li><Icon name="mail" /> <a href={`mailto:${emails.franchise}`}>{emails.franchise}</a></li>
+        </ul>
+      </div>
+      <div class="apply__form">
+        <EnquiryForm type="franchise" id="franchise-page-form" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .fhero { position: relative; overflow: hidden; background: var(--orange-500); color: var(--ink-deep); }
+  .fhero::before { content: ''; position: absolute; right: -12rem; top: -12rem; width: 36rem; aspect-ratio: 1; border-radius: 50%; border: 90px solid rgb(255 255 255 / 0.12); }
+  .fhero__grid { position: relative; display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: center; padding-block: clamp(2rem, 1.5rem + 2vw, 3rem) clamp(3rem, 2rem + 4vw, 6rem); }
+  .fhero__copy { display: grid; gap: var(--s-5); justify-items: start; }
+  .fhero__copy :global(.crumbs a), .fhero__copy :global(.crumbs li), .fhero__copy :global(.crumbs [aria-current]) { color: var(--ink-deep); }
+  .fhero__copy :global(.crumbs .icon) { color: rgb(27 23 20 / 0.6); }
+  .fhero__eyebrow { color: var(--ink-deep); }
+  .fhero__lede { font-size: var(--fs-lead); max-width: 34rem; color: rgb(27 23 20 / 0.85); }
+  .fhero :global(:focus-visible) { outline-color: var(--ink-deep); }
+  .fhero__stats { display: flex; gap: var(--s-8); margin: var(--s-3) 0 0; padding-top: var(--s-5); border-top: 1px solid rgb(27 23 20 / 0.2); }
+  .fhero__stats div { display: flex; flex-direction: column; }
+  .fhero__stats dd { margin: 0; font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .fhero__stats dt { font-size: 0.9rem; font-weight: 600; }
+  .fhero__media :global(img) { width: 100%; height: auto; filter: drop-shadow(0 30px 40px rgb(60 25 0 / 0.3)); }
+  @media (max-width: 960px) { .fhero__grid { grid-template-columns: minmax(0, 1fr); } }
+
+  .promise__head { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: var(--grid-gap); align-items: end; margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem); }
+  @media (max-width: 860px) { .promise__head { grid-template-columns: minmax(0, 1fr); } }
+  .promise__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  .promise__grid > li:not(.promise__video) { display: grid; gap: var(--s-3); align-content: start; padding: var(--s-5); border-top: 2px solid var(--orange-500); background: var(--cream); border-radius: 0 0 var(--r-md) var(--r-md); }
+  .promise__grid p { font-size: 0.95rem; color: var(--ink-soft); }
+  .promise__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%; background: var(--white); color: var(--orange-700); }
+  .promise__video { grid-column: span 1; align-self: stretch; display: grid; }
+  .promise__video :global(.video__frame) { height: 100%; aspect-ratio: auto; min-height: 12rem; }
+  @media (max-width: 1100px) { .promise__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .promise__video { grid-column: span 2; } .promise__video :global(.video__frame) { aspect-ratio: 16 / 9; } }
+  @media (max-width: 560px) { .promise__grid { grid-template-columns: minmax(0, 1fr); } .promise__video { grid-column: auto; } }
+
+  .models__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap); }
+  .model { display: grid; gap: var(--s-4); align-content: start; padding: clamp(1.5rem, 1rem + 2vw, 2.75rem); border-radius: var(--r-xl); background: var(--white); border: 1px solid var(--line); }
+  .model--featured { border-color: var(--orange-300); box-shadow: var(--shadow-md); }
+  .model__kicker { font-size: var(--fs-label); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--accent-text); }
+  .model__body { color: var(--ink-soft); }
+  .model__points { display: grid; gap: var(--s-3); margin: 0; padding: var(--s-4) 0 0; list-style: none; border-top: 1px solid var(--line); }
+  .model__points li { display: flex; gap: var(--s-3); align-items: flex-start; }
+  .model__points :global(.icon) { flex: none; width: 1.4rem; height: 1.4rem; padding: 0.2rem; border-radius: 50%; background: var(--orange-100); color: var(--orange-700); margin-top: 0.1rem; }
+  .model__foot { font-size: 0.95rem; color: var(--ink-soft); font-style: italic; }
+  @media (max-width: 860px) { .models__grid { grid-template-columns: minmax(0, 1fr); } }
+
+  .stories__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap); }
+  .stories__name { margin-top: var(--s-4); font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--ink-deep); }
+  .stories__place { font-size: 0.925rem; color: var(--ink-soft); }
+  @media (max-width: 760px) { .stories__grid { grid-template-columns: minmax(0, 1fr); } }
+
+  .grow__card { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(1.5rem, 1rem + 3vw, 4rem); align-items: center; padding: var(--s-5); border-radius: var(--r-xl); background: var(--orange-100); }
+  .grow__card :global(.grow__img) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--r-lg); }
+  .grow__copy { display: grid; gap: var(--s-4); justify-items: start; padding-right: var(--s-5); }
+  .grow__copy p { font-size: var(--fs-lead); color: var(--ink-soft); }
+  @media (max-width: 860px) { .grow__card { grid-template-columns: minmax(0, 1fr); } .grow__copy { padding: 0 var(--s-2) var(--s-3); } }
+
+  .faq__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: start; }
+  .faq__head { display: grid; gap: var(--s-4); position: sticky; top: calc(var(--header-h) + 2rem); }
+  .faq__contact { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .faq__contact a { color: var(--orange-700); font-weight: 600; }
+  .faq__contact :global(.icon) { color: var(--orange-600); }
+  .faq__list { border-top: 1px solid var(--line-strong); }
+  .faq__item { border-bottom: 1px solid var(--line-strong); }
+  .faq__item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    padding: var(--s-5) 0;
+    font-family: var(--font-display);
+    font-size: var(--fs-h4);
+    font-weight: 600;
+    color: var(--ink-deep);
+    list-style: none;
+    cursor: pointer;
+  }
+  .faq__item summary::-webkit-details-marker { display: none; }
+  .faq__item summary :global(.icon) { flex: none; width: 2rem; height: 2rem; padding: 0.4rem; border-radius: 50%; background: var(--cream); transition: transform var(--t-base) var(--ease-out), background-color var(--t-fast); }
+  .faq__item[open] summary :global(.icon) { transform: rotate(45deg); background: var(--orange-500); }
+  .faq__item p { padding: 0 var(--s-8) var(--s-5) 0; color: var(--ink-soft); }
+  @media (max-width: 860px) { .faq__grid { grid-template-columns: minmax(0, 1fr); } .faq__head { position: static; } .faq__item p { padding-right: 0; } }
+
+  .apply { scroll-margin-top: var(--header-h); }
+  .apply__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: start; }
+  .apply__head { display: grid; gap: var(--s-4); }
+  .apply__contacts { display: grid; gap: var(--s-2); margin: var(--s-3) 0 0; padding: 0; list-style: none; }
+  .apply__contacts li { display: flex; align-items: center; gap: 0.6rem; }
+  .apply__contacts a { color: var(--ink-deep); font-weight: 600; }
+  .apply__contacts :global(.icon) { color: var(--orange-600); }
+  .apply__form { padding: clamp(1.5rem, 1rem + 2vw, 2.5rem); border-radius: var(--r-xl); background: var(--white); border: 1px solid var(--line); box-shadow: var(--shadow-md); }
+  @media (max-width: 860px) { .apply__grid { grid-template-columns: minmax(0, 1fr); } }
+</style>

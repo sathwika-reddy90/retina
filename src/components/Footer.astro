@@ -1,0 +1,162 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import logo from '@/assets/brand/logo.png';
+import {
+  company,
+  corporateAddress,
+  emails,
+  phones,
+  social,
+  footerCompany,
+  footerProducts,
+  footerExplore,
+} from '@/data/site';
+
+const year = new Date().getFullYear();
+const tel = (p: string) => `tel:${p.replace(/-/g, '')}`;
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a href="/" aria-label="Retina Paints Limited — home">
+          <Image src={logo} alt="Retina Paints Limited" width={190} height={72} loading="lazy" />
+        </a>
+        <p>{company.footerAbout}</p>
+        <button type="button" class="btn btn--sm" data-open-dialog="dialog-franchise">
+          Join Us <Icon name="arrow-right" />
+        </button>
+      </div>
+
+      <nav class="footer__cols" aria-label="Footer">
+        <div>
+          <h2 class="footer__title">Company</h2>
+          <ul role="list">{footerCompany.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+        </div>
+        <div>
+          <h2 class="footer__title">Our Products</h2>
+          <ul role="list">{footerProducts.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+        </div>
+        <div>
+          <h2 class="footer__title">Explore</h2>
+          <ul role="list">{footerExplore.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+        </div>
+      </nav>
+
+      <address class="footer__contact">
+        <h2 class="footer__title">Get in Touch</h2>
+        <p class="footer__label">{corporateAddress.label}</p>
+        <p>{corporateAddress.lines.map((l) => <>{l}<br /></>)}</p>
+        <ul role="list" class="footer__channels">
+          <li><Icon name="mail" /><span><a href={`mailto:${emails.info}`}>{emails.info}</a></span></li>
+          <li><Icon name="briefcase" /><span><a href={`mailto:${emails.careers}`}>{emails.careers}</a></span></li>
+          <li><Icon name="store" /><span><a href={`mailto:${emails.franchise}`}>{emails.franchise}</a></span></li>
+          <li><Icon name="phone" /><span>{phones.map((p, i) => <>{i > 0 && ', '}<a href={tel(p)}>{p}</a></>)}</span></li>
+        </ul>
+      </address>
+    </div>
+
+    <div class="footer__bottom">
+      <p>Copyright © {year} Retina Paints Ltd. All Rights Reserved.</p>
+      <ul role="list" class="footer__social">
+        {social.map((s) => (
+          <li>
+            <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`Retina Paints on ${s.name} (opens in a new tab)`}>
+              <Icon name={s.icon} />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    background: var(--cream);
+    border-top: 1px solid var(--line);
+    padding-top: clamp(3.5rem, 2.5rem + 4vw, 6rem);
+    color: var(--ink);
+  }
+  .footer::before {
+    content: '';
+    position: absolute;
+    inset: -1px 0 auto;
+    height: 4px;
+    background: linear-gradient(90deg, var(--orange-500) 0 22%, var(--orange-300) 22% 30%, var(--orange-100) 30% 36%, transparent 36%);
+  }
+  .footer__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: clamp(2rem, 1rem + 3vw, 4rem);
+    padding-bottom: clamp(2.5rem, 2rem + 2vw, 4rem);
+  }
+  .footer__brand { display: grid; gap: var(--s-5); align-content: start; justify-items: start; }
+  .footer__brand :global(img) { height: 58px; width: auto; }
+  .footer__brand p { max-width: 24rem; font-size: 0.95rem; color: var(--ink-soft); }
+
+  .footer__cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-6); }
+  .footer__title {
+    margin-bottom: var(--s-4);
+    font-size: var(--fs-label);
+    font-weight: 700;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-deep);
+  }
+  .footer ul { margin: 0; padding: 0; list-style: none; }
+  .footer__cols li + li { margin-top: 0.55rem; }
+  .footer__cols a {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: color var(--t-fast);
+  }
+  .footer__cols a:hover { color: var(--orange-700); }
+
+  .footer__contact { font-style: normal; font-size: 0.95rem; color: var(--ink-soft); }
+  .footer__label { font-weight: 600; color: var(--ink-deep); margin-bottom: 0.35rem; }
+  .footer__channels { margin-top: var(--s-5) !important; display: grid; gap: 0.6rem; }
+  .footer__channels li { display: flex; gap: 0.6rem; align-items: flex-start; }
+  .footer__channels :global(.icon) { width: 1.05rem; height: 1.05rem; margin-top: 0.2rem; color: var(--orange-600); }
+  .footer__channels a { color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
+  .footer__channels a:hover { color: var(--orange-700); text-decoration: underline; }
+
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    padding-block: var(--s-5);
+    border-top: 1px solid var(--line-strong);
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+  }
+  .footer__social { display: flex; gap: var(--s-2); }
+  .footer__social a {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: var(--white);
+    color: var(--ink-deep);
+    transition: background-color var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  }
+  .footer__social a:hover { background: var(--orange-500); border-color: var(--orange-500); color: var(--ink-deep); }
+
+  @media (max-width: 1080px) {
+    .footer__top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .footer__cols { grid-column: 1 / -1; grid-row: 2; }
+  }
+  @media (max-width: 680px) {
+    .footer__top { grid-template-columns: minmax(0, 1fr); }
+    .footer__cols { grid-row: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .footer__cols > div:last-child { grid-column: 1 / -1; }
+  }
+</style>

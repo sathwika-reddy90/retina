@@ -1,0 +1,9 @@
+---
+import InvestorLayout from '@/layouts/InvestorLayout.astro';
+import InvestorContact from '@/components/InvestorContact.astro';
+import { investorContactPages } from '@/data/investors';
+---
+
+<InvestorLayout title="Contact Details for Grievance Redressal">
+  <InvestorContact paragraphs={investorContactPages.grievance.paragraphs} />
+</InvestorLayout>

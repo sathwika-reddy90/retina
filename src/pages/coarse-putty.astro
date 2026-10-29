@@ -1,0 +1,7 @@
+---
+// Coarse Putty lives at the site root on the live website (/coarse-putty/).
+import ProductDetail from '@/components/ProductDetail.astro';
+import { productBySlug } from '@/data/products';
+---
+
+<ProductDetail product={productBySlug('coarse-putty')!} />

@@ -1,0 +1,17 @@
+---
+import ProductDetail from '@/components/ProductDetail.astro';
+import { products } from '@/data/products';
+
+// Generates every product page whose live URL sits under /products/<group>/<slug>/.
+export function getStaticPaths() {
+  return products
+    .filter((p) => p.href?.startsWith('/products/'))
+    .map((p) => {
+      const [, , group, slug] = p.href!.split('/');
+      return { params: { group, slug }, props: { product: p } };
+    });
+}
+const { product } = Astro.props;
+---
+
+<ProductDetail product={product} />

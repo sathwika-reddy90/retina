@@ -1,0 +1,47 @@
+---
+import Icon from './Icon.astro';
+interface Props {
+  id: string;
+  title: string;
+  description?: string;
+  eyebrow?: string;
+  size?: 'md' | 'lg';
+}
+const { id, title, description, eyebrow, size = 'md' } = Astro.props;
+---
+
+<dialog class:list={['modal', `modal--${size}`]} id={id} aria-labelledby={`${id}-title`}>
+  <div class="modal__inner">
+    <button type="button" class="modal__close" data-close-dialog aria-label="Close">
+      <Icon name="close" />
+    </button>
+    <header class="modal__head">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h2 class="t-h3" id={`${id}-title`}>{title}</h2>
+      {description && <p class="t-muted">{description}</p>}
+    </header>
+    <slot />
+  </div>
+</dialog>
+
+<style>
+  .modal--lg { width: min(100% - 2rem, 52rem); }
+  .modal__inner { position: relative; padding: clamp(1.5rem, 1rem + 2vw, 2.5rem); }
+  .modal__head { display: grid; gap: var(--s-3); margin-bottom: var(--s-6); padding-right: var(--s-7); }
+  .modal__head h2 { font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.85rem); letter-spacing: var(--tracking-heading); }
+  .modal__close {
+    position: absolute;
+    top: var(--s-4);
+    right: var(--s-4);
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--ink-deep);
+    transition: background-color var(--t-fast), border-color var(--t-fast);
+  }
+  .modal__close:hover { background: var(--cream); border-color: var(--ink-deep); }
+</style>

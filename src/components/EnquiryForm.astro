@@ -1,0 +1,189 @@
+---
+// One component for the four enquiry flows on the live site. Field names match
+// the original WordPress forms (Forminator #4899, #4919, #4805 and Simple Job
+// Board) so submissions can be mapped straight back onto that backend.
+import Icon from './Icon.astro';
+import { emails, franchisePhone, phones } from '@/data/site';
+
+type FormType = 'franchise' | 'advice' | 'contact' | 'job';
+interface Props {
+  type: FormType;
+  id?: string;
+  jobTitle?: string;
+  jobId?: string | null;
+  compact?: boolean;
+}
+const { type, id = `form-${type}`, jobTitle, jobId, compact = false } = Astro.props;
+
+type Field = {
+  name: string;
+  label: string;
+  kind: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'file';
+  required?: boolean;
+  placeholder?: string;
+  autocomplete?: string;
+  options?: string[];
+  full?: boolean;
+  hint?: string;
+};
+
+const nameField = (label: string, name = 'name-1'): Field => ({ name, label, kind: 'text', required: true, placeholder: label, autocomplete: 'name' });
+
+const config: Record<FormType, { fields: Field[]; submit: string; to: string; subject: string }> = {
+  franchise: {
+    to: emails.franchise,
+    subject: 'Franchise enquiry',
+    submit: 'Become a Franchise Partner',
+    fields: [
+      nameField('Full Name'),
+      { name: 'phone-1', label: 'Contact Number', kind: 'tel', required: true, placeholder: 'Contact Number', autocomplete: 'tel' },
+      { name: 'email-1', label: 'Email Address', kind: 'email', required: true, placeholder: 'Email Address', autocomplete: 'email' },
+      { name: 'text-1', label: 'Location Preference', kind: 'text', placeholder: 'Location Preference', autocomplete: 'address-level2' },
+      { name: 'textarea-1', label: 'Message', kind: 'textarea', placeholder: 'Message', full: true },
+    ],
+  },
+  advice: {
+    to: emails.info,
+    subject: 'Request a callback — expert advice',
+    submit: 'Request a Callback',
+    fields: [
+      nameField('Name'),
+      { name: 'email-1', label: 'Email Address', kind: 'email', required: true, placeholder: 'Email Address', autocomplete: 'email' },
+      { name: 'phone-1', label: 'Phone Number', kind: 'tel', required: true, placeholder: 'Phone Number', autocomplete: 'tel' },
+      { name: 'select-1', label: 'Project Type', kind: 'select', required: true, options: ['Residential', 'Commercial', 'Industrial', 'Other'] },
+      { name: 'textarea-1', label: 'Message/Requirements', kind: 'textarea', placeholder: 'Requirements', full: true },
+    ],
+  },
+  contact: {
+    to: emails.info,
+    subject: 'Website enquiry',
+    submit: 'Send Message',
+    fields: [
+      nameField('Name'),
+      { name: 'email-1', label: 'Email Address', kind: 'email', required: true, placeholder: 'Email', autocomplete: 'email' },
+      { name: 'text-1', label: 'Subject', kind: 'text', required: true, placeholder: 'Subject', full: true },
+      { name: 'textarea-1', label: 'Message', kind: 'textarea', placeholder: 'Message', full: true },
+    ],
+  },
+  job: {
+    to: emails.careers,
+    subject: `Job application${jobTitle ? ` — ${jobTitle}` : ''}`,
+    submit: 'Submit',
+    fields: [
+      nameField('Name', 'jobapp_name'),
+      { name: 'jobapp_email', label: 'Email', kind: 'email', required: true, autocomplete: 'email' },
+      { name: 'jobapp_phone', label: 'Phone', kind: 'tel', required: true, autocomplete: 'tel', hint: 'A valid phone number is required.' },
+      { name: 'jobapp_cover_letter', label: 'Cover Letter', kind: 'textarea', required: true, full: true },
+      { name: 'applicant_resume', label: 'Attach Resume', kind: 'file', required: true, full: true, hint: 'PDF or Word document.' },
+    ],
+  },
+};
+
+const cfg = config[type];
+const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
+const fallbackPhone = type === 'franchise' ? franchisePhone : phones[0];
+---
+
+<form
+  class:list={['enquiry', { 'enquiry--compact': compact }]}
+  id={id}
+  method="post"
+  novalidate
+  data-enquiry={type}
+  data-endpoint={endpoint}
+  data-mailto={cfg.to}
+  data-subject={cfg.subject}
+  enctype={type === 'job' ? 'multipart/form-data' : undefined}
+>
+  <input type="hidden" name="form" value={type} />
+  {jobId && <input type="hidden" name="job_id" value={jobId} />}
+  {jobTitle && <input type="hidden" name="job_title" value={jobTitle} />}
+
+  <div class="enquiry__grid">
+    {cfg.fields.map((f) => {
+      const fid = `${id}-${f.name}`;
+      const describedBy = [f.hint ? `${fid}-hint` : null, `${fid}-error`].filter(Boolean).join(' ');
+      return (
+        <div class:list={['field', { 'field--full': f.full }]}>
+          <label for={fid}>
+            {f.label}
+            {f.required && <span class="req" aria-hidden="true"> *</span>}
+          </label>
+          {f.kind === 'textarea' ? (
+            <textarea id={fid} name={f.name} placeholder={f.placeholder} required={f.required} rows={4} aria-describedby={describedBy} />
+          ) : f.kind === 'select' ? (
+            <select id={fid} name={f.name} required={f.required} aria-describedby={describedBy}>
+              <option value="">{f.label}</option>
+              {f.options!.map((o) => <option value={o}>{o}</option>)}
+            </select>
+          ) : f.kind === 'file' ? (
+            <input id={fid} name={f.name} type="file" required={f.required} accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" aria-describedby={describedBy} />
+          ) : (
+            <input
+              id={fid}
+              name={f.name}
+              type={f.kind}
+              placeholder={f.placeholder}
+              required={f.required}
+              autocomplete={f.autocomplete}
+              inputmode={f.kind === 'tel' ? 'tel' : undefined}
+              pattern={f.kind === 'tel' ? '^[+]?[0-9 ()\\-]{10,16}$' : undefined}
+              aria-describedby={describedBy}
+            />
+          )}
+          {f.hint && <p class="field__hint" id={`${fid}-hint`}>{f.hint}</p>}
+          <p class="field__error" id={`${fid}-error`} aria-live="polite"></p>
+        </div>
+      );
+    })}
+  </div>
+
+  <div class="enquiry__foot">
+    <button type="submit" class="btn">
+      <span data-label>{cfg.submit}</span>
+      <Icon name="arrow-right" />
+    </button>
+    <p class="enquiry__fine"><span aria-hidden="true">*</span> Required fields</p>
+  </div>
+
+  <div class="enquiry__status" role="status" tabindex="-1" hidden>
+    <Icon name="check-circle" />
+    <div>
+      <p class="enquiry__status-title" data-status-title>Thank you!</p>
+      <p data-status-text></p>
+      <p class="enquiry__status-alt">
+        Prefer to talk? Call <a href={`tel:${fallbackPhone.replace(/-/g, '')}`}>{fallbackPhone}</a> or email
+        <a href={`mailto:${cfg.to}`}>{cfg.to}</a>.
+      </p>
+    </div>
+  </div>
+</form>
+
+<style>
+  .enquiry { display: grid; gap: var(--s-5); }
+  .enquiry__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4) var(--s-4); }
+  .field--full { grid-column: 1 / -1; }
+  .enquiry--compact .enquiry__grid { grid-template-columns: minmax(0, 1fr); }
+  @media (max-width: 560px) { .enquiry__grid { grid-template-columns: minmax(0, 1fr); } }
+  .enquiry__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); }
+  .enquiry__fine { font-size: 0.8125rem; color: var(--ink-soft); }
+  .enquiry__fine span { color: var(--orange-700); }
+  .enquiry button[type='submit'][aria-busy='true'] { opacity: 0.7; pointer-events: none; }
+  .enquiry__status {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--s-3);
+    padding: var(--s-5);
+    border-radius: var(--r-md);
+    background: var(--orange-50);
+    border: 1px solid var(--orange-200);
+    font-size: 0.95rem;
+  }
+  .enquiry__status[hidden] { display: none; }
+  .enquiry__status[data-state='error'] { background: #fff4f2; border-color: #f5c2bb; }
+  .enquiry__status > :global(.icon) { width: 1.5rem; height: 1.5rem; color: var(--success); }
+  .enquiry__status[data-state='error'] > :global(.icon) { color: var(--danger); }
+  .enquiry__status-title { font-family: var(--font-display); font-weight: 700; color: var(--ink-deep); margin-bottom: 0.2rem; }
+  .enquiry__status-alt { margin-top: 0.5rem; color: var(--ink-soft); font-size: 0.875rem; }
+  .enquiry__status a { color: var(--orange-700); }
+</style>

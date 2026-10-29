@@ -1,0 +1,713 @@
+---
+// Interactive room painter. The room overlays have their walls cut out, so the
+// paint layer only ever shows on wall regions; per-room lighting maps
+// (scripts/generate-lightmaps.py) restore shadows and daylight on top of the paint.
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Icon from './Icon.astro';
+import { strips, families, familySwatch, rooms, findShade, DEFAULT_SHADE, shadeCount, type FamilyId } from '@/data/colours';
+
+interface Props {
+  variant?: 'compact' | 'full';
+  initialShade?: string;
+  initialRoom?: string;
+  id?: string;
+  headingLevel?: 'h2' | 'h3';
+}
+const { variant = 'compact', initialShade = DEFAULT_SHADE, initialRoom = 'living-room', id = 'viz', headingLevel = 'h2' } = Astro.props;
+const H = headingLevel;
+
+const maps = import.meta.glob<{ default: ImageMetadata }>('@/assets/rooms/light/*.png', { eager: true });
+const mapFor = (room: string, kind: 'shade' | 'light') =>
+  Object.entries(maps).find(([p]) => p.endsWith(`/${room}-${kind}.png`))?.[1].default;
+const ROOMS_WITHOUT_DAYLIGHT = new Set(['apartment', 'house']);
+
+const roomData = await Promise.all(
+  rooms.map(async (r) => {
+    const w = Math.min(1280, r.image.width);
+    const overlay = await getImage({ src: r.image, width: w, format: 'webp', quality: 80 });
+    const thumb = await getImage({ src: r.image, width: 240, format: 'webp', quality: 70 });
+    const shadeMap = mapFor(r.id === 'bed-room' ? 'bedroom' : r.id, 'shade');
+    const lightMap = ROOMS_WITHOUT_DAYLIGHT.has(r.id) ? undefined : mapFor(r.id === 'bed-room' ? 'bedroom' : r.id, 'light');
+    const shade = shadeMap ? await getImage({ src: shadeMap, width: w, format: 'webp', quality: 72 }) : undefined;
+    const light = lightMap ? await getImage({ src: lightMap, width: w, format: 'webp', quality: 72 }) : undefined;
+    return {
+      ...r,
+      src: overlay.src,
+      w: Number(overlay.attributes.width ?? w),
+      h: Number(overlay.attributes.height ?? Math.round((r.image.height * w) / r.image.width)),
+      thumb: thumb.src,
+      shade: shade?.src ?? '',
+      light: light?.src ?? '',
+    };
+  }),
+);
+const room = roomData.find((r) => r.id === initialRoom) ?? roomData[0];
+const shade = findShade(initialShade) ?? findShade(DEFAULT_SHADE)!;
+const initialFamily: FamilyId = shade.family;
+const familyCounts = Object.fromEntries(
+  families.map((f) => [f.id, strips.filter((s) => s.family === f.id).reduce((n, s) => n + s.shades.length, 0)]),
+);
+const visible = strips.filter((s) => s.family === initialFamily);
+const label = (s: { code: string; name?: string }) => (s.name ? `${s.name} · ${s.code}` : s.code);
+const ink = (hex: string) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? 'dark' : 'light';
+};
+---
+
+<div
+  class:list={['viz', `viz--${variant}`]}
+  id={id}
+  data-viz
+  data-variant={variant}
+  data-initial={shade.code}
+  data-total={shadeCount}
+>
+  <div class="viz__top">
+  {Astro.slots.has('intro') && <div class="viz__intro"><slot name="intro" /></div>}
+  <ol class="steps" aria-label="How the visualizer works" data-steps>
+    <li data-step="1" data-state="done">
+      <span class="steps__num" aria-hidden="true"><span>1</span><Icon name="check" /></span>
+      <span class="steps__text"><span class="sr-only">Step 1: </span>Choose a room</span>
+    </li>
+    <li data-step="2" data-state="current" aria-current="step">
+      <span class="steps__num" aria-hidden="true"><span>2</span><Icon name="check" /></span>
+      <span class="steps__text"><span class="sr-only">Step 2: </span>Pick a colour</span>
+    </li>
+    <li data-step="3" data-state="todo">
+      <span class="steps__num" aria-hidden="true"><span>3</span><Icon name="check" /></span>
+      <span class="steps__text"><span class="sr-only">Step 3: </span>See your walls transform</span>
+    </li>
+  </ol>
+  </div>
+
+  <div class="viz__grid">
+    <div class="viz__left">
+      <div class="block-head">
+        <p class="kicker"><span>01</span> Choose a room</p>
+        <p class="block-head__meta">{roomData.length} rooms</p>
+      </div>
+      <div class="rooms" role="radiogroup" aria-label="Room" data-rooms style={`--wall-a:${shade.hex}`}>
+        {roomData.map((r) => (
+          <button
+            type="button"
+            role="radio"
+            class="room"
+            aria-checked={r.id === room.id ? 'true' : 'false'}
+            tabindex={r.id === room.id ? 0 : -1}
+            data-room={r.id}
+            data-src={r.src}
+            data-shade={r.shade}
+            data-light={r.light}
+            data-w={r.w}
+            data-h={r.h}
+          >
+            <span class="room__thumb"><img src={r.thumb} alt="" width="120" height="80" loading="lazy" decoding="async" /></span>
+            <span class="room__label">{r.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <figure class="stage" data-stage style={`--wall-a:${shade.hex};--wall-b:${shade.hex};--split:50%`} aria-label="Room preview">
+        <div class="stage__frame">
+          <div class="stage__paint stage__paint--a" aria-hidden="true"></div>
+          <div class="stage__paint stage__paint--b" aria-hidden="true"></div>
+          {room.shade && <img class="stage__shade" src={room.shade} alt="" aria-hidden="true" width={room.w} height={room.h} data-layer="shade" decoding="async" loading={variant === 'full' ? 'eager' : 'lazy'} />}
+          <img class="stage__light" src={room.light || undefined} alt="" aria-hidden="true" width={room.w} height={room.h} data-layer="light" decoding="async" hidden={!room.light} loading={variant === 'full' ? 'eager' : 'lazy'} />
+          <img
+            class="stage__room"
+            src={room.src}
+            width={room.w}
+            height={room.h}
+            alt={`${room.label} with walls painted in ${label(shade)}`}
+            data-layer="room"
+            decoding="async"
+            loading={variant === 'full' ? 'eager' : 'lazy'}
+            fetchpriority={variant === 'full' ? 'high' : undefined}
+          />
+
+          <span class="stage__tag"><span class="stage__dot"></span>Your room preview</span>
+          <span class="stage__code" data-stage-code><span class="stage__code-chip"></span><span data-stage-code-text>{shade.code}</span></span>
+
+          <div class="stage__compare" aria-hidden="true">
+            <span class="stage__ab stage__ab--a">A · <span data-label-a>{shade.code}</span></span>
+            <span class="stage__ab stage__ab--b">B · <span data-label-b>{shade.code}</span></span>
+            <span class="stage__divider"><span class="stage__knob"><Icon name="chevron-left" /><Icon name="chevron-right" /></span></span>
+          </div>
+          <label class="sr-only" for={`${id}-split`}>Comparison divider position</label>
+          <input class="stage__range" id={`${id}-split`} type="range" min="0" max="100" value="50" data-split tabindex="-1" />
+
+          <p class="stage__hint" data-hint>
+            <span class="stage__hand"><Icon name="hand" /></span>
+            Tap any shade to paint your walls
+            <Icon name="arrow-right" class="stage__hint-arrow" />
+          </p>
+        </div>
+      </figure>
+
+      <div class="current" data-current>
+        <span class="current__chip" data-current-chip style={`background:${shade.hex}`}></span>
+        <div class="current__text">
+          <p class="current__label" data-current-label>Current wall colour</p>
+          <p class="current__name" aria-live="polite">
+            <strong data-current-name>{shade.name ?? shade.code}</strong><span data-current-code-sep hidden={!shade.name}> · </span><span data-current-code>{shade.name ? shade.code : ''}</span>
+          </p>
+          <p class="current__meta" data-current-rgb>RGB {shade.rgb.replaceAll(',', ', ')}</p>
+        </div>
+        <div class="current__compare" data-compare-summary hidden>
+          <span class="current__pair"><span class="current__mini" data-mini-a></span><strong>A</strong> <span data-mini-a-code></span></span>
+          <button type="button" class="current__swap" data-swap aria-label="Swap A and B"><Icon name="arrow-left" /><Icon name="arrow-right" /></button>
+          <span class="current__pair"><span class="current__mini" data-mini-b></span><strong>B</strong> <span data-mini-b-code></span></span>
+        </div>
+        <div class="current__actions">
+          <button type="button" class="act" data-compare aria-pressed="false"><Icon name="layers" /><span data-compare-label>Compare</span></button>
+          <button type="button" class="act" data-copy><Icon name="copy" /><span data-copy-label>Copy code</span></button>
+          <button type="button" class="act" data-reset><Icon name="refresh" /><span>Reset colour</span></button>
+        </div>
+      </div>
+      <p class="viz__note"><Icon name="info" /> On-screen colours are a preview and may differ from the paint on your wall. Please check a shade card or sample at your nearest Retina store before you buy.</p>
+    </div>
+
+    <div class="panel" data-panel>
+      <div class="panel__head">
+        <p class="kicker"><span>02</span> Pick a shade</p>
+        <H class="panel__title">Choose Your Wall Colour</H>
+        <p class="panel__lead">Select a colour family, then tap any shade to see it on your walls.</p>
+      </div>
+
+      <div class="search">
+        <label for={`${id}-search`} class="sr-only">Search shades by name or code</label>
+        <Icon name="search" />
+        <input id={`${id}-search`} type="search" placeholder="Search shades by name or code" autocomplete="off" spellcheck="false" data-search />
+        <button type="button" class="search__clear" data-clear hidden aria-label="Clear search"><Icon name="close" /></button>
+      </div>
+
+      <div class="families" role="radiogroup" aria-label="Colour family" data-families>
+        {families.map((f) => {
+          const fs = strips.filter((s) => s.family === f.id && s.shades.length >= 5);
+          const mid = fs[Math.floor(fs.length / 2)].shades;
+          const ring = `conic-gradient(${familySwatch(f.id)} 0 33%, ${mid[2].hex} 0 66%, ${mid[4].hex} 0)`;
+          return (
+            <button
+              type="button"
+              role="radio"
+              class="family"
+              aria-checked={f.id === initialFamily ? 'true' : 'false'}
+              tabindex={f.id === initialFamily ? 0 : -1}
+              data-family={f.id}
+            >
+              <span class="family__dot" style={`background:${ring}`}><Icon name="check" class="family__check" /></span>
+              <span class="family__name">{f.label}</span>
+              <span class="sr-only">, {familyCounts[f.id]} shades</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div class="deck-head">
+        <div class="tones" role="radiogroup" aria-label="Shade depth" data-tones>
+          {[['all', 'All'], ['light', 'Light'], ['medium', 'Medium'], ['dark', 'Dark']].map(([v, l], i) => (
+            <button type="button" role="radio" class="tone" aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-tone={v}>
+              {v !== 'all' && <span class:list={['tone__dot', `tone__dot--${v}`]}></span>}{l}
+            </button>
+          ))}
+        </div>
+        <p class="deck-head__count" aria-live="polite" data-count>{familyCounts[initialFamily]} shades available</p>
+      </div>
+
+      <div class="deck-wrap" data-deck-wrap>
+        <div class="deck" role="radiogroup" aria-label="Shades" data-deck>
+          {visible.map((s) => (
+            <div class="deck__row" role="presentation">
+              {s.shades.map((sh) => (
+                <button
+                  type="button"
+                  role="radio"
+                  class="swatch"
+                  style={`--c:${sh.hex}`}
+                  data-code={sh.code}
+                  data-ink={ink(sh.hex)}
+                  aria-checked={sh.code === shade.code ? 'true' : 'false'}
+                  tabindex={sh.code === shade.code ? 0 : -1}
+                  aria-label={`${sh.name ? `${sh.name}, ` : ''}${sh.code}`}
+                  title={sh.name ? `${sh.name} · ${sh.code}` : sh.code}
+                >
+                  <span class="swatch__code" aria-hidden="true">{sh.code}</span>
+                  <Icon name="check" class="swatch__check" />
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+        <p class="deck-more" data-more aria-hidden="true"><Icon name="chevron-down" /> Scroll for more shades</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { initVisualizers } from '@/scripts/visualizer';
+  initVisualizers();
+</script>
+
+<style>
+  .viz { --accent-ring: var(--orange-500); display: grid; gap: clamp(1.25rem, 1rem + 1vw, 2rem); }
+
+  /* ---------- Intro + steps ---------- */
+  .viz__top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--s-5) var(--s-8); }
+  .viz__intro { flex: 1 1 26rem; min-width: 0; }
+  .steps { display: flex; align-items: center; margin: 0; padding: 0; list-style: none; }
+  .steps li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0.9rem 0.45rem 0.45rem;
+    border-radius: var(--r-pill);
+    border: 1.5px solid transparent;
+    transition: border-color var(--t-base), background-color var(--t-base), box-shadow var(--t-base);
+  }
+  .steps li + li { margin-left: 2.25rem; }
+  .steps li + li::before {
+    content: '';
+    position: absolute;
+    right: calc(100% + 0.4rem);
+    top: 50%;
+    width: 1.45rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--line-strong);
+  }
+  .steps li[data-state='done'] + li::before { background: var(--ink-deep); }
+  .steps__num {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1.5px solid var(--line-strong);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    transition: all var(--t-base) var(--ease-out);
+  }
+  .steps__num :global(.icon) { position: absolute; width: 1rem; height: 1rem; opacity: 0; transform: scale(0.5); transition: all var(--t-base) var(--ease-out); stroke-width: 2.5; }
+  .steps__text { display: grid; line-height: 1.25; font-family: var(--font-display); font-weight: 650; font-size: 0.9rem; color: var(--ink-deep); white-space: nowrap; }
+  .steps__k { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); }
+  .steps li[data-state='current'] { border-color: var(--orange-500); background: var(--orange-50); box-shadow: 0 0 0 3px rgb(242 128 32 / 0.12); }
+  .steps li[data-state='current'] .steps__num { border-color: var(--orange-500); background: var(--orange-500); color: var(--ink-deep); }
+  .steps li[data-state='current'] .steps__k { color: var(--orange-700); }
+  .steps li[data-state='done'] .steps__num { border-color: var(--ink-deep); background: var(--ink-deep); color: var(--white); }
+  .steps li[data-state='done'] .steps__num > span { opacity: 0; }
+  .steps li[data-state='done'] .steps__num :global(.icon) { opacity: 1; transform: none; }
+  .steps li[data-state='todo'] .steps__text { color: var(--ink-soft); }
+
+  /* ---------- Layout ---------- */
+  .viz__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+    align-items: start;
+  }
+  .viz__left { display: grid; gap: var(--s-4); position: sticky; top: calc(var(--header-h) + 1rem); }
+  .block-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
+  .block-head__meta { font-size: 0.8125rem; color: var(--ink-soft); }
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-label);
+    font-weight: 700;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-deep);
+  }
+  .kicker span { color: var(--orange-700); }
+  .kicker span::after { content: ' —'; color: var(--ink-mute); }
+
+  /* ---------- Rooms ---------- */
+  .rooms { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--s-2); }
+  .room {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.35rem 0.35rem 0.5rem;
+    border: 1.5px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--white);
+    color: var(--ink-soft);
+    text-align: center;
+    transition: border-color var(--t-fast), background-color var(--t-fast), color var(--t-fast), transform var(--t-fast);
+  }
+  .room:hover { border-color: var(--ink-mute); color: var(--ink-deep); }
+  .room[aria-checked='true'] { border-color: var(--orange-500); background: var(--orange-50); color: var(--ink-deep); box-shadow: 0 0 0 1px var(--orange-500); }
+  .room__thumb { display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 6px; background: var(--wall-a); transition: background-color 500ms var(--ease-in-out); }
+  .room__thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .room__label { font-size: 0.75rem; font-weight: 650; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .room[aria-checked='true'] .room__label { font-weight: 750; }
+
+  /* ---------- Stage ---------- */
+  .stage { margin: 0; }
+  .stage__frame {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: var(--r-lg);
+    background: var(--sand);
+    box-shadow: var(--shadow-md);
+    isolation: isolate;
+  }
+  .stage__paint, .stage__shade, .stage__light, .stage__room { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .stage__shade, .stage__light, .stage__room { object-fit: cover; pointer-events: none; }
+  .stage__paint { transition: background-color 600ms var(--ease-in-out); }
+  .stage__paint--a { background: var(--wall-a); }
+  .stage__paint--b { background: var(--wall-b); clip-path: inset(0 0 0 var(--split)); visibility: hidden; }
+  .stage__shade { mix-blend-mode: multiply; }
+  .stage__light { mix-blend-mode: screen; }
+  .stage[data-loading] .stage__room { opacity: 0.6; transition: opacity var(--t-base); }
+
+  .stage__tag, .stage__code {
+    position: absolute;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--r-pill);
+    background: rgb(255 255 255 / 0.92);
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-xs);
+    font-family: var(--font-display);
+    color: var(--ink-deep);
+  }
+  .stage__tag { top: var(--s-4); left: var(--s-4); font-size: 0.6875rem; font-weight: 750; letter-spacing: 0.12em; text-transform: uppercase; }
+  .stage__dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--orange-500); box-shadow: 0 0 0 3px rgb(242 128 32 / 0.25); }
+  .stage__code { left: var(--s-4); bottom: var(--s-4); font-size: 0.85rem; font-weight: 750; padding-left: 0.4rem; }
+  .stage__code-chip { width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--wall-a); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); transition: background-color 600ms var(--ease-in-out); }
+
+  .stage__hint {
+    position: absolute;
+    z-index: 3;
+    right: var(--s-4);
+    bottom: var(--s-4);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.9rem 0.55rem 0.55rem;
+    border-radius: var(--r-pill);
+    background: var(--ink-deep);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 650;
+    box-shadow: 0 12px 28px -12px rgb(0 0 0 / 0.6);
+    transition: opacity var(--t-base), transform var(--t-base) var(--ease-out);
+  }
+  .stage__hand { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--orange-500); color: var(--ink-deep); }
+  .stage__hand :global(.icon) { width: 1.1rem; height: 1.1rem; }
+  .stage__hint :global(.stage__hint-arrow) { width: 1rem; height: 1rem; color: var(--orange-300); }
+  .viz[data-touched] .stage__hint { opacity: 0; transform: translateY(8px); pointer-events: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .stage__hand { animation: tap 1.4s var(--ease-out) 0.8s 3; }
+    .stage__hint :global(.stage__hint-arrow) { animation: nudge 1.4s var(--ease-out) 0.8s 3; }
+  }
+  @keyframes tap { 0%, 100% { transform: none; } 35% { transform: translateY(2px) scale(0.86); } 60% { transform: none; } }
+  @keyframes nudge { 0%, 100% { transform: none; } 40% { transform: translateX(4px); } }
+
+  /* Compare mode */
+  .stage__compare, .stage__range { display: none; }
+  .viz[data-compare] .stage__paint--b { visibility: visible; }
+  .viz[data-compare] .stage__compare { display: block; position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  .viz[data-compare] .stage__code, .viz[data-compare] .stage__hint, .viz[data-compare] .stage__tag { display: none; }
+  .stage__ab { position: absolute; top: var(--s-4); padding: 0.35rem 0.7rem; border-radius: var(--r-pill); background: var(--ink-deep); color: var(--white); font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; }
+  .stage__ab--a { left: var(--s-4); }
+  .stage__ab--b { right: var(--s-4); }
+  .stage__divider { position: absolute; top: 0; bottom: 0; left: var(--split); width: 3px; margin-left: -1.5px; background: var(--white); box-shadow: 0 0 12px rgb(0 0 0 / 0.35); }
+  .stage__knob { position: absolute; top: 50%; left: 50%; display: flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; margin: -1.375rem 0 0 -1.375rem; border-radius: 50%; background: var(--white); color: var(--ink-deep); box-shadow: var(--shadow-md); }
+  .stage__knob :global(.icon) { width: 0.9rem; height: 0.9rem; margin: 0 -2px; }
+  .viz[data-compare] .stage__range {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: ew-resize;
+    touch-action: pan-y;
+  }
+  .viz[data-compare] .stage__range:focus-visible + .stage__hint, .viz[data-compare] .stage__frame:has(.stage__range:focus-visible) .stage__knob { outline: 3px solid var(--orange-500); outline-offset: 2px; }
+
+  /* ---------- Current colour ---------- */
+  .current {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--s-4);
+    align-items: center;
+    padding: var(--s-3) var(--s-3) var(--s-3) var(--s-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--white);
+  }
+  .current__chip { width: 3.5rem; height: 3.5rem; border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08); transition: background-color 500ms var(--ease-in-out); }
+  .current__label { font-size: 0.6875rem; font-weight: 750; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange-700); }
+  .current__name { font-family: var(--font-display); font-size: 1.15rem; color: var(--ink-deep); line-height: 1.25; }
+  .current__name strong { font-weight: 750; }
+  .current__name [data-current-code] { font-weight: 600; color: var(--ink-soft); }
+  .current__meta { font-size: 0.8125rem; color: var(--ink-soft); }
+  .current__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.4rem; }
+  .act {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 40px;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-pill);
+    background: var(--white);
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 650;
+    color: var(--ink-deep);
+    white-space: nowrap;
+    transition: all var(--t-fast);
+  }
+  .act:hover { border-color: var(--ink-deep); }
+  .act[aria-pressed='true'] { background: var(--ink-deep); border-color: var(--ink-deep); color: var(--white); }
+  .act :global(.icon) { width: 1rem; height: 1rem; }
+  .current__compare { display: flex; align-items: center; gap: var(--s-3); font-size: 0.9rem; color: var(--ink-deep); }
+  .current__compare[hidden] { display: none; }
+  .viz[data-compare] .current__chip, .viz[data-compare] .current__text { display: none; }
+  .viz[data-compare] .current { grid-template-columns: minmax(0, 1fr) auto; }
+  .current__pair { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; white-space: nowrap; }
+  .current__pair strong { display: grid; place-items: center; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--ink-deep); color: var(--white); font-size: 0.7rem; }
+  .current__mini { width: 1.6rem; height: 1.6rem; border-radius: 6px; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); }
+  .current__swap { display: inline-flex; align-items: center; padding: 0.35rem 0.5rem; border: 1px solid var(--line-strong); border-radius: var(--r-pill); background: var(--white); }
+  .current__swap :global(.icon) { width: 0.85rem; height: 0.85rem; margin: 0 -1px; }
+  .viz__note { display: flex; gap: 0.5rem; font-size: 0.8125rem; line-height: 1.5; color: var(--ink-soft); }
+  .viz__note :global(.icon) { width: 1rem; height: 1rem; margin-top: 0.15rem; flex: none; color: var(--ink-mute); }
+
+  /* ---------- Panel ---------- */
+  .panel {
+    display: grid;
+    gap: var(--s-4);
+    padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+  }
+  .panel__head { display: grid; gap: 0.4rem; }
+  .panel__title { font-size: clamp(1.35rem, 1.2rem + 0.6vw, 1.65rem); letter-spacing: var(--tracking-heading); }
+  .panel__lead { font-size: 0.95rem; color: var(--ink-soft); }
+
+  .search { position: relative; }
+  .search > :global(.icon) { position: absolute; left: 0.95rem; top: 50%; transform: translateY(-50%); width: 1.1rem; height: 1.1rem; color: var(--ink-mute); pointer-events: none; }
+  .search input {
+    width: 100%;
+    min-height: 2.9rem;
+    padding: 0.6rem 2.75rem 0.6rem 2.6rem;
+    border: 1.5px solid var(--line-strong);
+    border-radius: var(--r-pill);
+    background: var(--cream);
+    font-size: 0.95rem;
+    color: var(--ink);
+    transition: border-color var(--t-fast), background-color var(--t-fast), box-shadow var(--t-fast);
+  }
+  .search input::-webkit-search-cancel-button { display: none; }
+  .search input:focus-visible { outline: none; background: var(--white); border-color: var(--orange-600); box-shadow: 0 0 0 4px rgb(242 128 32 / 0.18); }
+  .search__clear { position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border: 0; border-radius: 50%; background: var(--sand); color: var(--ink-deep); }
+  .search__clear[hidden] { display: none; }
+  .search__clear :global(.icon) { width: 0.95rem; height: 0.95rem; }
+
+  .families { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 0.25rem; }
+  .family {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 0.4rem;
+    padding: 0.45rem 0.1rem 0.4rem;
+    border: 0;
+    border-radius: var(--r-sm);
+    background: none;
+    color: var(--ink-soft);
+    text-align: center;
+    transition: background-color var(--t-fast), color var(--t-fast);
+  }
+  .family:hover { background: var(--cream); color: var(--ink-deep); }
+  .family__dot {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
+    transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-fast);
+  }
+  .family:hover .family__dot { transform: scale(1.08); }
+  .family__name { font-size: 0.6875rem; font-weight: 600; line-height: 1.2; }
+  .family :global(.family__check) { width: 1.1rem; height: 1.1rem; padding: 2px; border-radius: 50%; background: var(--white); color: var(--orange-700); stroke-width: 3; opacity: 0; transform: scale(0.5); transition: all var(--t-base) var(--ease-out); }
+  .family[aria-checked='true'] { color: var(--ink-deep); }
+  .family[aria-checked='true'] .family__dot { box-shadow: 0 0 0 2px var(--white), 0 0 0 4.5px var(--orange-500); }
+  .family[aria-checked='true'] .family__name { font-weight: 800; text-decoration: underline; text-decoration-color: var(--orange-500); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  .family[aria-checked='true'] :global(.family__check) { opacity: 1; transform: none; }
+  .family:focus-visible { outline: 2.5px solid var(--ink-deep); outline-offset: 0; }
+
+  .tones { display: inline-flex; padding: 3px; border-radius: var(--r-pill); background: var(--cream); border: 1px solid var(--line); }
+  .tone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 34px;
+    padding: 0.3rem 0.8rem;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: transparent;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: background-color var(--t-fast), color var(--t-fast);
+  }
+  .tone:hover { color: var(--ink-deep); }
+  .tone[aria-checked='true'] { background: var(--white); color: var(--ink-deep); box-shadow: var(--shadow-xs), 0 0 0 1px var(--line-strong); }
+  .tone__dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; border: 1px solid rgb(0 0 0 / 0.15); }
+  .tone__dot--light { background: #f1e7da; }
+  .tone__dot--medium { background: #c89a6e; }
+  .tone__dot--dark { background: #6a4630; }
+
+  .deck-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-3); padding-top: var(--s-3); border-top: 1px solid var(--line); }
+  .deck-head__count { font-family: var(--font-display); font-size: 0.875rem; font-weight: 700; color: var(--ink-deep); }
+
+  .deck-wrap { position: relative; }
+  .deck { display: grid; gap: 0.45rem; max-height: min(29rem, calc(100dvh - var(--header-h) - 22rem)); min-height: 15rem; overflow-y: auto; overscroll-behavior: contain; padding: 6px 6px 2.25rem 6px; margin: -6px; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+  .viz--compact .deck { max-height: 22rem; }
+  .deck :global(.deck__row) { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.45rem; }
+  .deck :global(.swatch) {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: var(--c);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.07);
+    cursor: pointer;
+    transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-fast);
+  }
+  .deck :global(.swatch:hover) { transform: translateY(-2px) scale(1.06); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.07), 0 8px 18px -8px rgb(0 0 0 / 0.45); z-index: 1; }
+  .deck :global(.swatch:focus-visible) { outline: 3px solid var(--ink-deep); outline-offset: 2px; z-index: 2; }
+  .deck :global(.swatch__code) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 3px;
+    font-family: var(--font-display);
+    font-size: 0.625rem;
+    font-weight: 750;
+    letter-spacing: 0.02em;
+    text-align: center;
+    opacity: 0;
+    transition: opacity var(--t-fast);
+  }
+  .deck :global(.swatch[data-ink='dark']) { color: var(--ink-deep); }
+  .deck :global(.swatch[data-ink='light']) { color: var(--white); }
+  .deck :global(.swatch:hover .swatch__code), .deck :global(.swatch:focus-visible .swatch__code), .deck :global(.swatch[aria-checked='true'] .swatch__code) { opacity: 1; }
+  .deck :global(.swatch .swatch__check) { width: 1.15rem; height: 1.15rem; stroke-width: 3; opacity: 0; transform: translateY(-4px) scale(0.6); transition: all var(--t-base) var(--ease-out); }
+  .deck :global(.swatch[aria-checked='true']) { box-shadow: 0 0 0 2px var(--white), 0 0 0 5px var(--accent-ring), 0 10px 22px -10px rgb(0 0 0 / 0.5); transform: scale(1.04); z-index: 2; }
+  .deck :global(.swatch[aria-checked='true'] .swatch__check) { opacity: 1; transform: translateY(-4px); }
+  .deck :global(.swatch[data-match]) { box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.07), 0 0 0 2px var(--white), 0 0 0 4px var(--orange-300); }
+  .deck :global(.swatch[data-match][aria-checked='true']) { box-shadow: 0 0 0 2px var(--white), 0 0 0 5px var(--accent-ring); }
+  .deck :global(.deck__empty) { padding: var(--s-6) var(--s-4); text-align: center; font-size: 0.9rem; color: var(--ink-soft); border: 1.5px dashed var(--line-strong); border-radius: var(--r-md); }
+  .deck-more {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.3rem;
+    height: 3.25rem;
+    padding-bottom: 0.35rem;
+    background: linear-gradient(rgb(255 255 255 / 0), var(--white) 70%);
+    font-size: 0.75rem;
+    font-weight: 650;
+    color: var(--ink-soft);
+    pointer-events: none;
+    transition: opacity var(--t-base);
+  }
+  .deck-more :global(.icon) { width: 0.9rem; height: 0.9rem; }
+  .deck-wrap[data-end] .deck-more { opacity: 0; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1100px) {
+    .deck :global(.swatch) { aspect-ratio: 1; }
+    .families { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 0.4rem; }
+    /* Horizontal scroller: always shows part of the next card, with a soft edge fade. */
+    .rooms {
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: clamp(5.75rem, calc((100% - 1.5rem) / 3.4), 7.5rem);
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      padding-right: 2.5rem;
+      -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+      mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+    }
+    .room { scroll-snap-align: start; }
+    .rooms::-webkit-scrollbar { display: none; }
+  }
+  @media (max-width: 960px) {
+    .viz__grid { grid-template-columns: minmax(0, 1fr); }
+    .viz__left { display: contents; }
+    .block-head { order: 1; }
+    .rooms { order: 2; }
+    .stage { order: 3; }
+    .current { order: 4; }
+    .viz__note { order: 6; }
+    .panel { order: 5; }
+    .stage__ab--a { left: var(--s-4); top: auto; bottom: var(--s-4); }
+    .stage__ab--b { top: auto; bottom: var(--s-4); }
+    .stage__tag { display: none; }
+    .families { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+    .deck { max-height: none; overflow: visible; padding-bottom: 6px; }
+    .deck-more { display: none; }
+  }
+  /* Keep the room in view while browsing shades on phones and tablets. */
+  @media (max-width: 960px) and (min-height: 600px) {
+    .stage { position: sticky; top: var(--header-h); z-index: 5; padding-block: 0.5rem; margin-block: -0.5rem; background: var(--viz-bg, var(--white)); }
+    .stage__frame { max-height: 40vh; aspect-ratio: auto; height: min(40vh, calc((100vw - 2 * var(--gutter)) / 1.5)); }
+  }
+  @media (max-width: 720px) {
+    .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 0.75rem; }
+    .steps li { flex-direction: column; align-items: flex-start; gap: 0.35rem; padding: 0.5rem 0.55rem; border-radius: var(--r-md); border-color: var(--line); background: var(--white); }
+    .steps li + li { margin-left: 0; }
+    .steps li + li::before { display: none; }
+    .steps__text { font-size: 0.78rem; white-space: normal; }
+    .steps__k { font-size: 0.625rem; }
+    .steps__num { width: 1.6rem; height: 1.6rem; font-size: 0.8rem; }
+  }
+  @media (max-width: 640px) {
+    .families { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 0.35rem; }
+    .current { grid-template-columns: auto minmax(0, 1fr); }
+    .current__actions { grid-column: 1 / -1; justify-content: flex-start; }
+    .viz[data-compare] .current { grid-template-columns: minmax(0, 1fr); }
+    .stage__hint { left: var(--s-3); right: var(--s-3); top: var(--s-3); bottom: auto; justify-content: center; font-size: 0.8125rem; }
+    .stage__hint :global(.stage__hint-arrow) { transform: rotate(90deg); animation: none; }
+    .stage__code { bottom: var(--s-3); left: var(--s-3); }
+    .deck :global(.deck__row) { gap: 0.35rem; }
+    .deck :global(.swatch) { aspect-ratio: auto; height: 2.75rem; }
+    .deck { gap: 0.35rem; }
+    .deck :global(.swatch__code) { font-size: 0.5625rem; }
+    .deck :global(.swatch:not([aria-checked='true']) .swatch__code) { display: none; }
+  }
+</style>

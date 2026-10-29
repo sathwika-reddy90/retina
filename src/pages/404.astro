@@ -1,0 +1,40 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+---
+
+<BaseLayout title="Page not found" noindex>
+  <section class="nf">
+    <div class="container nf__inner">
+      <div class="nf__chips" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <p class="eyebrow">Error 404</p>
+      <h1 class="t-h1">This wall is still unpainted.</h1>
+      <p class="t-lead">The page you’re looking for has moved or doesn’t exist. Try searching, or start from one of these.</p>
+      <div class="cluster">
+        <a class="btn" href="/">Back to home <Icon name="arrow-right" /></a>
+        <button type="button" class="btn btn--secondary" data-open-dialog="dialog-search"><Icon name="search" /> Search the site</button>
+      </div>
+      <ul role="list" class="nf__links">
+        <li><a href="/products/">Products</a></li>
+        <li><a href="/colors/">Colours</a></li>
+        <li><a href="/find-a-store-near-you/">Find a Store</a></li>
+        <li><a href="/investor-relations/">Investor Relations</a></li>
+        <li><a href="/contact-us/">Contact</a></li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf { padding-block: clamp(4rem, 3rem + 6vw, 9rem); background: var(--cream); }
+  .nf__inner { display: grid; gap: var(--s-5); justify-items: start; max-width: calc(46rem + var(--gutter) * 2); }
+  .nf__chips { display: flex; gap: 6px; }
+  .nf__chips i { width: 2.5rem; height: 3.5rem; border-radius: 6px; }
+  .nf__chips i:nth-child(1) { background: var(--orange-100); }
+  .nf__chips i:nth-child(2) { background: var(--orange-300); }
+  .nf__chips i:nth-child(3) { background: var(--orange-500); }
+  .nf__chips i:nth-child(4) { background: var(--white); border: 1.5px dashed var(--line-strong); }
+  .nf__links { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); margin: var(--s-4) 0 0; padding: var(--s-5) 0 0; list-style: none; border-top: 1px solid var(--line-strong); }
+  .nf__links a { font-weight: 600; color: var(--ink-deep); }
+  .nf__links a:hover { color: var(--orange-700); }
+</style>

@@ -1,0 +1,443 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import logo from '@/assets/brand/logo.png';
+import weatherExpert from '@/assets/products/weather-expert.png';
+import { aboutNav, productNav, investorNav, phones, emails } from '@/data/site';
+import { LODR_HEADING as LODR } from '@/data/investors';
+
+const path = Astro.url.pathname;
+const isActive = (prefixes: string[]) => prefixes.some((p) => path === p || path.startsWith(p));
+const productCols = [productNav.slice(0, 2), productNav.slice(2, 5), productNav.slice(5)];
+---
+
+<div class="utility" aria-label="Contact and quick links">
+  <div class="container utility__inner">
+    <p class="utility__note">
+      <Icon name="certificate" />
+      <span>ISO 9001:2015 certified · Listed on BSE SME Platform</span>
+    </p>
+    <ul class="utility__links" role="list">
+      <li><a href={`tel:${phones[0].replace(/-/g, '')}`}><Icon name="phone" />{phones[0]}</a></li>
+      <li><a href={`mailto:${emails.info}`}><Icon name="mail" />{emails.info}</a></li>
+      <li><a href="/find-a-store-near-you/"><Icon name="map-pin" />Find a Store</a></li>
+      <li><a href="/current-jobs/">Careers</a></li>
+      <li><a href="/investor-relations/">Investors</a></li>
+    </ul>
+  </div>
+</div>
+
+<header class="site-header" data-header>
+  <div class="container site-header__inner">
+    <a class="brand" href="/" aria-label="Retina Paints Limited — home">
+      <Image src={logo} alt="Retina Paints Limited" width={290} height={110} loading="eager" fetchpriority="high" />
+    </a>
+
+    <nav class="nav" aria-label="Main">
+      <ul class="nav__list" role="list">
+        <li class="nav__item" data-menu>
+          <button class="nav__link" type="button" aria-expanded="false" aria-controls="menu-about" data-current={isActive(['/about-us/']) ? '' : undefined}>
+            About <Icon name="chevron-down" class="nav__chev" />
+          </button>
+          <div class="menu menu--compact" id="menu-about">
+            <ul role="list" class="menu__links">
+              {aboutNav.map((l) => <li><a href={l.href} aria-current={path === l.href ? 'page' : undefined}>{l.label}</a></li>)}
+            </ul>
+          </div>
+        </li>
+
+        <li class="nav__item nav__item--mega" data-menu>
+          <button class="nav__link" type="button" aria-expanded="false" aria-controls="menu-products" data-current={isActive(['/products/', '/coarse-putty/']) ? '' : undefined}>
+            Products <Icon name="chevron-down" class="nav__chev" />
+          </button>
+          <div class="menu menu--mega" id="menu-products">
+            <div class="container mega">
+              <div class="mega__cols">
+                {productCols.map((col) => (
+                  <div class="mega__col">
+                    {col.map((g) => (
+                      <div class="mega__group">
+                        <a class="mega__title" href={g.href}>{g.title}</a>
+                        <ul role="list">
+                          {g.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <a class="mega__feature" href="/products/emulsion/whether-expert/">
+                <span class="mega__feature-media">
+                  <Image src={weatherExpert} alt="" width={180} height={188} />
+                </span>
+                <span class="mega__feature-body">
+                  <span class="tag tag--warranty"><Icon name="award" />8 Years Warranty</span>
+                  <span class="mega__feature-title">Weather Expert</span>
+                  <span class="mega__feature-text">Weather proof exterior emulsion with waterproof and anti-dust technology.</span>
+                  <span class="link-arrow">View product <Icon name="arrow-right" /></span>
+                </span>
+              </a>
+              <div class="mega__foot">
+                <a class="link-arrow" href="/products/">View all products <Icon name="arrow-right" /></a>
+                <button type="button" class="mega__advice" data-open-dialog="dialog-advice">
+                  <Icon name="sparkles" /> Need help choosing the right paint? <strong>Get expert advice</strong>
+                </button>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="nav__item"><a class="nav__link" href="/colors/" aria-current={path.startsWith('/colors/') ? 'page' : undefined}>Colours</a></li>
+
+        <li class="nav__item nav__item--mega" data-menu>
+          <button class="nav__link" type="button" aria-expanded="false" aria-controls="menu-investors" data-current={isActive(['/investor-relations/', '/elementor-3030/', '/egm/', '/postal-ballot/', '/iepf-related-matters/']) ? '' : undefined}>
+            Investors <Icon name="chevron-down" class="nav__chev" />
+          </button>
+          <div class="menu menu--mega" id="menu-investors">
+            <div class="container mega mega--investors">
+              <div class="mega__intro">
+                <p class="eyebrow">Investor Relations</p>
+                <p class="mega__intro-title">{LODR}</p>
+                <a class="link-arrow" href="/investor-relations/">Investor overview <Icon name="arrow-right" /></a>
+              </div>
+              <div class="mega__cols mega__cols--5">
+                {investorNav.map((g) => (
+                  <div class="mega__group">
+                    {g.href ? <a class="mega__title" href={g.href}>{g.title}</a> : <p class="mega__title">{g.title}</p>}
+                    <ul role="list">
+                      {g.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="nav__item"><a class="nav__link" href="/news-and-events/" aria-current={path.startsWith('/news-and-events/') ? 'page' : undefined}>News &amp; Events</a></li>
+        <li class="nav__item"><a class="nav__link" href="/contact-us/" aria-current={path.startsWith('/contact-us/') ? 'page' : undefined}>Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <button type="button" class="icon-btn" data-open-dialog="dialog-search" aria-label="Search the site">
+        <Icon name="search" />
+      </button>
+      <a class="btn btn--sm site-header__cta" href="/franchise/">Own a Franchise</a>
+      <button type="button" class="icon-btn site-header__menu" data-open-dialog="dialog-drawer" aria-label="Open menu">
+        <Icon name="menu" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog class="drawer" id="dialog-drawer" aria-label="Menu">
+  <div class="drawer__head">
+    <a href="/" aria-label="Retina Paints Limited — home">
+      <Image src={logo} alt="Retina Paints Limited" width={132} height={50} />
+    </a>
+    <button type="button" class="icon-btn" data-close-dialog aria-label="Close menu"><Icon name="close" /></button>
+  </div>
+  <nav class="drawer__nav" aria-label="Mobile">
+    <details>
+      <summary>About <Icon name="chevron-down" /></summary>
+      <ul role="list">{aboutNav.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+    </details>
+    <details>
+      <summary>Products <Icon name="chevron-down" /></summary>
+      <ul role="list">
+        <li><a href="/products/"><strong>All products</strong></a></li>
+        {productNav.map((g) => (
+          <li class="drawer__group">
+            <a href={g.href} class="drawer__group-title">{g.title}</a>
+            <ul role="list">{g.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+          </li>
+        ))}
+      </ul>
+    </details>
+    <a class="drawer__link" href="/colors/">Colours</a>
+    <details>
+      <summary>Investors <Icon name="chevron-down" /></summary>
+      <ul role="list">
+        <li><a href="/investor-relations/"><strong>Investor overview</strong></a></li>
+        {investorNav.map((g) => (
+          <li class="drawer__group">
+            <span class="drawer__group-title">{g.title}</span>
+            <ul role="list">{g.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+          </li>
+        ))}
+      </ul>
+    </details>
+    <a class="drawer__link" href="/news-and-events/">News &amp; Events</a>
+    <a class="drawer__link" href="/current-jobs/">Careers</a>
+    <a class="drawer__link" href="/find-a-store-near-you/">Find a Store</a>
+    <a class="drawer__link" href="/contact-us/">Contact</a>
+  </nav>
+  <div class="drawer__foot">
+    <a class="btn btn--block" href="/franchise/">Own a Franchise</a>
+    <a class="btn btn--secondary btn--block" href={`tel:${phones[0].replace(/-/g, '')}`}><Icon name="phone" /> {phones[0]}</a>
+  </div>
+</dialog>
+
+<style>
+  .utility {
+    background: var(--cream);
+    border-bottom: 1px solid var(--line);
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+  .utility__inner { display: flex; align-items: center; justify-content: space-between; gap: var(--s-5); min-height: 38px; }
+  .utility__note { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .utility__note :global(.icon) { width: 1rem; height: 1rem; color: var(--orange-600); }
+  .utility__links { display: flex; align-items: center; gap: var(--s-5); margin: 0; padding: 0; list-style: none; }
+  .utility__links a { display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; transition: color var(--t-fast); }
+  .utility__links a:hover { color: var(--ink-deep); }
+  .utility__links :global(.icon) { width: 0.95rem; height: 0.95rem; }
+  @media (max-width: 1180px) { .utility { display: none; } }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgb(255 255 255 / 0.94);
+    backdrop-filter: saturate(1.4) blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--t-base), box-shadow var(--t-base);
+  }
+  .site-header[data-scrolled] { border-bottom-color: var(--line); box-shadow: 0 8px 24px -20px rgb(40 24 12 / 0.4); }
+  .site-header__inner { display: flex; align-items: center; gap: var(--s-5); height: var(--header-h); }
+  .brand { flex: none; display: block; }
+  .brand :global(img) { width: auto; height: 54px; }
+
+  .nav { margin-inline: auto; }
+  .nav__list { display: flex; align-items: center; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+  .nav__item { position: relative; }
+  .nav__item--mega { position: static; }
+  .nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    height: 44px;
+    padding: 0 0.9rem;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: none;
+    font-family: var(--font-display);
+    font-size: 0.975rem;
+    font-weight: 600;
+    color: var(--ink-deep);
+    text-decoration: none;
+    transition: background-color var(--t-fast), color var(--t-fast);
+  }
+  .nav__link:hover, .nav__item[data-open] > .nav__link { background: var(--orange-50); color: var(--orange-800); }
+  .nav__link[aria-current='page'], .nav__link[data-current] { color: var(--orange-700); }
+  .nav__link[aria-current='page']::after, .nav__link[data-current]::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 5px;
+    height: 5px;
+    margin-left: -2.5px;
+    border-radius: 50%;
+    background: var(--orange-500);
+  }
+  .nav__link { position: relative; }
+  .nav__link :global(.nav__chev) { width: 1rem; height: 1rem; transition: transform var(--t-base) var(--ease-out); }
+  .nav__item[data-open] .nav__link :global(.nav__chev) { transform: rotate(180deg); }
+
+  .menu {
+    position: absolute;
+    top: 100%;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity var(--t-base) var(--ease-out), transform var(--t-base) var(--ease-out), visibility 0s linear var(--t-base);
+  }
+  .nav__item[data-open] .menu { visibility: visible; opacity: 1; transform: none; transition-delay: 0s; }
+  .menu--compact {
+    left: 0;
+    min-width: 17rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--white);
+    box-shadow: var(--shadow-md);
+  }
+  .menu__links { margin: 0; padding: 0; list-style: none; }
+  .menu__links a {
+    display: block;
+    padding: 0.65rem 0.9rem;
+    border-radius: var(--r-sm);
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .menu__links a:hover, .menu__links a[aria-current='page'] { background: var(--orange-50); color: var(--orange-800); }
+
+  .menu--mega {
+    left: 0;
+    right: 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--white);
+    box-shadow: 0 30px 50px -30px rgb(40 24 12 / 0.28);
+  }
+  .mega {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 21rem;
+    gap: var(--s-6) var(--s-8);
+    padding-block: var(--s-7) var(--s-6);
+  }
+  .mega__cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-6); }
+  .mega__col { display: grid; gap: var(--s-5); align-content: start; }
+  .mega__group ul { margin: 0.6rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.15rem; }
+  .mega__title {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: var(--fs-label);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    text-decoration: none;
+    margin: 0;
+  }
+  a.mega__title:hover { color: var(--orange-700); }
+  .mega__group li a {
+    display: inline-block;
+    padding: 0.3rem 0;
+    font-size: 0.975rem;
+    font-weight: 500;
+    color: var(--ink-deep);
+    text-decoration: none;
+    background-image: linear-gradient(var(--orange-500), var(--orange-500));
+    background-size: 0 1.5px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size var(--t-base) var(--ease-out), color var(--t-fast);
+  }
+  .mega__group li a:hover { background-size: 100% 1.5px; color: var(--orange-800); }
+
+  .mega__feature {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: var(--s-4);
+    align-items: center;
+    padding: var(--s-5);
+    border-radius: var(--r-lg);
+    background: var(--orange-100);
+    text-decoration: none;
+    color: inherit;
+    transition: background-color var(--t-base);
+  }
+  .mega__feature:hover { background: var(--orange-200); }
+  .mega__feature-media :global(img) { width: 100%; height: auto; filter: drop-shadow(0 16px 18px rgb(80 40 10 / 0.22)); transition: transform var(--t-slow) var(--ease-out); }
+  .mega__feature:hover .mega__feature-media :global(img) { transform: translateY(-4px) rotate(-2deg); }
+  .mega__feature-body { display: grid; gap: 0.5rem; justify-items: start; }
+  .mega__feature-title { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; color: var(--ink-deep); letter-spacing: -0.01em; }
+  .mega__feature-text { font-size: 0.875rem; line-height: 1.5; color: var(--ink-soft); }
+  .mega__foot {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-5);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--line);
+  }
+  .mega__advice {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 0;
+    background: none;
+    padding: 0.25rem 0;
+    font-size: 0.925rem;
+    color: var(--ink-soft);
+  }
+  .mega__advice strong { color: var(--orange-700); font-weight: 600; text-decoration: underline; text-underline-offset: 0.2em; }
+  .mega__advice :global(.icon) { color: var(--orange-600); }
+
+  .mega--investors { grid-template-columns: 15rem minmax(0, 1fr); }
+  .mega__intro { display: grid; gap: var(--s-3); align-content: start; padding-right: var(--s-5); border-right: 1px solid var(--line); }
+  .mega__intro-title { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; line-height: 1.35; color: var(--ink-deep); }
+  .mega__cols--5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .mega--investors .mega__group li a { font-size: 0.9rem; line-height: 1.4; }
+
+  .site-header__actions { display: flex; align-items: center; gap: var(--s-2); margin-left: auto; }
+  .nav + .site-header__actions { margin-left: 0; }
+  .icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--ink-deep);
+    transition: border-color var(--t-fast), background-color var(--t-fast);
+  }
+  .icon-btn:hover { border-color: var(--ink-deep); }
+  .site-header__menu { display: none; }
+
+  @media (max-width: 1180px) {
+    .nav { display: none; }
+    .site-header__menu { display: inline-grid; }
+    .site-header__actions { margin-left: auto; }
+  }
+  @media (max-width: 560px) {
+    :root { --header-h: 64px; }
+    .site-header__cta { display: none; }
+    .brand :global(img) { height: 44px; }
+  }
+
+  /* Drawer */
+  .drawer {
+    width: min(100%, 26rem);
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0 0 0 auto;
+    padding: 0;
+    border: 0;
+    background: var(--white);
+    color: var(--ink);
+    display: none;
+    flex-direction: column;
+  }
+  .drawer[open] { display: flex; }
+  .drawer::backdrop { background: rgb(27 23 20 / 0.45); backdrop-filter: blur(2px); }
+  @media (prefers-reduced-motion: no-preference) {
+    .drawer[open] { animation: drawer-in 360ms var(--ease-out); }
+  }
+  @keyframes drawer-in { from { transform: translateX(40px); opacity: 0; } }
+  .drawer__head { display: flex; align-items: center; justify-content: space-between; padding: var(--s-4) var(--s-5); border-bottom: 1px solid var(--line); }
+  .drawer__head :global(img) { height: 40px; width: auto; }
+  .drawer__nav { flex: 1; overflow-y: auto; padding: var(--s-3) var(--s-5); }
+  .drawer__nav summary, .drawer__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--ink-deep);
+    text-decoration: none;
+    list-style: none;
+    cursor: pointer;
+  }
+  .drawer__nav summary::-webkit-details-marker { display: none; }
+  .drawer__nav summary :global(.icon) { transition: transform var(--t-base); }
+  .drawer__nav details[open] summary :global(.icon) { transform: rotate(180deg); }
+  .drawer__nav details ul { margin: 0; padding: var(--s-2) 0 var(--s-4); list-style: none; }
+  .drawer__nav details li a { display: block; padding: 0.55rem 0; color: var(--ink); text-decoration: none; }
+  .drawer__group { padding-top: var(--s-2); }
+  .drawer__group-title { display: block; font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); text-decoration: none; padding: 0.4rem 0 0.1rem; }
+  .drawer__group ul { padding: 0 0 0 0.75rem !important; border-left: 2px solid var(--orange-100); }
+  .drawer__foot { display: grid; gap: var(--s-3); padding: var(--s-5); border-top: 1px solid var(--line); }
+</style>

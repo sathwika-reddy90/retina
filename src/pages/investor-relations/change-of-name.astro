@@ -1,0 +1,33 @@
+---
+import InvestorLayout from '@/layouts/InvestorLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { changeOfName } from '@/data/investors';
+---
+
+<InvestorLayout title="Change of Name">
+  <div class="con">
+    <div class="con__item">
+      <p class="con__label">Old Name</p>
+      <p class="con__name con__name--old">{changeOfName.oldName}</p>
+    </div>
+    <span class="con__arrow" aria-hidden="true"><Icon name="arrow-right" /></span>
+    <div class="con__item con__item--new">
+      <p class="con__label">New Name</p>
+      <p class="con__name">{changeOfName.newName}</p>
+    </div>
+    <p class="con__date"><Icon name="calendar" /> {changeOfName.effective}</p>
+  </div>
+</InvestorLayout>
+
+<style>
+  .con { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: var(--s-5); align-items: center; }
+  .con__item { display: grid; gap: var(--s-2); padding: var(--s-6); border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--cream); }
+  .con__item--new { background: var(--orange-100); border-color: var(--orange-200); }
+  .con__label { font-size: var(--fs-label); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-soft); }
+  .con__name { font-family: var(--font-display); font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.6rem); font-weight: 650; letter-spacing: -0.015em; color: var(--ink-deep); }
+  .con__name--old { color: var(--ink-soft); }
+  .con__arrow { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 50%; background: var(--orange-500); color: var(--ink-deep); }
+  .con__date { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--ink-deep); }
+  .con__date :global(.icon) { color: var(--orange-600); }
+  @media (max-width: 640px) { .con { grid-template-columns: minmax(0, 1fr); } .con__arrow { transform: rotate(90deg); justify-self: center; } }
+</style>

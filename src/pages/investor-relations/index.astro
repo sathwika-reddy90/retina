@@ -1,0 +1,87 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import Icon from '@/components/Icon.astro';
+import { investorNav, emails, company } from '@/data/site';
+import { LODR_HEADING, investorDocuments } from '@/data/investors';
+import { companyProfile } from '@/data/about';
+import { docUrl } from '@/data/site';
+
+const icons = ['building', 'users', 'trending-up', 'calendar', 'mail'];
+const latestAgm = (investorDocuments.agm ?? []).filter((b) => b.type === 'docs').slice(0, 4).at(-1);
+const rta = companyProfile.facts.find((f) => f.label.startsWith('Registrar'))!;
+---
+
+<BaseLayout title="Investor Relations" description="Investor information for Retina Paints Limited (BSE SME listed): board, committees, policies, financial results, shareholding pattern, announcements and investor contacts.">
+  <PageHeader
+    eyebrow="Investor Relations"
+    title="Investor Relations"
+    lead={LODR_HEADING}
+    crumbs={[{ label: 'Investor Relations' }]}
+  />
+
+  <section class="section">
+    <div class="container hub">
+      <ul role="list" class="hub__groups">
+        {investorNav.map((g, i) => (
+          <li class="group" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+            <span class="group__icon"><Icon name={icons[i]} /></span>
+            <h2 class="t-h4">{g.href ? <a href={g.href}>{g.title}</a> : g.title}</h2>
+            <ul role="list">
+              {g.links.map((l) => <li><a href={l.href}>{l.label}<Icon name="arrow-right" /></a></li>)}
+            </ul>
+          </li>
+        ))}
+      </ul>
+
+      <aside class="hub__facts" data-reveal>
+        <h2 class="hub__facts-title">Company information</h2>
+        <dl>
+          <div><dt>Company</dt><dd>{company.name}</dd></div>
+          <div><dt>CIN</dt><dd>{company.cin}</dd></div>
+          <div><dt>Listing</dt><dd>Equity shares listed on the BSE SME Platform on 3 May 2023</dd></div>
+          <div><dt>{rta.label}</dt><dd>{rta.value}</dd></div>
+          <div><dt>Investor e-mail</dt><dd><a href={`mailto:${emails.investors}`}>{emails.investors}</a></dd></div>
+        </dl>
+        {latestAgm && latestAgm.type === 'docs' && (
+          <div class="hub__latest">
+            <p class="hub__facts-title">Latest AGM documents</p>
+            <ul role="list">
+              {latestAgm.items.map((d) => (
+                <li><a href={docUrl(d.href)} target="_blank" rel="noopener"><Icon name="file-text" />{d.label}<span class="sr-only"> (PDF, opens in a new tab)</span></a></li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hub { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: var(--grid-gap); align-items: start; }
+  .hub__groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  .group { display: grid; gap: var(--s-3); align-content: start; padding: var(--s-6); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--white); }
+  .group__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: var(--r-sm); background: var(--orange-100); color: var(--orange-700); }
+  .group h2 a { color: inherit; text-decoration: none; }
+  .group h2 a:hover { color: var(--orange-700); }
+  .group ul { margin: 0; padding: 0; list-style: none; }
+  .group li + li { border-top: 1px solid var(--line); }
+  .group li a { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: 0.65rem 0; font-size: 0.95rem; color: var(--ink); text-decoration: none; }
+  .group li a:hover { color: var(--orange-700); }
+  .group li :global(.icon) { width: 1rem; height: 1rem; color: var(--ink-mute); transition: transform var(--t-fast); }
+  .group li a:hover :global(.icon) { transform: translateX(3px); color: var(--orange-600); }
+  .hub__facts { position: sticky; top: calc(var(--header-h) + 1.5rem); display: grid; gap: var(--s-5); padding: var(--s-6); border-radius: var(--r-lg); background: var(--cream); border: 1px solid var(--line); }
+  .hub__facts-title { font-size: var(--fs-label); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-deep); }
+  .hub__facts dl { display: grid; margin: 0; }
+  .hub__facts dl div { display: grid; gap: 0.2rem; padding: var(--s-3) 0; border-top: 1px solid var(--line-strong); }
+  .hub__facts dt { font-size: 0.8125rem; color: var(--ink-soft); }
+  .hub__facts dd { margin: 0; font-size: 0.925rem; font-weight: 500; color: var(--ink-deep); overflow-wrap: anywhere; }
+  .hub__facts dd a { color: var(--orange-700); }
+  .hub__latest ul { display: grid; gap: var(--s-2); margin: var(--s-3) 0 0; padding: 0; list-style: none; }
+  .hub__latest a { display: flex; gap: 0.5rem; font-size: 0.9rem; color: var(--ink); text-decoration: none; }
+  .hub__latest a:hover { color: var(--orange-700); text-decoration: underline; }
+  .hub__latest :global(.icon) { flex: none; width: 1rem; height: 1rem; margin-top: 0.2rem; color: var(--orange-600); }
+  @media (max-width: 1000px) { .hub { grid-template-columns: minmax(0, 1fr); } .hub__facts { position: static; } }
+  @media (max-width: 640px) { .hub__groups { grid-template-columns: minmax(0, 1fr); } }
+</style>

@@ -1,0 +1,45 @@
+---
+import InvestorLayout from '@/layouts/InvestorLayout.astro';
+import { committees } from '@/data/investors';
+---
+
+<InvestorLayout title="Composition Of Committees">
+  <div class="committees">
+    {committees.map((c) => (
+      <section class="committee" aria-labelledby={`c-${c.name.replace(/\W+/g, '-')}`}>
+        <h2 class="t-h4" id={`c-${c.name.replace(/\W+/g, '-')}`}>{c.name}</h2>
+        <div class="committee__table">
+          <table>
+            <thead><tr>{c.head.map((h) => <th scope="col">{h}</th>)}</tr></thead>
+            <tbody>
+              {c.rows.map((r) => (
+                <tr>
+                  {r.map((cell, i) => (i === 0 ? <th scope="row" data-label={c.head[i]}>{cell}</th> : <td data-label={c.head[i]}>{i === 1 ? <span class:list={['role', { 'role--chair': cell === 'Chairman' }]}>{cell}</span> : cell}</td>))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    ))}
+  </div>
+</InvestorLayout>
+
+<style>
+  .committees { display: grid; gap: var(--s-7); }
+  .committee { display: grid; gap: var(--s-3); }
+  .committee h2 { padding-bottom: var(--s-2); border-bottom: 2px solid var(--orange-500); justify-self: start; }
+  .committee__table { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+  .committee__table th, .committee__table td { padding: 0.85rem var(--s-5); text-align: left; border-top: 1px solid var(--line); font-size: 0.95rem; }
+  .committee__table thead th { border-top: 0; background: var(--cream); font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .committee__table tbody th { font-weight: 600; color: var(--ink-deep); }
+  .committee__table td { color: var(--ink-soft); }
+  .role { display: inline-block; padding: 0.15rem 0.6rem; border-radius: var(--r-pill); background: var(--cream); font-size: 0.8125rem; font-weight: 600; color: var(--ink-soft); }
+  .role--chair { background: var(--orange-100); color: var(--orange-800); }
+  @media (max-width: 640px) {
+    .committee__table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .committee__table tr { display: grid; padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); }
+    .committee__table tbody tr:first-child { border-top: 0; }
+    .committee__table th, .committee__table td { display: block; padding: 0.2rem 0; border: 0; }
+  }
+</style>

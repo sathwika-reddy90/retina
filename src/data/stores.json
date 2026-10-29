@@ -1,0 +1,419 @@
+{
+ "Telangana": {
+  "Bhadradri Kothagudem": [
+   {
+    "village": "Kothagudem",
+    "store": "3-2-1/2J1,Near Bypass Road, Vidyanagar, Kothagudem 507101",
+    "phone": "8977032663",
+    "storeCode": "RR005"
+   },
+   {
+    "village": "Bhadrachalam",
+    "store": "Badrachalam, Cherana Road, Beside LIC office, Korragula Gutta 507112",
+    "phone": "8712022107",
+    "storeCode": "RR006"
+   },
+   {
+    "village": "Palvancha",
+    "store": "Dhamapeta center, Palavancha, Badadri kothagudem Dist 507115",
+    "phone": "8712022110",
+    "storeCode": "RR007"
+   }
+  ],
+  "Hyderabad": [
+   {
+    "village": "Miyapur",
+    "store": "Plot No. 45, Main Road, Miyapur, Hyderabad - 500049",
+    "phone": "9876543210"
+   },
+   {
+    "village": "Kukatpally",
+    "store": "Shop No. 12, Kukatpally Housing Board, Hyderabad - 500072",
+    "phone": "9876543211"
+   },
+   {
+    "village": "Cherlapally",
+    "store": "Block#2, Ground Floor, Survey no 184& 185, 5th Phase, IDA Cherlapally, Hyd-500051",
+    "phone": "8977015951",
+    "storeCode": "RR002"
+   },
+   {
+    "village": "Peerzadiguda",
+    "store": "2-4-123/16/5, Swaroopnagar, Uppal, Hyderabad, Rangareddy, Peerzadiguda - 500039",
+    "phone": "9281088988",
+    "storeCode": "RF001"
+   },
+   {
+    "village": "Medipally",
+    "store": "PLOT NO 1266 PART, Sai Priya Nagar, CPRI ROAD, Medipally, Hyderabad, Telangana, 500098",
+    "phone": "9396541656",
+    "storeCode": "RF005"
+   },
+   {
+    "village": "Tatti annaram Village",
+    "store": "2-45/395/G1, Laxmi Ganapthi Colony, Tatti annaram Village, Nagole.",
+    "phone": "9676707605",
+    "storeCode": "RF007"
+   }
+  ],
+  "Jangaon": [
+   {
+    "village": "Palakurthi",
+    "store": "10-31, MADUR ROAD, Yogitha Kirana Store, Palakurthi, Jangaon, Telangana, 506252",
+    "phone": "9908470587",
+    "storeCode": "RF004"
+   }
+  ],
+  "Jagityal": [
+   {
+    "village": "Jagityal",
+    "store": "1-5-183/3, opp Bus Depot, Karimnagar Road, Jagityal 505327",
+    "phone": "8712022101",
+    "storeCode": "RR003"
+   },
+   {
+    "village": "Korutla",
+    "store": "5-3-134, Main Road, Opp Diamond restaurant, Korutla, Jagityal Dist, 505326",
+    "phone": "8712022102",
+    "storeCode": "RR004"
+   }
+  ],
+  "Kamareddy": [
+   {
+    "village": "Kamareddy",
+    "store": "H:no:-16-13, Vasavi Nagar, Opp:Bharat Gas Godown, Nizam Sagar Road, Kamareddy, Telangana-503111",
+    "phone": "8977041582",
+    "storeCode": "RR036"
+   },
+   {
+    "village": "Karimnagar",
+    "store": "H. No - 11-2-225/1, Suryanagar, Seetharampur, Karimnagar - 505001",
+    "phone": "8712022117",
+    "storeCode": "RR022"
+   },
+   {
+    "village": "Karimnagar",
+    "store": "H. No:- 6-6-908, Ambedkar nagar, karimnagar - 505001",
+    "phone": "8977041547",
+    "storeCode": "RR023"
+   },
+   {
+    "village": "Metpally",
+    "store": "H. No -2-117, Ayyappa Nagar, Metpally - 505325",
+    "phone": "8712022115",
+    "storeCode": "RR024"
+   },
+   {
+    "village": "Huzurabad",
+    "store": "Warangal Road, Bus Depot X-Road, Huzurabad, Opp Samrat Honda Showroom, Karimnagar - 505468",
+    "phone": "8977032663",
+    "storeCode": "RR013"
+   }
+  ],
+  "Karimnagar": [
+   {
+    "village": "Dharmaram",
+    "store": "H No. 9-44, Main Road, Ambedkar Chourastha, Near Hero Showroom, Dharmaram, Karimnagar. Telangana.505416",
+    "phone": "8977041615",
+    "storeCode": "RR048"
+   },
+   {
+    "village": "Karimnagar",
+    "store": "H. No - 7-2-1123, Vemulawada Road, Mankammathota, Karimnagar - 505001",
+    "phone": "8712022116",
+    "storeCode": "RR021"
+   },
+   {
+    "village": "Karimnagar",
+    "store": "H. No - 11-2-225/1, Suryanagar, Seetharampur, Karimnagar - 505001",
+    "phone": "8712022117",
+    "storeCode": "RR022"
+   },
+   {
+    "village": "Karimnagar",
+    "store": "H. No:- 6-6-908, Ambedkar nagar, karimnagar - 505001",
+    "phone": "8977041547",
+    "storeCode": "RR023"
+   },
+   {
+    "village": "Metpally",
+    "store": "H. No -2-117, Ayyappa Nagar, Metpally - 505325",
+    "phone": "8712022115",
+    "storeCode": "RR024"
+   },
+   {
+    "village": "Huzurabad",
+    "store": "Warangal Road, Bus Depot X-Road, Huzurabad, Opp Samrat Honda Showroom, Karimnagar - 505468",
+    "phone": "8977032663",
+    "storeCode": "RR013"
+   }
+  ],
+  "Khammam": [
+   {
+    "village": "Khanapuram",
+    "store": "15-19-1/1/C, Balaji Nagar, Yellandu Road, Khanapuram,",
+    "phone": "",
+    "storeCode": "RR001"
+   },
+   {
+    "village": "Khammam",
+    "store": "5-2-246/C/21, Musthafa Nagar, Bonakal Road, Khammam 507001",
+    "phone": "8712022103",
+    "storeCode": "RR017"
+   },
+   {
+    "village": "Khammam",
+    "store": "GROUND FLOOR, H NO 15-13-394/3, Khammam Bypass, Bank Colony, Khammam, Telangana, 507002",
+    "phone": "9948306867",
+    "storeCode": "RF006"
+   },
+   {
+    "village": "Madira",
+    "store": "H.No - 1-505/4, Bajara Colony, Beside Hero Showroom, Madhira, Khammam - 507203.",
+    "phone": "8977032663",
+    "storeCode": "RR015"
+   }
+  ],
+  "Medak": [
+   {
+    "village": "Medak",
+    "store": "1-10-73/a/2, Saraswati Nilayam, Auto Nagar Main Road, Medak, Telangana, India- 502 110",
+    "phone": "8977041609",
+    "storeCode": "RR049"
+   }
+  ],
+  "Nalgonda": [
+   {
+    "village": "Nalgonda",
+    "store": "6-2-1434, opposite SBI, Ramagiri Down, Nalgonda 508001",
+    "phone": "8712022113",
+    "storeCode": "RR008"
+   }
+  ],
+  "Nirmal": [
+   {
+    "village": "Nirmal",
+    "store": "H.No. 1-3-155/13/c, Opp Maremma Temple, AN Reddy Nagar, Nirmal – 504106",
+    "phone": "8712022108",
+    "storeCode": "RR012"
+   }
+  ],
+  "Nizamabad": [
+   {
+    "village": "Armoor",
+    "store": "Mahalakshmi Road, Opp HDFC bank, Main Road, Armoor, Nizamabad - 503224",
+    "phone": "8977032663",
+    "storeCode": "RR009"
+   },
+   {
+    "village": "Nizamabad",
+    "store": "Plot no 41,1-12-120/1B/1, Shop no 3&4, Ground Floor, Dr gandhi Soudam, Sri nagar colony, Vinayaka Nagar, Nizamabad - 503003",
+    "phone": "8712022109",
+    "storeCode": "RR014"
+   }
+  ],
+  "Mahabubabad": [
+   {
+    "village": "Thorrur",
+    "store": "16-104/03, Ramakrishna Theatre Lane, Beside IOCL Petrol Bunk, Main Road Thorrur - 506163",
+    "phone": "9640190768",
+    "storeCode": "RF003"
+   }
+  ],
+  "Peddapalli": [
+   {
+    "village": "Peddapalli",
+    "store": "H. No - 4-4-79/C, Sai Nagar,Peddapalli,Karimnagar - 505001",
+    "phone": "8712022112",
+    "storeCode": "RR020"
+   }
+  ],
+  "Rajanna Siricilla": [
+   {
+    "village": "Siricilla",
+    "store": "H.No: 3-1-39/1, Vasavicolony, Karimnagar Road, Rajanna Siricilla - 505301.",
+    "phone": "8977041385",
+    "storeCode": "RR029"
+   },
+   {
+    "village": "Vemulawada",
+    "store": "H.No:- 8-4-24/1/B, Sainagar, Vemulawada, Telangana - 505302",
+    "phone": "8977041491",
+    "storeCode": "RR042"
+   }
+  ],
+  "Suryapet": [
+   {
+    "village": "Huzurnagar",
+    "store": "1-97/1,Main road,Opp public club, Huzurnagar, Suryapet Dist 508204",
+    "phone": "8977032663",
+    "storeCode": "RR010"
+   },
+   {
+    "village": "Kodada",
+    "store": "4-96/A, NVL Complex, Main Road, Kodada, Kodada town, Nalgonda, Telangana – 508206",
+    "phone": "8712022104",
+    "storeCode": "RR011"
+   }
+  ],
+  "Warangal": [
+   {
+    "village": "Guduru",
+    "store": "11-109/1, Opp Union Bank, Village & Mandal Gudur 506104",
+    "phone": "8977041597",
+    "storeCode": "RR016"
+   },
+   {
+    "village": "Hanamkonda",
+    "store": "35-6-550, Gopalpur 100 feet road, Amaravathi Nagar, Hanamkonda, warangal, Telangana - 506009",
+    "phone": "8712022106",
+    "storeCode": "RR018"
+   },
+   {
+    "village": "Thimmapur (Haveli)",
+    "store": "33-6-550, Khila Warangal, Mandal Registration Office, Thimmapuram (haveli), Warangal - 506002",
+    "phone": "8977032486",
+    "storeCode": "RF002"
+   },
+   {
+    "village": "Narsampet",
+    "store": "Shop No - 18-266/11-9-C-3, Near Canara Bank, Nekkonda Road, Narsampet, Warangal,Telangana - 506132",
+    "phone": "8688162311",
+    "storeCode": "RF009"
+   }
+  ]
+ },
+ "Andhra Pradesh": {
+  "Annamayya": [
+   {
+    "village": "Rajampet",
+    "store": "H. No - 6-399/M (J), A.B.N.R.Colony, Revenue Ward No - 6, Rajampet, Andra Pradesh - 51611",
+    "phone": "8712022114",
+    "storeCode": "RR025"
+   }
+  ],
+  "Bapatla": [
+   {
+    "village": "Bapatla",
+    "store": "H.No:-4-2-31, GBC, Revenue Ward no 42, Bapatla, Andhra Pradesh - 522101",
+    "phone": "8977041483",
+    "storeCode": "RR035"
+   }
+  ],
+  "Guntur": [
+   {
+    "village": "Guntur",
+    "store": "24-2-46/D, Opp SBI Bank, Sai complex, Shop no 3,4,5, Patnam bazar, Guntur.",
+    "phone": "8125638125",
+    "storeCode": "RF008"
+   }
+  ],
+  "Kurnool": [
+   {
+    "village": "Kurnool",
+    "store": "Shop No - 3, 76/116-A-2, Ganesh Nagar, Revenue Ward No - 76, Dmart Road, Ballary Chourrastha, Kurnool, Andra Pradesh - 518003.",
+    "phone": "8712022121",
+    "storeCode": "RR026"
+   }
+  ],
+  "Nandyal": [
+   {
+    "village": "Nandyal",
+    "store": "H No.21/451-a1-d, Farooq Nagar, Revenue ward no 21, Opp Vishal Mart Balaji Complex, Nandyal, Andhra Pradesh-518501.",
+    "phone": "8977032663",
+    "storeCode": "RR046"
+   }
+  ],
+  "Nellore": [
+   {
+    "village": "Nellore",
+    "store": "BV nagar, near BJP office, Opp : near Sai Baba temple, mini by pass Road, Nellore, Andhra Pradesh-524004",
+    "phone": "8977041346",
+    "storeCode": "RR043"
+   }
+  ],
+  "Ongole": [
+   {
+    "village": "Ongole",
+    "store": "H.No:-7-310/4, Ramaiah colony , Revenue Ward no 34, Ongole, Andhra Pradesh-523001",
+    "phone": "8712022118",
+    "storeCode": "RR027"
+   }
+  ],
+  "Prakasam": [
+   {
+    "village": "Markapur",
+    "store": "7/690-691, Sai Baba Temple Road, Revenue Ward No 7, Markapur, Andhra Pradesh - 523316",
+    "phone": "8977041495",
+    "storeCode": "RR031"
+   },
+   {
+    "village": "Darshi",
+    "store": "H:no:-5-908, Kurichedu Road, Revenue Ward no 5, Darsi, Andhrapradesh - 523247",
+    "phone": "8977041467",
+    "storeCode": "RR039"
+   },
+   {
+    "village": "Giddaluru",
+    "store": "H.No - 19-2-25, C Club,Nandyal to ongole road,Revenue ward 4, Giddalur, Andhra Pradesh - 523357",
+    "phone": "8712022119",
+    "storeCode": "RR032"
+   },
+   {
+    "village": "Podili",
+    "store": "D.No - 15-36-3-4, Ongole - Kurnool Road, Chinna Bus Stand, Opp Venkateswara Ayyangaru Bekary, Podili, Prakasham - 523240.",
+    "phone": "8977041608",
+    "storeCode": "RR038"
+   }
+  ],
+  "Tirupati": [
+   {
+    "village": "Tirupati",
+    "store": "Hno:-23-3-39/1D/1, TTD plots, Revenue Ward no 23, Tirupathi, Andhra Pradesh - 517501",
+    "phone": "8977041591",
+    "storeCode": "RR040"
+   },
+   {
+    "village": "Vijayawada",
+    "store": "HIG DUPLEX - 388, HOUSING BOARD COLONY, BHAVANIPURAM VIJAYAWADA, NTR DISTRICT, ANDHRA PRADESH - 520012",
+    "phone": "8977041273",
+    "storeCode": "RR034"
+   }
+  ],
+  "Vijayawada": [
+   {
+    "village": "Vijayawada",
+    "store": "13-10-231,Sri Ramakrishna, Enterprises,Ayyappa Nagar, NH-65, Bandhar Raod, Opp Cinepolis Bulinding, NTD, Dist.Vijayawada.A.P. 520007",
+    "phone": "8712022105",
+    "storeCode": "RR019"
+   },
+   {
+    "village": "Vijayawada",
+    "store": "HIG DUPLEX - 388, HOUSING BOARD COLONY, BHAVANIPURAM VIJAYAWADA, NTR DISTRICT, ANDHRA PRADESH - 520012",
+    "phone": "8977041273",
+    "storeCode": "RR034"
+   }
+  ],
+  "YSR Kadapa": [
+   {
+    "village": "Proddatur",
+    "store": "2 town police station bypass road, Beside Manasa restaurant, auto Nagar, Proddatur, Andhra Pradesh - 516360",
+    "phone": "8977041352",
+    "storeCode": "RR030"
+   },
+   {
+    "village": "Kadapa",
+    "store": "42/1197-3-1, Mruthyunjayakunta, Revenue Ward no 42, Kadapa, Andhra Pradesh - 516001",
+    "phone": "8977041485",
+    "storeCode": "RR033"
+   }
+  ],
+  "Visakhapatnam": [
+   {
+    "village": "Visakhapatnam",
+    "store": "Door No. 10-2-3, Beach Road, Visakhapatnam, Andhra Pradesh - 530001",
+    "phone": "9876543213"
+   }
+  ]
+ }
+}

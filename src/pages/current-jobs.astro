@@ -1,0 +1,158 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import Icon from '@/components/Icon.astro';
+import { jobs, jobCategory, jobVacancies, jobExcerpt, filterOptions, careersIntro } from '@/data/jobs';
+import { emails } from '@/data/site';
+---
+
+<BaseLayout title="Current Job Openings" description={careersIntro}>
+  <PageHeader eyebrow="Careers" title="Current Job Openings" lead={careersIntro} crumbs={[{ label: 'Current Job Openings' }]}>
+    <p class="careers-mail">For opportunities: <a href={`mailto:${emails.careers}`}><Icon name="mail" />{emails.careers}</a></p>
+  </PageHeader>
+
+  <section class="section">
+    <div class="container">
+      <form class="jobfilter" action="/current-jobs/" method="get" role="search" aria-label="Filter job openings" data-jobfilter>
+        <div class="field">
+          <label for="kw">Keywords</label>
+          <input id="kw" name="search_keywords" type="search" placeholder="Keywords" />
+        </div>
+        <div class="field">
+          <label for="cat">Category</label>
+          <select id="cat" name="selected_category">
+            <option value="">Category</option>
+            {filterOptions.categories.map((o) => <option value={o}>{o}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="type">Job Type</label>
+          <select id="type" name="selected_jobtype">
+            <option value="">Job Type</option>
+            {filterOptions.types.map((o) => <option value={o}>{o}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="loc">Location</label>
+          <select id="loc" name="selected_location">
+            <option value="">Location</option>
+            {filterOptions.locations.map((o) => <option value={o}>{o}</option>)}
+          </select>
+        </div>
+        <button type="submit" class="btn"><Icon name="search" /> Search</button>
+      </form>
+
+      <p class="jobcount" aria-live="polite" data-jobcount>{jobs.length} openings</p>
+
+      <ul role="list" class="jobs">
+        {jobs.map((j) => {
+          const cat = jobCategory(j);
+          const vac = jobVacancies(j);
+          return (
+            <li
+              class="job"
+              data-job
+              data-title={j.title.toLowerCase()}
+              data-text={`${j.title} ${j.html.replace(/<[^>]+>/g, ' ')}`.toLowerCase()}
+              data-category={cat ?? ''}
+              data-type={j.type ?? ''}
+              data-location={j.location ?? ''}
+            >
+              <div class="job__main">
+                <h2 class="t-h4"><a href={`/jobs/${j.slug}/`}>{j.title}</a></h2>
+                <ul role="list" class="job__meta">
+                  {j.type && <li><Icon name="briefcase" />{j.type}</li>}
+                  {j.location && <li><Icon name="map-pin" />{j.location}</li>}
+                  {cat && <li><Icon name="layers" />{cat}</li>}
+                  {vac && <li><Icon name="users" />{vac} {vac === '1' ? 'vacancy' : 'vacancies'}</li>}
+                  {j.posted && <li><Icon name="clock" />{j.posted}</li>}
+                </ul>
+                <p class="job__excerpt">{jobExcerpt(j)}</p>
+              </div>
+              <span class="job__cta" aria-hidden="true">Details <Icon name="arrow-right" /></span>
+            </li>
+          );
+        })}
+      </ul>
+      <div class="jobs-empty" hidden data-jobempty>
+        <p>No openings match your filters. Try clearing them, or send your resume to <a href={`mailto:${emails.careers}`}>{emails.careers}</a>.</p>
+        <button type="button" class="btn btn--secondary btn--sm" data-jobreset>Clear filters</button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-jobfilter]')!;
+  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-job]'));
+  const count = document.querySelector<HTMLElement>('[data-jobcount]')!;
+  const empty = document.querySelector<HTMLElement>('[data-jobempty]')!;
+
+  // Pre-fill from the URL (same query parameters as the live careers page).
+  const params = new URLSearchParams(location.search);
+  for (const [k, v] of params) {
+    const el = form.elements.namedItem(k) as HTMLInputElement | HTMLSelectElement | null;
+    if (el) el.value = v;
+  }
+
+  const apply = () => {
+    const fd = new FormData(form);
+    const kw = String(fd.get('search_keywords') ?? '').trim().toLowerCase();
+    const cat = String(fd.get('selected_category') ?? '');
+    const type = String(fd.get('selected_jobtype') ?? '');
+    const loc = String(fd.get('selected_location') ?? '').toLowerCase();
+    let n = 0;
+    items.forEach((li) => {
+      const ok =
+        (!kw || li.dataset.text!.includes(kw)) &&
+        (!cat || li.dataset.category === cat) &&
+        (!type || li.dataset.type === type) &&
+        (!loc || li.dataset.location!.toLowerCase().split(/,\s*/).includes(loc));
+      li.hidden = !ok;
+      if (ok) n++;
+    });
+    count.textContent = `${n} opening${n === 1 ? '' : 's'}`;
+    empty.hidden = n > 0;
+  };
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const qs = new URLSearchParams();
+    new FormData(form).forEach((v, k) => v && qs.set(k, String(v)));
+    history.replaceState(null, '', qs.toString() ? `?${qs}` : location.pathname);
+    apply();
+  });
+  form.addEventListener('change', () => form.requestSubmit());
+  document.querySelector('[data-jobreset]')!.addEventListener('click', () => {
+    form.reset();
+    form.requestSubmit();
+  });
+  apply();
+</script>
+
+<style>
+  .careers-mail { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--ink-deep); }
+  .careers-mail a { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--orange-700); }
+  .jobfilter { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)) auto; gap: var(--s-4); align-items: end; padding: var(--s-5); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--white); box-shadow: var(--shadow-sm); }
+  @media (max-width: 1000px) { .jobfilter { grid-template-columns: repeat(2, minmax(0, 1fr)); } .jobfilter .btn { grid-column: 1 / -1; } }
+  @media (max-width: 560px) { .jobfilter { grid-template-columns: minmax(0, 1fr); } }
+  .jobcount { margin: var(--s-6) 0 var(--s-4); font-size: 0.9rem; font-weight: 600; color: var(--ink-soft); }
+  .jobs { display: grid; gap: var(--s-4); margin: 0; padding: 0; list-style: none; }
+  .job { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s-5); align-items: center; padding: var(--s-6); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--white); transition: border-color var(--t-base), box-shadow var(--t-base); }
+  .job:hover { border-color: var(--orange-200); box-shadow: var(--shadow-sm); }
+  .job[hidden] { display: none; }
+  .job__main { display: grid; gap: var(--s-3); }
+  .job h2 a { color: inherit; text-decoration: none; }
+  .job h2 a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+  .job:hover h2 a { color: var(--orange-700); }
+  .job__meta { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); margin: 0; padding: 0; list-style: none; font-size: 0.875rem; color: var(--ink-soft); }
+  .job__meta li { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .job__meta :global(.icon) { width: 1rem; height: 1rem; color: var(--orange-600); }
+  .job__excerpt { font-size: 0.95rem; color: var(--ink-soft); max-width: 60rem; }
+  .job__cta { display: inline-flex; align-items: center; gap: 0.4rem; font-family: var(--font-display); font-weight: 700; color: var(--ink-deep); }
+  .job__cta :global(.icon) { color: var(--orange-600); transition: transform var(--t-base); }
+  .job:hover .job__cta :global(.icon) { transform: translateX(4px); }
+  @media (max-width: 640px) { .job { grid-template-columns: minmax(0, 1fr); padding: var(--s-5); } }
+  .jobs-empty { display: grid; gap: var(--s-4); justify-items: start; padding: var(--s-6); border: 1px dashed var(--line-strong); border-radius: var(--r-lg); color: var(--ink-soft); }
+  .jobs-empty a { color: var(--orange-700); }
+</style>

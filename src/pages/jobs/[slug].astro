@@ -1,0 +1,85 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import EnquiryForm from '@/components/EnquiryForm.astro';
+import Icon from '@/components/Icon.astro';
+import { jobs, jobCategory, jobVacancies, jobExcerpt, type Job } from '@/data/jobs';
+import { emails } from '@/data/site';
+
+export function getStaticPaths() {
+  return jobs.map((j) => ({ params: { slug: j.slug }, props: { job: j } }));
+}
+const { job } = Astro.props as { job: Job };
+const cat = jobCategory(job);
+const vac = jobVacancies(job);
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'JobPosting',
+  title: job.title,
+  description: job.html,
+  hiringOrganization: { '@type': 'Organization', name: 'Retina Paints Limited', sameAs: 'https://www.retinapaints.com/' },
+  ...(job.type === 'Full time' ? { employmentType: 'FULL_TIME' } : {}),
+  jobLocation: { '@type': 'Place', address: { '@type': 'PostalAddress', addressLocality: job.location ?? 'Hyderabad', addressCountry: 'IN' } },
+};
+---
+
+<BaseLayout title={`${job.title} — Careers`} description={jobExcerpt(job, 155)} jsonLd={ld}>
+  <header class="jhead">
+    <div class="container">
+      <Breadcrumbs items={[{ label: 'Current Job Openings', href: '/current-jobs/' }, { label: job.title }]} />
+      <p class="eyebrow">Careers</p>
+      <h1 class="t-h1">{job.title}</h1>
+      <ul role="list" class="jhead__meta">
+        {job.type && <li><Icon name="briefcase" />{job.type}</li>}
+        {job.location && <li><Icon name="map-pin" />{job.location}</li>}
+        {cat && <li><Icon name="layers" />{cat}</li>}
+        {vac && <li><Icon name="users" />{vac} {vac === '1' ? 'vacancy' : 'vacancies'}</li>}
+        {job.posted && <li><Icon name="clock" />{job.posted}</li>}
+      </ul>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container jgrid">
+      <article class="prose jbody" set:html={job.html} />
+
+      <aside class="japply" id="apply" aria-labelledby="apply-title">
+        {job.features.length > 0 && (
+          <div class="jfeatures">
+            <h2 class="jlabel">Job Features</h2>
+            <dl>
+              {job.features.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
+            </dl>
+          </div>
+        )}
+        <div class="japply__card">
+          <h2 class="t-h3" id="apply-title">Apply For This Job</h2>
+          <EnquiryForm type="job" id="job-form" jobTitle={job.title} jobId={job.wpJobId} compact />
+        </div>
+        <p class="japply__alt">Or email your resume to <a href={`mailto:${emails.careers}?subject=${encodeURIComponent(`Application: ${job.title}`)}`}>{emails.careers}</a></p>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .jhead { padding-block: clamp(2rem, 1.5rem + 2vw, 3.5rem); background: var(--cream); border-bottom: 1px solid var(--line); }
+  .jhead .container { display: grid; gap: var(--s-4); justify-items: start; }
+  .jhead__meta { display: flex; flex-wrap: wrap; gap: var(--s-2); margin: var(--s-2) 0 0; padding: 0; list-style: none; }
+  .jhead__meta li { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.8rem; border-radius: var(--r-pill); background: var(--white); border: 1px solid var(--line); font-size: 0.875rem; color: var(--ink-soft); }
+  .jhead__meta :global(.icon) { width: 1rem; height: 1rem; color: var(--orange-600); }
+  .jgrid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: start; }
+  .jbody { color: var(--ink); }
+  .jbody :global(p:has(> strong:only-child)) { margin-top: 1.6em; }
+  .japply { position: sticky; top: calc(var(--header-h) + 1.5rem); display: grid; gap: var(--s-5); }
+  .jlabel { margin-bottom: var(--s-3); font-size: var(--fs-label); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-soft); }
+  .jfeatures { padding: var(--s-5); border-radius: var(--r-md); background: var(--cream); }
+  .jfeatures dl { margin: 0; display: grid; }
+  .jfeatures dl div { display: flex; justify-content: space-between; gap: var(--s-4); padding: 0.55rem 0; border-top: 1px solid var(--line-strong); font-size: 0.95rem; }
+  .jfeatures dt { color: var(--ink-soft); }
+  .jfeatures dd { margin: 0; font-weight: 600; color: var(--ink-deep); }
+  .japply__card { display: grid; gap: var(--s-5); padding: clamp(1.25rem, 1rem + 1.5vw, 2rem); border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--white); box-shadow: var(--shadow-md); }
+  .japply__alt { font-size: 0.875rem; color: var(--ink-soft); }
+  .japply__alt a { color: var(--orange-700); }
+  @media (max-width: 960px) { .jgrid { grid-template-columns: minmax(0, 1fr); } .japply { position: static; } }
+</style>

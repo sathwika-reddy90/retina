@@ -1,0 +1,160 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import ProductCard from '@/components/ProductCard.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import Icon from '@/components/Icon.astro';
+import { categories, productsIn } from '@/data/products';
+
+const sections = categories.map((c) => ({ ...c, items: productsIn(c.id) })).filter((c) => c.items.length);
+---
+
+<BaseLayout
+  title="Products"
+  description="Explore Retina Paints’ range of exterior and interior emulsions, distempers, waterproof, water-based and oil-based primers, enamels, putty and textures."
+>
+  <PageHeader
+    eyebrow="Products"
+    title="Premium Paints for Every Surface"
+    lead="Explore our wide range of high-quality paints, primers, enamels, and textures."
+    crumbs={[{ label: 'Products' }]}
+  />
+
+  <nav class="catbar" aria-label="Product categories">
+    <div class="container">
+      <ul role="list" class="catbar__list">
+        {sections.map((c) => (
+          <li><a href={`#${c.id}`} data-catlink>{c.name}<span>{c.items.length}</span></a></li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+
+  <div class="section catalog">
+    <div class="container catalog__inner">
+      {sections.map((c) => (
+        <section class="cat" id={c.id} aria-labelledby={`${c.id}-title`}>
+          <div class="cat__intro" data-reveal>
+            {c.image ? (
+              <Image src={c.image} alt="" widths={[480, 800]} sizes="(max-width: 900px) 100vw, 26vw" class="cat__img" />
+            ) : (
+              <div class="cat__img cat__tile"><Image src={c.items[0].image} alt="" widths={[200, 320]} sizes="160px" /></div>
+            )}
+            <div class="cat__intro-body">
+              <p class="cat__family">{c.family}</p>
+              <h2 class="t-h3" id={`${c.id}-title`}>{c.name}</h2>
+              {c.tagline && <p class="cat__tagline">{c.tagline}</p>}
+              <p class="cat__count">{c.items.length} product{c.items.length > 1 ? 's' : ''}</p>
+            </div>
+          </div>
+          <ul role="list" class="cat__grid">
+            {c.items.map((p, i) => (
+              <li data-reveal style={`--reveal-delay:${i * 60}ms`}><ProductCard product={p} /></li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  </div>
+
+  <section class="section--sm notfound" aria-labelledby="notfound-title">
+    <div class="container notfound__inner">
+      <div>
+        <h2 class="t-h3" id="notfound-title">Did not find what you are looking for?</h2>
+        <p class="t-muted">Our team can recommend the right product for your surface and project.</p>
+      </div>
+      <div class="cluster">
+        <button type="button" class="btn btn--secondary" data-open-dialog="dialog-advice">Get Expert Advice</button>
+        <a class="btn btn--secondary" href="/contact-us/"><Icon name="mail" /> Contact us</a>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<script>
+  // Highlight the category in view and keep it visible in the (horizontally scrolling) bar.
+  const list = document.querySelector<HTMLElement>('.catbar__list')!;
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-catlink]'));
+  const sections = Array.from(document.querySelectorAll<HTMLElement>('.cat'));
+  let current: HTMLAnchorElement | undefined;
+  const update = () => {
+    const line = window.innerHeight * 0.4;
+    const active = sections.filter((s) => s.getBoundingClientRect().top <= line).at(-1);
+    const a = active ? links.find((l) => l.hash === `#${active.id}`) : undefined;
+    if (a === current) return;
+    current?.removeAttribute('aria-current');
+    current = a;
+    if (!a) return;
+    a.setAttribute('aria-current', 'true');
+    const target = a.offsetLeft - (list.clientWidth - a.offsetWidth) / 2;
+    list.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+  };
+  let raf = 0;
+  window.addEventListener('scroll', () => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(update);
+  }, { passive: true });
+  update();
+</script>
+
+<style>
+  .catbar {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 20;
+    background: rgb(255 255 255 / 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .catbar__list { display: flex; gap: 0.4rem; margin: 0; padding: 0.75rem 0; list-style: none; overflow-x: auto; scrollbar-width: none; }
+  .catbar__list::-webkit-scrollbar { display: none; }
+  .catbar__list a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 40px;
+    padding: 0.4rem 0.6rem 0.4rem 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-pill);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    white-space: nowrap;
+    text-decoration: none;
+    transition: all var(--t-fast);
+  }
+  .catbar__list a span { display: grid; place-items: center; min-width: 1.5rem; height: 1.5rem; padding: 0 0.35rem; border-radius: var(--r-pill); background: var(--cream); font-size: 0.75rem; color: var(--ink-soft); }
+  .catbar__list a:hover { color: var(--ink-deep); border-color: var(--ink-mute); }
+  .catbar__list a[aria-current] { background: var(--ink-deep); border-color: var(--ink-deep); color: var(--white); }
+  .catbar__list a[aria-current] span { background: rgb(255 255 255 / 0.18); color: var(--white); }
+
+  .catalog__inner { display: grid; gap: clamp(3.5rem, 2.5rem + 3vw, 6rem); }
+  .cat { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: var(--grid-gap); align-items: start; scroll-margin-top: calc(var(--header-h) + 5rem); }
+  .cat__intro { position: sticky; top: calc(var(--header-h) + 5.5rem); display: grid; gap: var(--s-4); }
+  .cat__intro :global(.cat__img) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--r-lg); }
+  .cat__tile { display: grid; place-items: center; background: radial-gradient(70% 70% at 50% 45%, var(--orange-50), var(--orange-100)); }
+  .cat__tile :global(img) { width: 46%; height: auto; filter: drop-shadow(0 14px 16px rgb(60 32 12 / 0.2)); }
+  .cat__intro-body { display: grid; gap: var(--s-2); }
+  .cat__family { font-size: var(--fs-label); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--accent-text); }
+  .cat__tagline { color: var(--ink-soft); }
+  .cat__count { font-size: 0.875rem; color: var(--ink-mute); }
+  .cat__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+
+  @media (max-width: 1100px) { .cat__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 900px) {
+    .cat { grid-template-columns: minmax(0, 1fr); }
+    .cat__intro { position: static; grid-template-columns: 9rem minmax(0, 1fr); align-items: center; }
+    .cat__intro :global(.cat__img) { aspect-ratio: 1; }
+  }
+  @media (max-width: 520px) {
+    .cat__grid { grid-template-columns: minmax(0, 1fr); }
+    .cat__intro { grid-template-columns: 6.5rem minmax(0, 1fr); }
+  }
+
+  .notfound { border-top: 1px solid var(--line); }
+  .notfound__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-5); }
+  .notfound__inner > div:first-child { display: grid; gap: var(--s-2); }
+</style>

@@ -1,0 +1,998 @@
+---
+import { Image, getImage } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import ProductCard from '@/components/ProductCard.astro';
+import Visualizer from '@/components/Visualizer.astro';
+import VideoEmbed from '@/components/VideoEmbed.astro';
+import Modal from '@/components/Modal.astro';
+
+import livingRoom from '@/assets/rooms/living-room.png';
+import livingRoomShade from '@/assets/rooms/light/living-room-shade.png';
+import livingRoomLight from '@/assets/rooms/light/living-room-light.png';
+import exteriorHome from '@/assets/imagery/exterior-home.jpg';
+import storeInterior from '@/assets/imagery/store-interior.jpg';
+import officeBuilding from '@/assets/imagery/office-building.jpg';
+import bseListing from '@/assets/news/bse/Retinas-Shares-got-listed-in-BSE-SME-Platform-2.jpg';
+import mdPortrait from '@/assets/team/md-portrait.png';
+import royalVogue from '@/assets/products/royal-vogue.png';
+
+import { company, homeStats, experience, homeVision, homeMission, franchisePhone } from '@/data/site';
+import { products, productBySlug, homeFeatured, type Product } from '@/data/products';
+import { whyChooseUs, mdMessage } from '@/data/about';
+import { storePromise, growBusiness, franchisePromo, homeFranchise } from '@/data/franchise';
+import { posts, announcements, blogTitle } from '@/data/news';
+import { findShade, shadeCount } from '@/data/colours';
+import { docUrl } from '@/data/site';
+
+const heroShades = ['QC0263', 'QC1213', 'QC0164', 'QC1013', 'QC0604', 'QC0465', 'QC1105'].map((c) => findShade(c)!);
+const heroRoom = await getImage({ src: livingRoom, width: 1280, format: 'webp', quality: 80 });
+const heroShade = await getImage({ src: livingRoomShade, width: 1280, format: 'webp', quality: 72 });
+const heroLight = await getImage({ src: livingRoomLight, width: 1280, format: 'webp', quality: 72 });
+const heroRoomSm = await getImage({ src: livingRoom, width: 760, format: 'webp', quality: 78 });
+
+const pick = (slugs: string[]) => slugs.map((s) => productBySlug(s)).filter((p): p is Product => Boolean(p));
+const tabs: { id: string; label: string; items: Product[] }[] = [
+  { id: 'featured', label: 'Featured', items: pick(homeFeatured) },
+  { id: 'exterior', label: 'Exterior Emulsions', items: products.filter((p) => p.category === 'exterior-emulsions') },
+  { id: 'interior', label: 'Interior Emulsions', items: products.filter((p) => p.category === 'interior-emulsions') },
+  { id: 'primers', label: 'Primers', items: products.filter((p) => p.category.endsWith('primers')) },
+  { id: 'distempers', label: 'Distempers & Enamels', items: products.filter((p) => p.category === 'distempers' || p.category === 'enamels') },
+  { id: 'putty', label: 'Putty & Texture', items: products.filter((p) => p.category === 'putty') },
+];
+const exteriorTrio = pick(['weather-expert', 'expo-ultimax', 'expo-advanced']);
+
+const quickLinks = [
+  { icon: 'brush', title: 'Explore Paints', text: 'Emulsions, primers, distempers, putty and textures for every surface.', href: '/products/' },
+  { icon: 'palette', title: 'Discover Colours', text: `Browse ${(Math.floor(shadeCount / 100) * 100).toLocaleString('en-IN')}+ Retina shades and preview them in a room.`, href: '/colors/' },
+  { icon: 'map-pin', title: 'Find a Store', text: 'Locate your nearest Retina store for top-quality paints and expert advice!', href: '/find-a-store-near-you/' },
+  { icon: 'sparkles', title: 'Get Expert Advice', text: 'Need help choosing the right paint? Our experts are here to guide you!', dialog: 'dialog-advice' },
+];
+
+const credentials = [
+  { icon: 'certificate', text: 'ISO 9001:2015 certified company' },
+  { icon: 'trending-up', text: 'Equity shares listed on the BSE SME Platform since 3 May 2023' },
+  { icon: 'factory', text: 'Operations at its own land & building, Rayaraopet near Ghatkesar, Hyderabad' },
+  { icon: 'badge-check', text: 'Logo registered under the Trademarks Act, 1999' },
+];
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+
+<BaseLayout title="Home" description={company.intro}>
+  <Fragment slot="head">
+    <link rel="preload" as="image" href={heroRoom.src} imagesrcset={`${heroRoomSm.src} 760w, ${heroRoom.src} 1280w`} imagesizes="(max-width: 960px) 100vw, 52vw" fetchpriority="high" />
+  </Fragment>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="container hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow">{company.tagline}</p>
+        <h1 class="t-display" id="hero-title">
+          Transform your space with <span class="hero__accent">superior paints</span>
+        </h1>
+        <p class="t-lead hero__lead">{company.intro.split('. With')[0]}.</p>
+        <div class="cluster hero__ctas">
+          <a class="btn" href="/products/">Browse Products <Icon name="arrow-right" /></a>
+          <a class="btn btn--secondary" href="/colors/"><Icon name="palette" /> Explore Colours</a>
+        </div>
+        <ul role="list" class="hero__trust">
+          <li><Icon name="certificate" /> ISO 9001:2015 certified</li>
+          <li><Icon name="trending-up" /> Listed on BSE SME</li>
+          <li><Icon name="shield" /> Up to 8 years warranty</li>
+        </ul>
+      </div>
+
+      <div class="hero__visual" data-hero-room style={`--wall:${heroShades[0].hex}`}>
+        <div class="hero__room">
+          <div class="hero__layers" aria-hidden="true">
+            <img src={heroShade.src} alt="" class="hero__shade" width={heroShade.attributes.width} height={heroShade.attributes.height} decoding="async" />
+            <img src={heroLight.src} alt="" class="hero__light" width={heroLight.attributes.width} height={heroLight.attributes.height} decoding="async" />
+          </div>
+          <img
+            class="hero__photo"
+            src={heroRoom.src}
+            srcset={`${heroRoomSm.src} 760w, ${heroRoom.src} 1280w`}
+            sizes="(max-width: 960px) 100vw, 52vw"
+            width={heroRoom.attributes.width}
+            height={heroRoom.attributes.height}
+            alt="A bright living room with a white sofa, bookshelf and window, its walls painted in a Retina shade"
+            fetchpriority="high"
+            decoding="async"
+          />
+          <div class="hero__card">
+            <span class="hero__card-chip"></span>
+            <span class="hero__card-text">
+              <span class="hero__card-label">On the wall</span>
+              <strong data-hero-code>{heroShades[0].code}</strong>
+            </span>
+            <a href={`/colors/#${heroShades[0].code}`} class="hero__card-link" data-hero-link aria-label="Open this shade in the colour visualizer"><Icon name="arrow-up-right" /></a>
+          </div>
+          <Image src={royalVogue} alt="" width={240} height={250} class="hero__pack" loading="eager" />
+        </div>
+        <div class="hero__rail" role="group" aria-label="Try a Retina shade on the wall">
+          {heroShades.map((s, i) => (
+            <button
+              type="button"
+              class="hero__chip"
+              style={`--c:${s.hex}`}
+              data-code={s.code}
+              data-hex={s.hex}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+              aria-label={`Paint the wall ${s.code}`}
+              title={s.code}
+            ></button>
+          ))}
+        </div>
+        <p class="hero__hint">Tap a shade to repaint the room</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUICK DISCOVERY ============ -->
+  <section class="quick" aria-label="Quick links">
+    <div class="container">
+      <ul role="list" class="quick__list" data-reveal>
+        {quickLinks.map((q) => (
+          <li class="quick__item">
+            <span class="quick__icon"><Icon name={q.icon} /></span>
+            <span class="quick__text">
+              {q.href ? (
+                <a href={q.href} class="quick__title">{q.title}</a>
+              ) : (
+                <button type="button" class="quick__title" data-open-dialog={q.dialog}>{q.title}</button>
+              )}
+              <span class="quick__desc">{q.text}</span>
+            </span>
+            <Icon name="arrow-right" class="quick__arrow" />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ PRODUCTS ============ -->
+  <section class="section showcase" aria-labelledby="products-title">
+    <div class="container">
+      <div class="section-head section-head--split" data-reveal>
+        <div class="stack" style="--stack: var(--s-4)">
+          <p class="eyebrow">Our Products</p>
+          <h2 class="t-h2" id="products-title">Premium Paints for Every Surface</h2>
+          <p class="t-lead">Explore our wide range of high-quality paints, primers, enamels, and textures.</p>
+        </div>
+        <a class="link-arrow" href="/products/">View all products <Icon name="arrow-right" /></a>
+      </div>
+
+      <div class="tabs" data-tabs>
+        <div class="tabs__list" role="tablist" aria-label="Product categories">
+          {tabs.map((t, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${t.id}`}
+              aria-controls={`panel-${t.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        {tabs.map((t, i) => (
+          <div class="tabs__panel" role="tabpanel" id={`panel-${t.id}`} aria-labelledby={`tab-${t.id}`} hidden={i !== 0} tabindex="0">
+            <div class="rail" data-rail>
+              <ul role="list" class="rail__track">
+                {t.items.map((p) => <li class="rail__item"><ProductCard product={p} /></li>)}
+              </ul>
+              <div class="rail__nav">
+                <button type="button" class="rail__btn" data-rail-prev aria-label="Previous products"><Icon name="arrow-left" /></button>
+                <button type="button" class="rail__btn" data-rail-next aria-label="Next products"><Icon name="arrow-right" /></button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EXTERIOR PROTECTION ============ -->
+  <section class="exterior on-dark" aria-labelledby="exterior-title">
+    <Image src={exteriorHome} alt="" widths={[768, 1280, 1920]} sizes="100vw" class="exterior__bg" loading="lazy" />
+    <div class="container exterior__inner">
+      <div class="exterior__copy" data-reveal>
+        <p class="eyebrow eyebrow--light">Exterior Emulsions</p>
+        <h2 class="t-h2" id="exterior-title">Shield Your Home with Long-Lasting Protection!</h2>
+        <p class="exterior__lead">Beauty That Lasts, Protection That Endures. Our exterior emulsions are designed to withstand extreme weather conditions, protecting your walls from rain, UV rays, and dust.</p>
+        <a class="btn" href="/products/#exterior-emulsions">Explore Exterior Paints <Icon name="arrow-right" /></a>
+      </div>
+      <ul role="list" class="exterior__list" data-reveal style="--reveal-delay: 120ms">
+        {exteriorTrio.map((p) => (
+          <li>
+            <a href={p.href!} class="exterior__item">
+              <Image src={p.image} alt="" width={120} height={125} class="exterior__pack" />
+              <span>
+                <strong>{p.name}</strong>
+                <span>{p.warranty} Years Warranty</span>
+              </span>
+              <Icon name="arrow-right" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ COLOUR VISUALIZER ============ -->
+  <section class="section section--cream" aria-labelledby="viz-title" id="visualizer">
+    <div class="container">
+      <div style="--viz-bg: var(--cream)">
+        <Visualizer variant="compact" id="home-viz" initialRoom="bed-room" headingLevel="h3">
+          <div class="stack viz-head" style="--stack: var(--s-3)" slot="intro">
+            <p class="eyebrow">Color Visualizer</p>
+            <h2 class="t-h2" id="viz-title">Experience Your Own Color Combination</h2>
+            <p class="t-lead">Choose a room, explore beautiful Retina shades, and see your walls transform instantly. <a class="link-arrow" href="/colors/">Open the full visualizer <Icon name="arrow-right" /></a></p>
+          </div>
+        </Visualizer>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHY CHOOSE US ============ -->
+  <section class="section why" aria-labelledby="why-title">
+    <div class="container why__grid">
+      <div class="why__head" data-reveal>
+        <p class="eyebrow">{whyChooseUs.eyebrow}</p>
+        <h2 class="t-h2" id="why-title">{whyChooseUs.title}</h2>
+        <p class="t-lead">{whyChooseUs.intro}</p>
+      </div>
+      <ol role="list" class="why__list">
+        {whyChooseUs.items.map((item, i) => (
+          <li class="why__item" data-reveal style={`--reveal-delay:${i * 80}ms`}>
+            <span class="why__num">{String(i + 1).padStart(2, '0')}</span>
+            <span class="why__icon"><Icon name={item.icon} /></span>
+            <h3 class="t-h4">{item.title}</h3>
+            <p>{item.body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ BRAND STORY ============ -->
+  <section class="section section--flush-top story" aria-labelledby="story-title">
+    <div class="container story__grid">
+      <div class="story__media" data-reveal>
+        <Image src={bseListing} alt="Retina Paints management at the BSE on the day the company’s shares were listed" widths={[480, 800, 1024]} sizes="(max-width: 960px) 100vw, 46vw" class="story__img story__img--main" />
+        <Image src={officeBuilding} alt="Retina Paints Limited building with company signage" widths={[320, 520]} sizes="(max-width: 960px) 50vw, 20vw" class="story__img story__img--small" />
+        <div class="story__stat">
+          <strong>{experience.value}</strong>
+          <span>{experience.label}</span>
+        </div>
+      </div>
+      <div class="story__copy" data-reveal style="--reveal-delay: 100ms">
+        <p class="eyebrow">About Retina Paints</p>
+        <h2 class="t-h2" id="story-title">“{company.tagline}”</h2>
+        <p class="t-lead">{company.intro}</p>
+        <dl class="story__vm">
+          <div><dt>Our Vision</dt><dd>{homeVision}</dd></div>
+          <div><dt>Our Mission</dt><dd>{homeMission}</dd></div>
+        </dl>
+        <dl class="story__stats">
+          {homeStats.map((s) => (
+            <div><dt>{s.label}</dt><dd>{s.value}</dd></div>
+          ))}
+        </dl>
+        <div class="cluster">
+          <a class="btn btn--dark" href="/about-us/company-profile/">Our story <Icon name="arrow-right" /></a>
+          <a class="link-arrow" href="/about-us/history-milestones/">History &amp; milestones <Icon name="arrow-right" /></a>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <ul role="list" class="creds" data-reveal>
+        {credentials.map((c) => <li><Icon name={c.icon} /><span>{c.text}</span></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ MD QUOTE ============ -->
+  <section class="section--sm quote-band" aria-labelledby="quote-title">
+    <div class="container quote">
+      <Image src={mdPortrait} alt="Rakesh Dommati, Managing Director" width={200} height={200} class="quote__img" />
+      <figure class="quote__body" data-reveal>
+        <p class="eyebrow" id="quote-title">{mdMessage.title}</p>
+        <blockquote>
+          <p>“{mdMessage.closingQuote}”</p>
+        </blockquote>
+        <figcaption>
+          <span><strong>{mdMessage.name}</strong>, {mdMessage.role}</span>
+          <a class="link-arrow" href="/about-us/managing-directors-message/">Read the full message <Icon name="arrow-right" /></a>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ FRANCHISE ============ -->
+  <section class="section franchise" aria-labelledby="franchise-title">
+    <div class="container">
+      <div class="franchise__card on-orange" data-reveal>
+        <div class="franchise__copy">
+          <p class="eyebrow eyebrow--plain franchise__eyebrow">{homeFranchise.eyebrow}</p>
+          <h2 class="t-h2" id="franchise-title">{homeFranchise.title}</h2>
+          <p class="franchise__lead">{growBusiness.body}</p>
+          <ul role="list" class="franchise__points">
+            {storePromise.benefits.slice(0, 4).map((b) => (
+              <li><Icon name="check" /><span><strong>{b.title}:</strong> {b.body}</span></li>
+            ))}
+          </ul>
+          <div class="cluster">
+            <button type="button" class="btn btn--dark" data-open-dialog="dialog-franchise">Become a Partner <Icon name="arrow-right" /></button>
+            <a class="btn btn--white" href="/franchise/">Franchise details</a>
+          </div>
+          <p class="franchise__call"><Icon name="phone" /> Call us now: <a href={`tel:${franchisePhone}`}>{franchisePhone}</a></p>
+        </div>
+        <div class="franchise__media">
+          <Image src={storeInterior} alt="A Retina Paints exclusive showroom" widths={[480, 800]} sizes="(max-width: 960px) 100vw, 40vw" class="franchise__img" />
+          <dl class="franchise__stats">
+            {growBusiness.stats.map((s) => <div><dd>{s.value}</dd><dt>{s.label}</dt></div>)}
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NEWS ============ -->
+  <section class="section section--flush-top news" aria-labelledby="news-title">
+    <div class="container">
+      <div class="section-head section-head--split" data-reveal>
+        <div class="stack" style="--stack: var(--s-4)">
+          <p class="eyebrow">News &amp; Events</p>
+          <h2 class="t-h2" id="news-title">{blogTitle}</h2>
+        </div>
+        <a class="link-arrow" href="/news-and-events/">All news &amp; events <Icon name="arrow-right" /></a>
+      </div>
+      <div class="news__grid">
+        {posts.map((p, i) => (
+          <article class="post" data-reveal style={`--reveal-delay:${i * 90}ms`}>
+            <div class="post__media">
+              <Image src={p.cover} alt={p.coverAlt} widths={[480, 720, 960]} sizes="(max-width: 760px) 100vw, 34vw" />
+            </div>
+            <div class="post__body">
+              <p class="post__meta"><span class="post__cat">{p.category}</span><time datetime={p.date}>{fmtDate(p.date)}</time></p>
+              <h3 class="t-h3"><a href={`/${p.slug}/`}>{p.title}</a></h3>
+            </div>
+          </article>
+        ))}
+        <aside class="ann" aria-labelledby="ann-title" data-reveal style="--reveal-delay: 180ms">
+          <h3 class="ann__title" id="ann-title">General announcements</h3>
+          <ul role="list">
+            {announcements.slice(0, 5).map((a) => (
+              <li>
+                <a href={docUrl(a.href)} target="_blank" rel="noopener">
+                  <Icon name="file-text" />
+                  <span>{a.label}<span class="sr-only"> (PDF, opens in a new tab)</span></span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a class="link-arrow" href="/news-and-events/#announcements">View all announcements <Icon name="arrow-right" /></a>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Franchise prompt (the live homepage shows this as a pop-up) -->
+  <Fragment slot="after">
+    <aside class="promo" aria-labelledby="promo-title" hidden data-promo>
+      <button type="button" class="promo__close" aria-label="Dismiss" data-promo-close><Icon name="close" /></button>
+      <p class="eyebrow">Franchise</p>
+      <h2 id="promo-title">{franchisePromo.title}</h2>
+      {franchisePromo.lines.map((l) => <p>{l}</p>)}
+      <div class="promo__actions">
+        <a class="btn btn--sm" href="/franchise/">Know More</a>
+        <button type="button" class="btn btn--sm btn--secondary" data-open-dialog="dialog-promo-video"><Icon name="play" /> Watch</button>
+        <button type="button" class="promo__later" data-promo-close>Maybe Later</button>
+      </div>
+    </aside>
+    <Modal id="dialog-promo-video" title={franchisePromo.title} eyebrow="Franchise" size="lg">
+      <VideoEmbed id={franchisePromo.youtubeId} title="Own a Retina Paints Franchise" />
+    </Modal>
+  </Fragment>
+</BaseLayout>
+
+<script>
+  // Hero: repaint the room with the chosen shade.
+  const hero = document.querySelector<HTMLElement>('[data-hero-room]');
+  if (hero) {
+    const code = hero.querySelector('[data-hero-code]')!;
+    const link = hero.querySelector<HTMLAnchorElement>('[data-hero-link]')!;
+    hero.querySelectorAll<HTMLButtonElement>('.hero__chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        hero.style.setProperty('--wall', chip.dataset.hex!);
+        code.textContent = chip.dataset.code!;
+        link.href = `/colors/#${chip.dataset.code}`;
+        hero.querySelectorAll('.hero__chip').forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+      });
+    });
+  }
+
+  // Tabs (WAI-ARIA tabs pattern with automatic activation).
+  document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const activate = (tab: HTMLButtonElement, focus = false) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')!)!.hidden = !on;
+      });
+      if (focus) tab.focus();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => activate(t));
+      t.addEventListener('keydown', (e) => {
+        const map: Record<string, number> = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 };
+        if (!(e.key in map)) return;
+        e.preventDefault();
+        activate(tabs[(map[e.key] + tabs.length) % tabs.length], true);
+      });
+    });
+  });
+
+  // Horizontal product rails.
+  document.querySelectorAll<HTMLElement>('[data-rail]').forEach((rail) => {
+    const track = rail.querySelector<HTMLElement>('.rail__track')!;
+    const prev = rail.querySelector<HTMLButtonElement>('[data-rail-prev]')!;
+    const next = rail.querySelector<HTMLButtonElement>('[data-rail-next]')!;
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth - 2;
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft >= max;
+      rail.toggleAttribute('data-static', max <= 0);
+    };
+    const step = () => (track.querySelector<HTMLElement>('.rail__item')?.offsetWidth ?? 300) + 24;
+    prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
+    next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
+    track.addEventListener('scroll', update, { passive: true });
+    new ResizeObserver(update).observe(track);
+  });
+
+  // Franchise prompt: shown once per session, after the visitor engages.
+  const promo = document.querySelector<HTMLElement>('[data-promo]');
+  if (promo) {
+    let seen = false;
+    try { seen = sessionStorage.getItem('rp-promo') === '1'; } catch {}
+    const show = () => {
+      if (seen) return;
+      seen = true;
+      promo.hidden = false;
+      try { sessionStorage.setItem('rp-promo', '1'); } catch {}
+    };
+    if (!seen) {
+      const timer = window.setTimeout(show, 15000);
+      const onScroll = () => {
+        if (window.scrollY > document.documentElement.scrollHeight * 0.35) {
+          window.clearTimeout(timer);
+          show();
+          window.removeEventListener('scroll', onScroll);
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+    promo.querySelectorAll('[data-promo-close]').forEach((b) => b.addEventListener('click', () => (promo.hidden = true)));
+  }
+</script>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5.5rem) clamp(3rem, 2rem + 4vw, 6rem);
+    background:
+      radial-gradient(60rem 30rem at 85% -10%, var(--orange-50), transparent 70%),
+      var(--white);
+    overflow: hidden;
+  }
+  .hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2rem, 1rem + 4vw, 5rem);
+    align-items: center;
+  }
+  .hero__copy { display: grid; gap: var(--s-5); justify-items: start; }
+  .hero__copy h1 { max-width: 12ch; }
+  .hero__accent {
+    position: relative;
+    white-space: nowrap;
+    color: var(--ink-deep);
+    background: linear-gradient(transparent 68%, var(--orange-200) 68%, var(--orange-200) 92%, transparent 92%);
+  }
+  .hero__lead { max-width: 34rem; }
+  .hero__ctas { --cluster: var(--s-3); margin-top: var(--s-2); }
+  .hero__trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-5);
+    margin: var(--s-4) 0 0;
+    padding: var(--s-5) 0 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .hero__trust li { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .hero__trust :global(.icon) { width: 1.1rem; height: 1.1rem; color: var(--orange-600); }
+
+  .hero__visual {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    column-gap: var(--s-4);
+  }
+  .hero__visual::before {
+    content: '';
+    position: absolute;
+    inset: 8% -6% -6% 12%;
+    border-radius: var(--r-xl);
+    background: var(--orange-100);
+    z-index: 0;
+  }
+  .hero__room {
+    position: relative;
+    z-index: 1;
+    aspect-ratio: 5 / 4;
+    border-radius: var(--r-xl);
+    overflow: visible;
+    background: var(--wall);
+    box-shadow: var(--shadow-lg);
+    transition: background-color 700ms var(--ease-in-out);
+  }
+  .hero__layers { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
+  .hero__layers img, .hero__room > .hero__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+  .hero__shade { mix-blend-mode: multiply; }
+  .hero__light { mix-blend-mode: screen; }
+  .hero__card {
+    position: absolute;
+    left: var(--s-5);
+    top: var(--s-5);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.5rem 0.5rem 0.5rem 0.55rem;
+    border-radius: var(--r-pill);
+    background: rgb(255 255 255 / 0.94);
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-sm);
+  }
+  .hero__card-chip { width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--wall); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); transition: background-color 700ms var(--ease-in-out); }
+  .hero__card-text { display: grid; line-height: 1.15; padding-right: 0.25rem; }
+  .hero__card-label { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .hero__card-text strong { font-family: var(--font-display); font-size: 1rem; color: var(--ink-deep); }
+  .hero__card-link { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--ink-deep); color: var(--white); }
+  .hero__card-link :global(.icon) { width: 1rem; height: 1rem; }
+  .hero__room :global(.hero__pack) {
+    position: absolute;
+    right: -1.5rem;
+    bottom: -2.25rem;
+    width: clamp(7rem, 4rem + 8vw, 11rem);
+    height: auto;
+    filter: drop-shadow(0 22px 24px rgb(40 20 6 / 0.35));
+  }
+  .hero__rail {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.6rem;
+    border-radius: var(--r-pill);
+    background: var(--white);
+    box-shadow: var(--shadow-md);
+    align-self: center;
+  }
+  .hero__chip {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
+    transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-fast);
+  }
+  .hero__chip:hover { transform: scale(1.1); }
+  .hero__chip[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--white), 0 0 0 5px var(--ink-deep); }
+  .hero__hint {
+    position: relative;
+    z-index: 1;
+    grid-column: 1 / -1;
+    margin-top: var(--s-5);
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+    text-align: right;
+    padding-right: 4.5rem;
+  }
+
+  @media (max-width: 960px) {
+    .hero__grid { grid-template-columns: minmax(0, 1fr); }
+    .hero__copy h1 { max-width: 14ch; }
+    .hero__visual { grid-template-columns: minmax(0, 1fr); margin-right: 0.5rem; }
+    .hero__visual::before { inset: 10% -0.5rem -4% 8%; }
+    .hero__rail { flex-direction: row; justify-content: space-between; margin-top: var(--s-6); align-self: auto; }
+    .hero__room :global(.hero__pack) { right: -0.5rem; bottom: -1.75rem; }
+    .hero__hint { text-align: left; padding-right: 0; margin-top: var(--s-3); }
+  }
+  @media (max-width: 420px) {
+    .hero__chip { width: 2.15rem; height: 2.15rem; }
+    .hero__rail { gap: 0.35rem; padding: 0.5rem; }
+  }
+
+  /* ---------- Quick discovery ---------- */
+  .quick { position: relative; z-index: 2; margin-top: calc(-1 * clamp(1rem, 0.5rem + 1.5vw, 2rem)); }
+  .quick__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--white);
+    box-shadow: var(--shadow-md);
+  }
+  .quick__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--s-4);
+    align-items: start;
+    padding: var(--s-6) var(--s-5);
+    transition: background-color var(--t-base);
+  }
+  .quick__item + .quick__item { border-left: 1px solid var(--line); }
+  .quick__item:first-child { border-radius: var(--r-lg) 0 0 var(--r-lg); }
+  .quick__item:last-child { border-radius: 0 var(--r-lg) var(--r-lg) 0; }
+  .quick__item:hover { background: var(--orange-50); }
+  .quick__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%; background: var(--orange-100); color: var(--orange-700); }
+  .quick__text { display: grid; gap: 0.3rem; }
+  .quick__title {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--ink-deep);
+    text-align: left;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+  .quick__title::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+  .quick__desc { font-size: 0.875rem; line-height: 1.5; color: var(--ink-soft); }
+  .quick__item :global(.quick__arrow) { width: 1.1rem; height: 1.1rem; margin-top: 0.2rem; color: var(--orange-600); transition: transform var(--t-base) var(--ease-out); }
+  .quick__item:hover :global(.quick__arrow) { transform: translateX(4px); }
+  @media (max-width: 1080px) {
+    .quick__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .quick__item:nth-child(3) { border-left: 0; }
+    .quick__item:nth-child(n + 3) { border-top: 1px solid var(--line); }
+    .quick__item:first-child, .quick__item:last-child { border-radius: 0; }
+  }
+  @media (max-width: 560px) {
+    .quick__list { grid-template-columns: minmax(0, 1fr); }
+    .quick__item + .quick__item { border-left: 0; border-top: 1px solid var(--line); }
+    .quick__item { padding: var(--s-5); }
+  }
+
+  /* ---------- Tabs + rail ---------- */
+  .tabs__list {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: var(--s-6);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs__list::-webkit-scrollbar { display: none; }
+  .tabs__list [role='tab'] {
+    flex: none;
+    min-height: 44px;
+    padding: 0.55rem 1.15rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-pill);
+    background: var(--white);
+    font-family: var(--font-display);
+    font-size: 0.925rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: all var(--t-fast);
+  }
+  .tabs__list [role='tab']:hover { color: var(--ink-deep); border-color: var(--ink-mute); }
+  .tabs__list [role='tab'][aria-selected='true'] { background: var(--ink-deep); border-color: var(--ink-deep); color: var(--white); }
+  .tabs__panel:focus-visible { outline-offset: 8px; }
+
+  .rail { position: relative; }
+  .rail__track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - 3 * var(--grid-gap)) / 4);
+    gap: var(--grid-gap);
+    margin: 0;
+    padding: 0.5rem 0.25rem 1.25rem;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .rail__track::-webkit-scrollbar { display: none; }
+  .rail__item { scroll-snap-align: start; }
+  .rail__nav { display: flex; justify-content: flex-end; gap: var(--s-2); margin-top: var(--s-2); }
+  .rail[data-static] .rail__nav { display: none; }
+  .rail__btn {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--ink-deep);
+    transition: all var(--t-fast);
+  }
+  .rail__btn:hover:not(:disabled) { background: var(--ink-deep); color: var(--white); border-color: var(--ink-deep); }
+  .rail__btn:disabled { opacity: 0.35; cursor: default; }
+  @media (max-width: 1080px) { .rail__track { grid-auto-columns: calc((100% - 2 * var(--grid-gap)) / 2.6); } }
+  @media (max-width: 640px) { .rail__track { grid-auto-columns: 78%; } }
+
+  /* ---------- Exterior band ---------- */
+  .exterior {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    color: var(--white);
+    background: #1d1a1f;
+  }
+  .exterior :global(.exterior__bg) {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 70% 40%;
+  }
+  .exterior::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, rgb(20 16 14 / 0.86) 0%, rgb(20 16 14 / 0.62) 42%, rgb(20 16 14 / 0.08) 75%);
+  }
+  .exterior__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: var(--s-8);
+    align-items: end;
+    padding-block: clamp(4rem, 3rem + 6vw, 8.5rem);
+  }
+  .exterior__copy { display: grid; gap: var(--s-5); justify-items: start; max-width: 36rem; }
+  .exterior__copy h2 { color: var(--white); }
+  .exterior__lead { font-size: var(--fs-lead); color: rgb(255 255 255 / 0.84); }
+  .exterior__list { display: grid; gap: var(--s-3); margin: 0; padding: 0; list-style: none; }
+  .exterior__item {
+    display: grid;
+    grid-template-columns: 3.75rem minmax(0, 1fr) auto;
+    gap: var(--s-4);
+    align-items: center;
+    padding: var(--s-3) var(--s-5) var(--s-3) var(--s-3);
+    border: 1px solid rgb(255 255 255 / 0.22);
+    border-radius: var(--r-md);
+    background: rgb(255 255 255 / 0.1);
+    backdrop-filter: blur(12px);
+    color: var(--white);
+    text-decoration: none;
+    transition: background-color var(--t-base), border-color var(--t-base);
+  }
+  .exterior__item:hover { background: rgb(255 255 255 / 0.2); border-color: rgb(255 255 255 / 0.45); }
+  .exterior__item :global(.exterior__pack) { width: 3.75rem; height: auto; }
+  .exterior__item strong { display: block; font-family: var(--font-display); font-size: 1.0625rem; }
+  .exterior__item span span { font-size: 0.85rem; color: var(--orange-200); }
+  .exterior__item > :global(.icon) { color: var(--orange-300); }
+  @media (max-width: 960px) {
+    .exterior__inner { grid-template-columns: minmax(0, 1fr); }
+    .exterior::before { background: linear-gradient(180deg, rgb(20 16 14 / 0.55) 0%, rgb(20 16 14 / 0.86) 60%); }
+  }
+
+  /* ---------- Why ---------- */
+  .why__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 1rem + 4vw, 6rem); align-items: start; }
+  .why__head { position: sticky; top: calc(var(--header-h) + 2rem); display: grid; gap: var(--s-4); }
+  .why__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  .why__item { position: relative; display: grid; gap: var(--s-3); align-content: start; padding: var(--s-6) 0 var(--s-7); border-top: 1px solid var(--line-strong); }
+  .why__num { position: absolute; top: var(--s-6); right: 0; font-family: var(--font-display); font-size: 0.875rem; font-weight: 700; color: var(--orange-700); }
+  .why__icon { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; border-radius: var(--r-md); background: var(--orange-100); color: var(--orange-700); margin-bottom: var(--s-2); }
+  .why__icon :global(.icon) { width: 1.5rem; height: 1.5rem; }
+  .why__item p { color: var(--ink-soft); font-size: 0.975rem; }
+  @media (max-width: 960px) {
+    .why__grid { grid-template-columns: minmax(0, 1fr); }
+    .why__head { position: static; }
+  }
+  @media (max-width: 600px) { .why__list { grid-template-columns: minmax(0, 1fr); } }
+
+  /* ---------- Story ---------- */
+  .story__grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: clamp(2rem, 1rem + 4vw, 6rem); align-items: center; }
+  .story__media { position: relative; padding: 0 12% 12% 0; }
+  .story__media :global(.story__img) { border-radius: var(--r-lg); object-fit: cover; }
+  .story__media :global(.story__img--main) { width: 100%; aspect-ratio: 4 / 3.4; box-shadow: var(--shadow-md); }
+  .story__media :global(.story__img--small) {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 44%;
+    aspect-ratio: 1;
+    border: 6px solid var(--white);
+    box-shadow: var(--shadow-lg);
+  }
+  .story__stat {
+    position: absolute;
+    left: -1rem;
+    top: 8%;
+    display: grid;
+    padding: var(--s-4) var(--s-5);
+    border-radius: var(--r-md);
+    background: var(--orange-500);
+    color: var(--ink-deep);
+    box-shadow: var(--shadow-md);
+  }
+  .story__stat strong { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+  .story__stat span { font-size: 0.875rem; font-weight: 600; }
+  .story__copy { display: grid; gap: var(--s-5); justify-items: start; }
+  .story__vm { display: grid; gap: var(--s-3); margin: 0; padding: var(--s-5); border-radius: var(--r-md); background: var(--cream); width: 100%; }
+  .story__vm div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: var(--s-3); }
+  .story__vm dt { font-family: var(--font-display); font-weight: 700; color: var(--ink-deep); }
+  .story__vm dd { margin: 0; color: var(--ink-soft); }
+  .story__stats { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: var(--s-7); margin: 0; }
+  .story__stats div { display: flex; flex-direction: column-reverse; }
+  .story__stats dd { margin: 0; font-family: var(--font-display); font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem); font-weight: 750; letter-spacing: -0.03em; color: var(--ink-deep); line-height: 1.1; }
+  .story__stats dt { font-size: 0.875rem; color: var(--ink-soft); }
+  .creds {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--grid-gap);
+    margin: clamp(3rem, 2rem + 3vw, 5rem) 0 0;
+    padding: var(--s-6) 0 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .creds li { display: flex; gap: var(--s-3); align-items: flex-start; font-size: 0.925rem; color: var(--ink-soft); line-height: 1.5; }
+  .creds :global(.icon) { width: 1.5rem; height: 1.5rem; color: var(--orange-600); }
+  @media (max-width: 960px) {
+    .story__grid { grid-template-columns: minmax(0, 1fr); }
+    .creds { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .creds { grid-template-columns: minmax(0, 1fr); }
+    .story__stats { grid-template-columns: repeat(2, auto); gap: var(--s-5) var(--s-7); }
+    .story__vm div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .story__stat { left: 0.5rem; }
+  }
+
+  /* ---------- Quote ---------- */
+  .quote-band { background: var(--cream); border-block: 1px solid var(--line); }
+  .quote { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(1.5rem, 1rem + 3vw, 4rem); align-items: center; max-width: 64rem; }
+  .quote :global(.quote__img) { width: clamp(7rem, 5rem + 6vw, 12rem); height: auto; border-radius: 50%; }
+  .quote__body { display: grid; gap: var(--s-4); }
+  .quote__body blockquote { margin: 0; }
+  .quote__body blockquote p { font-family: var(--font-display); font-size: clamp(1.4rem, 1.15rem + 1.1vw, 2.15rem); font-weight: 500; line-height: 1.3; letter-spacing: -0.02em; color: var(--ink-deep); text-wrap: balance; }
+  .quote__body figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-5); color: var(--ink-soft); }
+  .quote__body figcaption strong { color: var(--ink-deep); }
+  @media (max-width: 640px) { .quote { grid-template-columns: minmax(0, 1fr); } }
+
+  /* ---------- Franchise ---------- */
+  .franchise__card {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: clamp(2rem, 1rem + 3vw, 4.5rem);
+    padding: clamp(2rem, 1rem + 4vw, 4.5rem);
+    border-radius: var(--r-xl);
+    background: var(--orange-500);
+    color: var(--ink-deep);
+  }
+  .franchise__card::before {
+    content: '';
+    position: absolute;
+    left: -10%;
+    bottom: -55%;
+    width: 50%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 70px solid rgb(255 255 255 / 0.1);
+  }
+  .franchise__copy { position: relative; display: grid; gap: var(--s-5); justify-items: start; }
+  .franchise__eyebrow { color: var(--ink-deep); }
+  .franchise__lead { font-size: var(--fs-lead); color: rgb(27 23 20 / 0.82); max-width: 34rem; }
+  .franchise__points { display: grid; gap: var(--s-3); margin: 0; padding: 0; list-style: none; }
+  .franchise__points li { display: flex; gap: var(--s-3); align-items: flex-start; font-size: 0.975rem; }
+  .franchise__points :global(.icon) { flex: none; width: 1.4rem; height: 1.4rem; padding: 0.2rem; border-radius: 50%; background: var(--ink-deep); color: var(--orange-400); margin-top: 0.1rem; }
+  .franchise__call { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+  .franchise__call a { color: inherit; }
+  .franchise :global(:focus-visible) { outline-color: var(--ink-deep); }
+  .franchise__media { position: relative; align-self: center; }
+  .franchise__media :global(.franchise__img) { width: 100%; aspect-ratio: 4 / 3.6; object-fit: cover; border-radius: var(--r-lg); border: 6px solid rgb(255 255 255 / 0.9); }
+  .franchise__stats {
+    position: absolute;
+    left: -1.5rem;
+    bottom: -1.5rem;
+    display: flex;
+    margin: 0;
+    border-radius: var(--r-md);
+    background: var(--white);
+    box-shadow: var(--shadow-lg);
+  }
+  .franchise__stats div { display: grid; padding: var(--s-4) var(--s-5); }
+  .franchise__stats div + div { border-left: 1px solid var(--line); }
+  .franchise__stats dd { margin: 0; font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: var(--orange-700); }
+  .franchise__stats dt { font-size: 0.8125rem; color: var(--ink-soft); }
+  @media (max-width: 960px) {
+    .franchise__card { grid-template-columns: minmax(0, 1fr); }
+    .franchise__stats { left: 1rem; }
+  }
+
+  /* ---------- News ---------- */
+  .news__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(0, 0.9fr); gap: var(--grid-gap); }
+  .post { position: relative; display: grid; grid-template-rows: auto 1fr; border-radius: var(--r-lg); overflow: hidden; background: var(--white); border: 1px solid var(--line); transition: box-shadow var(--t-base), transform var(--t-base) var(--ease-out); }
+  .post:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+  .post__media { aspect-ratio: 3 / 2; overflow: hidden; background: var(--sand); }
+  .post__media :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform var(--t-slow) var(--ease-out); }
+  .post:hover .post__media :global(img) { transform: scale(1.04); }
+  .post__body { display: grid; gap: var(--s-3); align-content: start; padding: var(--s-5); }
+  .post__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); font-size: 0.8125rem; color: var(--ink-soft); }
+  .post__cat { padding: 0.15rem 0.6rem; border-radius: var(--r-pill); background: var(--orange-100); color: var(--orange-800); font-weight: 600; }
+  .post h3 a { text-decoration: none; color: inherit; }
+  .post h3 a::after { content: ''; position: absolute; inset: 0; }
+  .post:hover h3 a { color: var(--orange-700); }
+  .ann { display: grid; gap: var(--s-4); align-content: start; padding: var(--s-6); border-radius: var(--r-lg); background: var(--cream); }
+  .ann__title { font-size: var(--fs-label); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-deep); }
+  .ann ul { margin: 0; padding: 0; list-style: none; display: grid; }
+  .ann li + li { border-top: 1px solid var(--line-strong); }
+  .ann li a { display: flex; gap: var(--s-3); padding: 0.8rem 0; font-size: 0.925rem; line-height: 1.45; color: var(--ink); text-decoration: none; }
+  .ann li a:hover { color: var(--orange-700); }
+  .ann li :global(.icon) { width: 1.1rem; height: 1.1rem; margin-top: 0.15rem; color: var(--orange-600); }
+  @media (max-width: 1080px) { .news__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ann { grid-column: 1 / -1; } }
+  @media (max-width: 680px) { .news__grid { grid-template-columns: minmax(0, 1fr); } }
+
+  /* ---------- Promo ---------- */
+  .promo {
+    position: fixed;
+    left: clamp(1rem, 0.5rem + 1.5vw, 1.75rem);
+    bottom: clamp(1rem, 0.5rem + 1.5vw, 1.75rem);
+    z-index: 95;
+    width: min(calc(100% - 6.5rem), 22rem);
+    display: grid;
+    gap: var(--s-2);
+    padding: var(--s-5);
+    border-radius: var(--r-lg);
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--orange-500);
+    box-shadow: var(--shadow-lg);
+    font-size: 0.925rem;
+    color: var(--ink-soft);
+  }
+  .promo[hidden] { display: none; }
+  @media (prefers-reduced-motion: no-preference) { .promo:not([hidden]) { animation: promo-in 500ms var(--ease-out); } }
+  @keyframes promo-in { from { opacity: 0; transform: translateY(20px); } }
+  .promo h2 { font-size: 1.25rem; padding-right: var(--s-6); }
+  .promo__close { position: absolute; top: 0.6rem; right: 0.6rem; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--cream); }
+  .promo__close :global(.icon) { width: 1.1rem; height: 1.1rem; }
+  .promo__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin-top: var(--s-2); }
+  .promo__later { border: 0; background: none; padding: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 0.2em; }
+</style>

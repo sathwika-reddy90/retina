@@ -1,0 +1,166 @@
+---
+import '@fontsource-variable/manrope';
+import '@fontsource-variable/inter';
+import '@/styles/global.css';
+import manropeLatin from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
+import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import { getImage } from 'astro:assets';
+
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import Modal from '@/components/Modal.astro';
+import EnquiryForm from '@/components/EnquiryForm.astro';
+import SearchDialog from '@/components/SearchDialog.astro';
+import Icon from '@/components/Icon.astro';
+import ogDefault from '@/assets/imagery/interior-colour.jpg';
+import logo from '@/assets/brand/logo.png';
+import { company, corporateAddress, emails, phones, social, whatsappUrl } from '@/data/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: ImageMetadata;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+import type { ImageMetadata } from 'astro';
+
+const {
+  title,
+  description = company.intro,
+  ogImage = ogDefault,
+  noindex = false,
+  jsonLd,
+} = Astro.props;
+
+const isHome = Astro.url.pathname === '/';
+const fullTitle = isHome ? `${company.name} — ${company.tagline}` : `${title} | ${company.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const og = await getImage({ src: ogImage, width: 1200, format: 'jpg' });
+const ogUrl = new URL(og.src, Astro.site).href;
+const logoUrl = new URL((await getImage({ src: logo, width: 548, format: 'png' })).src, Astro.site).href;
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: company.name,
+  url: 'https://www.retinapaints.com/',
+  logo: logoUrl,
+  email: emails.info,
+  telephone: phones.map((p) => `+91-${p.replace(/^0/, '')}`),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: corporateAddress.lines.slice(0, 2).join(' '),
+    addressLocality: 'Hyderabad',
+    postalCode: '500051',
+    addressRegion: 'Telangana',
+    addressCountry: 'IN',
+  },
+  sameAs: social.map((s) => s.href),
+};
+const ld = [organization, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [])];
+---
+
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="sitemap" href="/sitemap.xml" />
+    <link rel="preload" href={manropeLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={company.name} />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+
+    <Modal
+      id="dialog-franchise"
+      eyebrow="Franchise"
+      title="Start Your Journey with Retina Paints!"
+      description="Fill out the form below to take the first step toward owning a successful franchise."
+    >
+      <EnquiryForm type="franchise" id="modal-franchise-form" />
+    </Modal>
+
+    <Modal
+      id="dialog-advice"
+      eyebrow="Expert advice"
+      title="Get Expert Advice for Your Painting Project!"
+      description="Need help choosing the right paint? Our experts are here to guide you!"
+    >
+      <EnquiryForm type="advice" id="modal-advice-form" />
+    </Modal>
+
+    <SearchDialog />
+
+    <a class="whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label="Chat with Retina Paints on WhatsApp (opens in a new tab)">
+      <Icon name="whatsapp" />
+      <span class="whatsapp__label">Chat with us</span>
+    </a>
+
+    <slot name="after" />
+
+    <script>
+      import '@/scripts/site';
+    </script>
+  </body>
+</html>
+
+<style>
+  main:focus { outline: none; }
+  .whatsapp {
+    position: fixed;
+    right: clamp(1rem, 0.5rem + 1.5vw, 1.75rem);
+    bottom: clamp(1rem, 0.5rem + 1.5vw, 1.75rem);
+    z-index: 90;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 56px;
+    padding: 0 1.1rem 0 0.95rem;
+    border-radius: var(--r-pill);
+    background: #1f9d55;
+    color: var(--white);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.925rem;
+    text-decoration: none;
+    box-shadow: 0 14px 30px -12px rgb(16 90 50 / 0.65);
+    transition: transform var(--t-base) var(--ease-out), box-shadow var(--t-base), background-color var(--t-fast);
+  }
+  .whatsapp:hover { transform: translateY(-2px); background: #188548; }
+  .whatsapp :global(.icon) { width: 1.6rem; height: 1.6rem; }
+  /* Collapses to an icon once the visitor scrolls, so it never sits over page controls. */
+  .whatsapp[data-collapsed] { width: 56px; padding: 0; justify-content: center; }
+  .whatsapp[data-collapsed] .whatsapp__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  @media (max-width: 720px) {
+    .whatsapp { width: 56px; padding: 0; justify-content: center; }
+    .whatsapp__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  }
+</style>

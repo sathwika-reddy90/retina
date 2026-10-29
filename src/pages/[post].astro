@@ -1,0 +1,154 @@
+---
+// News posts live at the site root on the live website, e.g. /historic-moment-…/.
+import { Image, getImage } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import Icon from '@/components/Icon.astro';
+import { posts, type Post } from '@/data/news';
+
+export function getStaticPaths() {
+  return posts.map((p) => ({ params: { post: p.slug }, props: { post: p } }));
+}
+const { post } = Astro.props as { post: Post };
+const others = posts.filter((p) => p.slug !== post.slug);
+const fmt = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+const full = await Promise.all(post.gallery.map((g) => getImage({ src: g, width: Math.min(1600, g.width), format: 'webp', quality: 80 })));
+
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  headline: post.title,
+  datePublished: post.date,
+  image: new URL((await getImage({ src: post.cover, width: 1200, format: 'jpg' })).src, Astro.site).href,
+  publisher: { '@type': 'Organization', name: 'Retina Paints Limited' },
+};
+---
+
+<BaseLayout title={post.title} description={post.excerpt} ogImage={post.cover} jsonLd={ld}>
+  <article class="article">
+    <header class="article__head">
+      <div class="container container--text">
+        <Breadcrumbs items={[{ label: 'News And Events', href: '/news-and-events/' }, { label: post.title }]} />
+        <p class="article__meta"><span class="cat">{post.category}</span><time datetime={post.date}>{fmt(post.date)}</time></p>
+        <h1 class="t-h1">{post.title}</h1>
+      </div>
+    </header>
+
+    <div class="container article__cover">
+      <Image src={post.cover} alt={post.coverAlt} widths={[640, 1024, 1440]} sizes="(max-width: 1100px) 100vw, 1100px" loading="eager" fetchpriority="high" />
+    </div>
+
+    <div class="container container--text article__body">
+      {post.body.map((b) => (
+        <>
+          {b.heading && <h2 class="t-h4">{b.heading}</h2>}
+          <p>{b.text}</p>
+        </>
+      ))}
+    </div>
+
+    {post.gallery.length > 0 && (
+      <section class="container gallery" aria-labelledby="gallery-title">
+        <h2 class="t-h3" id="gallery-title">Gallery <span>{post.gallery.length} photos</span></h2>
+        <ul role="list" class="gallery__grid">
+          {post.gallery.map((g, i) => (
+            <li>
+              <button type="button" class="gallery__item" data-lightbox={i} aria-label={`Open photo ${i + 1} of ${post.gallery.length}`}>
+                <Image src={g} alt={`${post.galleryAlt} ${i + 1}`} widths={[240, 400]} sizes="(max-width: 640px) 50vw, 25vw" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <footer class="container container--text article__foot">
+      <a class="link-arrow" href="/news-and-events/"><Icon name="arrow-left" /> All news &amp; events</a>
+      {others.map((o) => (
+        <a class="article__next" href={`/${o.slug}/`}>
+          <span>You Might Also Like</span>
+          <strong>{o.title}</strong>
+        </a>
+      ))}
+    </footer>
+  </article>
+
+  <Fragment slot="after">
+    <dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
+      <button type="button" class="lightbox__close" data-close-dialog aria-label="Close"><Icon name="close" /></button>
+      <button type="button" class="lightbox__nav lightbox__nav--prev" data-lb-prev aria-label="Previous photo"><Icon name="chevron-left" /></button>
+      <figure>
+        <img src="" alt="" data-lb-img />
+        <figcaption data-lb-caption></figcaption>
+      </figure>
+      <button type="button" class="lightbox__nav lightbox__nav--next" data-lb-next aria-label="Next photo"><Icon name="chevron-right" /></button>
+    </dialog>
+    <script type="application/json" id="lightbox-data" set:html={JSON.stringify(full.map((f, i) => ({ src: f.src, alt: `${post.galleryAlt} ${i + 1}` })))} />
+  </Fragment>
+</BaseLayout>
+
+<script>
+  const data = JSON.parse(document.getElementById('lightbox-data')?.textContent ?? '[]') as { src: string; alt: string }[];
+  const dlg = document.getElementById('lightbox') as HTMLDialogElement | null;
+  if (dlg && data.length) {
+    const img = dlg.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const cap = dlg.querySelector<HTMLElement>('[data-lb-caption]')!;
+    let i = 0;
+    const show = (n: number) => {
+      i = (n + data.length) % data.length;
+      img.src = data[i].src;
+      img.alt = data[i].alt;
+      cap.textContent = `${i + 1} / ${data.length}`;
+    };
+    document.querySelectorAll<HTMLButtonElement>('[data-lightbox]').forEach((b) =>
+      b.addEventListener('click', () => {
+        show(Number(b.dataset.lightbox));
+        dlg.showModal();
+      }),
+    );
+    dlg.querySelector('[data-lb-prev]')!.addEventListener('click', () => show(i - 1));
+    dlg.querySelector('[data-lb-next]')!.addEventListener('click', () => show(i + 1));
+    dlg.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(i - 1);
+      if (e.key === 'ArrowRight') show(i + 1);
+    });
+  }
+</script>
+
+<style>
+  .article__head { padding-block: clamp(2rem, 1.5rem + 2vw, 3.5rem) clamp(1.5rem, 1rem + 2vw, 2.5rem); background: var(--cream); }
+  .article__head .container { display: grid; gap: var(--s-4); }
+  .article__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin-top: var(--s-3); font-size: 0.9rem; color: var(--ink-soft); }
+  .cat { padding: 0.15rem 0.65rem; border-radius: var(--r-pill); background: var(--orange-100); color: var(--orange-800); font-weight: 600; font-size: 0.8125rem; }
+  .article__head h1 { font-size: clamp(2rem, 1.5rem + 2vw, 3.25rem); }
+  .article__cover { max-width: calc(1100px + var(--gutter) * 2); margin-top: calc(-1 * var(--s-2)); padding-top: var(--s-6); }
+  .article__cover :global(img) { width: 100%; height: auto; max-height: 70vh; object-fit: cover; border-radius: var(--r-xl); }
+  .article__body { display: grid; gap: var(--s-4); padding-block: var(--s-8); font-size: 1.0625rem; color: var(--ink); }
+  .article__body h2 { margin-top: var(--s-3); }
+  .gallery { max-width: calc(1100px + var(--gutter) * 2); padding-bottom: var(--s-8); }
+  .gallery h2 { display: flex; align-items: baseline; gap: var(--s-3); margin-bottom: var(--s-5); }
+  .gallery h2 span { font-family: var(--font-body); font-size: 0.875rem; font-weight: 500; color: var(--ink-soft); letter-spacing: 0; }
+  .gallery__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr)); gap: var(--s-3); margin: 0; padding: 0; list-style: none; }
+  .gallery__item { display: block; width: 100%; aspect-ratio: 1; padding: 0; border: 0; border-radius: var(--r-md); overflow: hidden; background: var(--sand); cursor: zoom-in; }
+  .gallery__item :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform var(--t-slow) var(--ease-out); }
+  .gallery__item:hover :global(img) { transform: scale(1.05); }
+  .article__foot { display: grid; gap: var(--s-5); padding-block: var(--s-6) var(--section-y); border-top: 1px solid var(--line); }
+  .article__next { display: grid; gap: 0.25rem; padding: var(--s-5); border-radius: var(--r-md); background: var(--cream); text-decoration: none; color: var(--ink-deep); }
+  .article__next span { font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-text); }
+  .article__next:hover strong { color: var(--orange-700); }
+
+  .lightbox { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgb(15 12 10 / 0.94); color: var(--white); display: none; place-items: center; }
+  .lightbox[open] { display: grid; }
+  .lightbox::backdrop { background: transparent; }
+  .lightbox figure { display: grid; gap: var(--s-3); justify-items: center; margin: 0; padding: var(--s-8) var(--s-10); }
+  .lightbox img { max-width: 100%; max-height: calc(100dvh - 9rem); width: auto; height: auto; border-radius: var(--r-sm); }
+  .lightbox figcaption { font-size: 0.875rem; color: rgb(255 255 255 / 0.7); }
+  .lightbox__close, .lightbox__nav { position: absolute; display: grid; place-items: center; width: 48px; height: 48px; border: 0; border-radius: 50%; background: rgb(255 255 255 / 0.12); color: var(--white); }
+  .lightbox__close:hover, .lightbox__nav:hover { background: rgb(255 255 255 / 0.24); }
+  .lightbox__close { top: var(--s-4); right: var(--s-4); }
+  .lightbox__nav { top: 50%; transform: translateY(-50%); }
+  .lightbox__nav--prev { left: var(--s-4); }
+  .lightbox__nav--next { right: var(--s-4); }
+  .lightbox :global(:focus-visible) { outline-color: var(--white); }
+  @media (max-width: 640px) { .lightbox figure { padding: var(--s-9) var(--s-3); } .lightbox__nav { top: auto; bottom: var(--s-4); transform: none; } }
+</style>

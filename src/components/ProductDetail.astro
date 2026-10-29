@@ -1,0 +1,236 @@
+---
+import { Image, getImage } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import ProductCard from './ProductCard.astro';
+import CtaBand from './CtaBand.astro';
+import Icon from './Icon.astro';
+import { categoryById, productBySlug, surfacePreparation, type Product } from '@/data/products';
+import { docUrl } from '@/data/site';
+
+interface Props {
+  product: Product;
+}
+const { product: p } = Astro.props;
+const cat = categoryById(p.category);
+const related = p.related.map(productBySlug).filter((r): r is Product => Boolean(r && r.href && r.slug !== p.slug));
+const [categoryHeading, categoryTagline] = (p.pageHeading ?? cat.name).split(' – ');
+const description = p.description.join(' ').slice(0, 155).replace(/\s+\S*$/, '…');
+const packUrl = new URL((await getImage({ src: p.image, width: 500, format: 'png' })).src, Astro.site).href;
+
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: p.name,
+  description: p.description.join(' '),
+  image: packUrl,
+  category: cat.name,
+  brand: { '@type': 'Brand', name: 'Retina Paints' },
+  manufacturer: { '@type': 'Organization', name: 'Retina Paints Limited' },
+};
+---
+
+<BaseLayout title={`${p.name} — ${cat.label}`} description={description} jsonLd={ld}>
+  <section class="pd-hero" aria-labelledby="pd-title">
+    <div class="container">
+      <Breadcrumbs
+        items={[
+          { label: 'Products', href: '/products/' },
+          { label: cat.name, href: `/products/#${cat.id}` },
+          { label: p.name },
+        ]}
+      />
+      <div class="pd-hero__grid">
+        <div class="pd-stage">
+          {cat.image && <Image src={cat.image} alt="" widths={[640, 1000]} sizes="(max-width: 960px) 100vw, 46vw" class="pd-stage__bg" loading="eager" />}
+          <Image src={p.image} alt={`${p.name} pack`} widths={[280, 420, 560]} sizes="(max-width: 960px) 60vw, 26vw" class="pd-stage__pack" loading="eager" fetchpriority="high" />
+          {p.warranty && (
+            <div class="pd-stage__warranty">
+              <Icon name="award" />
+              <span><strong>{p.warranty} Years</strong> Warranty</span>
+            </div>
+          )}
+        </div>
+
+        <div class="pd-info">
+          <p class="eyebrow">{categoryHeading}</p>
+          <h1 class="t-h1" id="pd-title">{p.name}</h1>
+          {categoryTagline && <p class="pd-info__tagline">{categoryTagline}</p>}
+          {p.subtitle && <p class="pd-info__subtitle">{p.subtitle}</p>}
+          <div class="pd-info__desc">
+            {p.description.map((d) => <p>{d}</p>)}
+          </div>
+          {p.features.length > 0 && (
+            <ul role="list" class="pd-info__chips" aria-label="Key features">
+              {p.warranty && <li class="tag tag--warranty"><Icon name="award" />{p.warranty} Years Warranty</li>}
+              {p.features.map((f) => <li class="tag"><Icon name="check" />{f}</li>)}
+            </ul>
+          )}
+          <div class="cluster pd-info__ctas">
+            <button type="button" class="btn" data-open-dialog="dialog-advice">Get Expert Advice <Icon name="arrow-right" /></button>
+            {p.sheet && (
+              <a class="btn btn--secondary" href={docUrl(p.sheet)} target="_blank" rel="noopener">
+                <Icon name="download" /> Product sheet<span class="sr-only"> (PDF, opens in a new tab)</span>
+              </a>
+            )}
+            <a class="link-arrow" href="/find-a-store-near-you/"><Icon name="map-pin" /> Find a store</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {p.specs.length > 0 && (
+    <section class="section specs" aria-labelledby="specs-title">
+      <div class="container specs__grid">
+        <div class="specs__head" data-reveal>
+          <p class="eyebrow">Technical Details</p>
+          <h2 class="t-h2" id="specs-title">Specifications</h2>
+          {p.sheet && (
+            <a class="link-arrow" href={docUrl(p.sheet)} target="_blank" rel="noopener">
+              View More in product Sheet <Icon name="arrow-up-right" /><span class="sr-only"> (PDF, opens in a new tab)</span>
+            </a>
+          )}
+        </div>
+        <dl class="specs__list" data-reveal>
+          {p.specs.map(([k, v]) => (
+            <div class="specs__row">
+              <dt>{k}</dt>
+              <dd>{v}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+  )}
+
+  <section class="section section--cream prep" aria-labelledby="prep-title">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <p class="eyebrow">Before you paint</p>
+        <h2 class="t-h2" id="prep-title">Surface Preparation</h2>
+      </div>
+      <ol role="list" class="prep__list">
+        {surfacePreparation.map(([t, d], i) => (
+          <li data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <span class="prep__num">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="t-h4">{t}</h3>
+            <p>{d}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="section related" aria-labelledby="related-title">
+      <div class="container">
+        <div class="section-head section-head--split" data-reveal>
+          <div class="stack" style="--stack: var(--s-3)">
+            <p class="eyebrow">Explore more</p>
+            <h2 class="t-h2" id="related-title">You may also like</h2>
+          </div>
+          <a class="link-arrow" href="/products/">Did not find what you are looking for? View More <Icon name="arrow-right" /></a>
+        </div>
+        <ul role="list" class="related__grid">
+          {related.map((r) => <li><ProductCard product={r} /></li>)}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .pd-hero { padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem) clamp(3rem, 2rem + 4vw, 6rem); background: linear-gradient(var(--cream), var(--white)); border-bottom: 1px solid var(--line); }
+  .pd-hero__grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: clamp(2rem, 1rem + 4vw, 5.5rem); align-items: start; margin-top: var(--s-6); }
+  .pd-stage {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    background: radial-gradient(70% 60% at 50% 45%, var(--white), var(--orange-100));
+    isolation: isolate;
+  }
+  .pd-stage :global(.pd-stage__bg) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    opacity: 0.9;
+  }
+  .pd-stage::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 15%;
+    width: 58%;
+    height: 8%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(30 15 5 / 0.35), transparent);
+    z-index: -1;
+  }
+  .pd-stage :global(.pd-stage__pack) { width: 58%; height: auto; filter: drop-shadow(0 30px 30px rgb(30 15 5 / 0.3)); }
+  .pd-stage__warranty {
+    position: absolute;
+    left: var(--s-5);
+    top: var(--s-5);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1rem 0.55rem 0.75rem;
+    border-radius: var(--r-pill);
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+  }
+  .pd-stage__warranty strong { color: var(--ink-deep); font-family: var(--font-display); }
+  .pd-stage__warranty :global(.icon) { color: var(--orange-600); }
+
+  .pd-info { display: grid; gap: var(--s-4); justify-items: start; padding-top: var(--s-4); }
+  .pd-info__tagline { font-family: var(--font-display); font-size: var(--fs-h4); font-weight: 600; color: var(--orange-700); letter-spacing: -0.01em; }
+  .pd-info__subtitle { font-weight: 600; color: var(--ink-deep); }
+  .pd-info__desc { display: grid; gap: var(--s-3); color: var(--ink-soft); max-width: 38rem; }
+  .pd-info__chips { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: var(--s-2) 0 0; padding: 0; }
+  .pd-info__chips .tag { background: var(--white); }
+  .pd-info__chips .tag--warranty { background: var(--orange-100); }
+  .pd-info__chips :global(.icon) { color: var(--orange-600); }
+  .pd-info__ctas { margin-top: var(--s-4); --cluster: var(--s-3) var(--s-5); }
+
+  @media (max-width: 960px) {
+    .pd-hero__grid { grid-template-columns: minmax(0, 1fr); }
+    .pd-stage { position: relative; top: 0; aspect-ratio: 4 / 3; }
+    .pd-stage :global(.pd-stage__pack) { width: 42%; }
+  }
+
+  .specs__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: start; }
+  .specs__head { display: grid; gap: var(--s-4); justify-items: start; position: sticky; top: calc(var(--header-h) + 2rem); }
+  .specs__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--grid-gap); margin: 0; }
+  .specs__row { display: grid; gap: 0.25rem; padding: var(--s-4) 0; border-top: 1px solid var(--line-strong); }
+  .specs__row dt { font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+  .specs__row dd { margin: 0; font-family: var(--font-display); font-size: 1.0625rem; font-weight: 600; color: var(--ink-deep); }
+  @media (max-width: 860px) {
+    .specs__grid { grid-template-columns: minmax(0, 1fr); }
+    .specs__head { position: static; }
+  }
+  @media (max-width: 520px) { .specs__list { grid-template-columns: minmax(0, 1fr); } }
+
+  .prep__list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; counter-reset: prep; }
+  .prep__list li { display: grid; gap: var(--s-3); align-content: start; padding: var(--s-6) var(--s-5); border-radius: var(--r-lg); background: var(--white); border: 1px solid var(--line); }
+  .prep__num { font-family: var(--font-display); font-size: 2.25rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: var(--orange-500); }
+  .prep__list p { font-size: 0.95rem; color: var(--ink-soft); }
+  @media (max-width: 1000px) { .prep__list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 520px) { .prep__list { grid-template-columns: minmax(0, 1fr); } }
+
+  .related__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  @media (max-width: 900px) { .related__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .related__grid { grid-template-columns: minmax(0, 1fr); } }
+</style>

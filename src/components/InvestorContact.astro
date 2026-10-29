@@ -1,0 +1,28 @@
+---
+import Icon from './Icon.astro';
+import { emails } from '@/data/site';
+interface Props {
+  heading?: string;
+  paragraphs: string[];
+}
+const { heading, paragraphs } = Astro.props;
+---
+
+<div class="ic">
+  {heading && <h2 class="t-h4">{heading}</h2>}
+  {paragraphs.map((p) => <p>{p}</p>)}
+  <p class="ic__email">
+    <span>E-mail:</span>
+    <a href={`mailto:${emails.investors}`}><Icon name="mail" />{emails.investors}</a>
+  </p>
+</div>
+
+<style>
+  .ic { display: grid; gap: var(--s-4); max-width: 44rem; padding: clamp(1.5rem, 1rem + 2vw, 2.5rem); border-radius: var(--r-lg); background: var(--cream); border: 1px solid var(--line); color: var(--ink-soft); }
+  .ic h2 { color: var(--ink-deep); }
+  .ic__email { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); padding-top: var(--s-4); border-top: 1px solid var(--line-strong); }
+  .ic__email span { font-weight: 600; color: var(--ink-deep); }
+  .ic__email a { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1rem; border-radius: var(--r-pill); background: var(--white); border: 1px solid var(--line-strong); font-weight: 600; color: var(--ink-deep); text-decoration: none; }
+  .ic__email a:hover { border-color: var(--ink-deep); }
+  .ic__email :global(.icon) { width: 1.05rem; height: 1.05rem; color: var(--orange-600); }
+</style>

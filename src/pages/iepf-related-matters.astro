@@ -1,0 +1,9 @@
+---
+import InvestorLayout from '@/layouts/InvestorLayout.astro';
+import InvestorContact from '@/components/InvestorContact.astro';
+import { investorContactPages } from '@/data/investors';
+---
+
+<InvestorLayout title="IEPF Related Matters">
+  <InvestorContact heading={investorContactPages.iepf.heading} paragraphs={investorContactPages.iepf.paragraphs} />
+</InvestorLayout>
