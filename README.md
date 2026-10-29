@@ -68,7 +68,8 @@ Re-run it whenever a room overlay changes. Per-room settings (shadow strength, w
 Other behaviour:
 - Shades come only from `src/data/shades.json` (the live `colors-all.xml`).
 - The Light/Medium/Dark filter uses each shade's CIE L* lightness (cut points 84 and 66 split the catalogue into near-equal thirds).
-- `/colors/#QC0131` deep-links to a shade.
+- Every visualizer opens on the brand-orange default `QC0241` (`DEFAULT_SHADE` in `src/data/colours.ts`), and Reset returns to it. Selections are not saved in storage or in the URL, so a reload always starts fresh.
+- A link such as `/colors/#QC0263` opens on that shade once. The hash is then removed, so reloading goes back to the default.
 
 ### URLs
 

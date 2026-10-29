@@ -154,14 +154,15 @@ function initOne(root: HTMLElement) {
     if (!deck.querySelector('.swatch[tabindex="0"]')) deck.querySelector<HTMLElement>('.swatch')?.setAttribute('tabindex', '0');
   };
 
-  const select = (code: string, opts: { hash?: boolean; touch?: boolean } = {}) => {
+  // Selections are deliberately not persisted (no storage, no URL hash), so every
+  // fresh load or reload starts from the default shade in data-initial.
+  const select = (code: string, opts: { touch?: boolean } = {}) => {
     if (!byCode.has(code)) return;
     state.current = code;
     if (state.compare) state.b = code;
     else state.a = state.b = code;
     paint();
     if (opts.touch !== false) setSteps(true);
-    if (isPage && opts.hash !== false) history.replaceState(null, '', `#${code}`);
   };
 
   /* ---------- Shade grid ---------- */
@@ -187,7 +188,7 @@ function initOne(root: HTMLElement) {
     if (!rows.length) {
       const p = document.createElement('p');
       p.className = 'deck__empty';
-      p.textContent = q ? `No shades match “${state.query}”. Try a code such as QC0131.` : 'No shades in this depth for this family. Try another tone.';
+      p.textContent = q ? `No shades match “${state.query}”. Try a code such as QC0241.` : 'No shades in this depth for this family. Try another tone.';
       deck.append(p);
     }
     const frag = document.createDocumentFragment();
@@ -371,17 +372,20 @@ function initOne(root: HTMLElement) {
     setRadio(tonesEl, '[data-tone]', (el) => el.dataset.tone === 'all');
     const fam = byCode.get(initial)!.family;
     showFamily(fam);
-    select(initial, { touch: false, hash: false });
+    select(initial, { touch: false });
     setSteps(false);
-    if (isPage) history.replaceState(null, '', location.pathname + location.search);
   });
 
-  /* ---------- Initial state + shareable #QC… links ---------- */
+  /* ---------- Shade links (/colors/#QC0263) ----------
+   * A link that names a shade opens on that shade once; the hash is then removed
+   * so that reloading the page returns to the default shade. */
   const applyHash = () => {
     const code = decodeURIComponent(location.hash.slice(1)).toUpperCase();
-    if (!byCode.has(code) || code === state.current) return;
+    if (!byCode.has(code)) return;
+    history.replaceState(null, '', location.pathname + location.search);
+    if (code === state.current) return;
     if (byCode.get(code)!.family !== state.family || state.query) showFamily(byCode.get(code)!.family);
-    select(code, { hash: false });
+    select(code);
     revealSelected();
   };
   if (isPage) {

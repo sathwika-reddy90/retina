@@ -78,5 +78,11 @@ export const rooms: Room[] = [
   { id: 'house', label: 'House', image: house, kind: 'exterior' },
 ];
 
-/** Default preview colour on the live Colours page. */
-export const DEFAULT_SHADE = 'QC0131';
+/**
+ * Shade every visualizer opens with (and returns to on Reset). QC0241 (#F28D35)
+ * is a real catalogue shade, chosen as the closest match to the brand orange
+ * (CIE ΔE2000 ≈ 3 from #F58220 and from the logo's #F28121) that still reads as
+ * a natural wall colour. The catalogue gives it no official name, so only the
+ * code is shown. (The old WordPress Colours page opened on yellow QC0131.)
+ */
+export const DEFAULT_SHADE = 'QC0241';
