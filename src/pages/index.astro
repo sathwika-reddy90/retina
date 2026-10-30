@@ -522,14 +522,23 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
       try { sessionStorage.setItem('rp-promo', '1'); } catch {}
     };
     if (!seen) {
-      const timer = window.setTimeout(show, 15000);
-      const onScroll = () => {
-        if (window.scrollY > document.documentElement.scrollHeight * 0.35) {
-          window.clearTimeout(timer);
-          show();
-          window.removeEventListener('scroll', onScroll);
-        }
+      // Never pop up over a tool the visitor is using (the colour visualizer); wait until it is off-screen.
+      const avoid = Array.from(document.querySelectorAll<HTMLElement>('[data-float-avoid]'));
+      const busy = () => avoid.some((el) => {
+        const r = el.getBoundingClientRect();
+        return r.top < window.innerHeight && r.bottom > 0;
+      });
+      let due = false;
+      const attempt = () => {
+        if (!due || busy()) return;
+        window.removeEventListener('scroll', onScroll);
+        show();
       };
+      const onScroll = () => {
+        if (window.scrollY > document.documentElement.scrollHeight * 0.35) due = true;
+        attempt();
+      };
+      window.setTimeout(() => { due = true; attempt(); }, 15000);
       window.addEventListener('scroll', onScroll, { passive: true });
     }
     promo.querySelectorAll('[data-promo-close]').forEach((b) => b.addEventListener('click', () => (promo.hidden = true)));
@@ -1170,4 +1179,12 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .promo__close :global(.icon) { width: 1.1rem; height: 1.1rem; }
   .promo__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin-top: var(--s-2); }
   .promo__later { border: 0; background: none; padding: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 0.2em; }
+  /* Phones: a compact card that leaves most of the screen (and the WhatsApp button) clear. */
+  @media (max-width: 560px) {
+    .promo { bottom: max(1rem, env(safe-area-inset-bottom)); padding: var(--s-4); gap: var(--s-1); }
+    .promo > p:not(.eyebrow) { display: none; }
+    .promo h2 { font-size: 1.05rem; }
+    .promo__actions { margin-top: var(--s-1); }
+    .promo__later { display: none; }
+  }
 </style>

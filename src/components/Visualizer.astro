@@ -587,7 +587,8 @@ const ink = (hex: string) => {
 
   .deck-wrap { position: relative; }
   .deck { display: grid; gap: 0.45rem; max-height: min(29rem, calc(100dvh - var(--header-h) - 22rem)); min-height: 15rem; overflow-y: auto; overscroll-behavior: contain; padding: 6px 6px 2.25rem 6px; margin: -6px; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
-  .viz--compact .deck { max-height: 22rem; }
+  /* Desktop only: below 961px the deck grows with its content. A cap there, with overflow visible, spills swatches over the next section. */
+  @media (min-width: 961px) { .viz--compact .deck { max-height: 22rem; } }
   .deck :global(.deck__row) { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.45rem; }
   .deck :global(.swatch) {
     position: relative;
@@ -676,9 +677,9 @@ const ink = (hex: string) => {
   @media (max-width: 960px) {
     .viz__grid { grid-template-columns: minmax(0, 1fr); }
     .viz__left { display: contents; }
-    .block-head { order: 1; }
-    .rooms { order: 2; }
-    .stage { order: 3; }
+    .stage { order: 1; }
+    .block-head { order: 2; }
+    .rooms { order: 3; }
     .current { order: 4; }
     .viz__note { order: 6; }
     .panel { order: 5; }
@@ -714,7 +715,25 @@ const ink = (hex: string) => {
   @media (max-width: 640px), (max-width: 960px) and (max-height: 599px) and (orientation: landscape) {
     .panel { padding: var(--s-4); }
     .search input { font-size: 1rem; } /* under 16px, iOS Safari zooms the page when the field is focused */
-    .families { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 0.35rem; }
+    /* Families: one swipeable row instead of two cramped ones. */
+    .families {
+      position: relative; /* containing block for the buttons' .sr-only text, or it escapes the scroller and widens the page */
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: 4.25rem;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      padding-right: 2rem;
+      margin-inline: calc(-1 * var(--s-2));
+      padding-left: var(--s-2);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--s-2), #000 calc(100% - 2rem), transparent);
+      mask-image: linear-gradient(to right, transparent, #000 var(--s-2), #000 calc(100% - 2rem), transparent);
+    }
+    .families::-webkit-scrollbar { display: none; }
+    .family { scroll-snap-align: start; }
+    .family:focus-visible { outline-offset: -2.5px; }
     .current { grid-template-columns: auto minmax(0, 1fr); }
     .current__actions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .act { justify-content: center; padding-inline: 0.5rem; }
@@ -727,10 +746,12 @@ const ink = (hex: string) => {
     /* Depth filter becomes a full-width segmented control so it can never push the panel wider. */
     .tones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; }
     .tone { justify-content: center; padding-inline: 0.25rem; }
-    .deck :global(.deck__row) { gap: 0.35rem; }
-    .deck :global(.swatch) { aspect-ratio: auto; height: 2.75rem; }
-    .deck { gap: 0.35rem; }
-    .deck :global(.swatch__code) { font-size: 0.5625rem; }
+    /* Seven-shade strips are too slim here: flow every shade into one grid of 4 columns, 5 once each can be 3.4rem (~375px+). */
+    .deck { grid-template-columns: repeat(auto-fill, minmax(max(3.4rem, (100% - 1.6rem) / 5), 1fr)); gap: 0.4rem; }
+    .deck :global(.deck__row) { display: contents; }
+    .deck :global(.deck__empty) { grid-column: 1 / -1; }
+    .deck :global(.swatch) { aspect-ratio: 5 / 4; }
+    .deck :global(.swatch__code) { font-size: 0.625rem; }
     .deck :global(.swatch:not([aria-checked='true']) .swatch__code) { display: none; }
   }
   /* Too narrow for icon and label side by side: stack them so all three actions stay on one row. */
@@ -744,8 +765,5 @@ const ink = (hex: string) => {
   }
   @media (max-width: 359px) {
     .tone__dot { display: none; }
-    /* Swatches are too slim for the code here; the stage chip and colour bar still show it. */
-    .deck :global(.swatch .swatch__code) { display: none; }
-    .deck :global(.swatch[aria-checked='true'] .swatch__check) { transform: none; }
   }
 </style>

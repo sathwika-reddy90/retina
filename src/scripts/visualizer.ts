@@ -53,16 +53,29 @@ function radioKeys(group: HTMLElement, selector: string, onPick: (el: HTMLElemen
     }
   });
 }
-/** In the shade grid each row is one shade strip, so Up/Down keep the column position. */
+/**
+ * Up/Down in the shade grid: the nearest swatch in the next visual row. Measured rather than
+ * derived from the strips, because phones flow the 7-shade strips into a 4–5 column grid.
+ */
 function nextInColumn(items: HTMLElement[], i: number, dir: 1 | -1) {
-  const cur = items[i];
-  const row = cur.parentElement!;
-  const col = Array.from(row.children).indexOf(cur);
-  let r = dir === 1 ? row.nextElementSibling : row.previousElementSibling;
-  while (r && !r.children.length) r = dir === 1 ? r.nextElementSibling : r.previousElementSibling;
-  if (!r) return i;
-  const target = r.children[Math.min(col, r.children.length - 1)] as HTMLElement;
-  return items.indexOf(target);
+  const cur = items[i].getBoundingClientRect();
+  const cx = cur.left + cur.width / 2;
+  const tol = cur.height / 2; // absorbs the hover/selected scale on swatches
+  let best = i;
+  let bestDy = Infinity;
+  let bestDx = Infinity;
+  items.forEach((el, j) => {
+    const r = el.getBoundingClientRect();
+    const dy = (r.top - cur.top) * dir;
+    if (dy < tol) return;
+    const dx = Math.abs(r.left + r.width / 2 - cx);
+    if (dy < bestDy - tol || (dy < bestDy + tol && dx < bestDx)) {
+      best = j;
+      bestDy = Math.min(dy, bestDy);
+      bestDx = dx;
+    }
+  });
+  return best;
 }
 function setRadio(group: ParentNode, selector: string, match: (el: HTMLElement) => boolean) {
   group.querySelectorAll<HTMLElement>(selector).forEach((el) => {
@@ -247,6 +260,15 @@ function initOne(root: HTMLElement) {
     clear.hidden = true;
     setRadio(familiesEl, '[data-family]', (el) => el.dataset.family === f);
     render();
+    revealFamily();
+  };
+  /** On phones the families scroll sideways; bring the selected one into view without moving the page. */
+  const revealFamily = () => {
+    if (familiesEl.scrollWidth <= familiesEl.clientWidth) return;
+    const el = familiesEl.querySelector<HTMLElement>('[aria-checked="true"]');
+    if (!el) return;
+    const offset = el.getBoundingClientRect().left - familiesEl.getBoundingClientRect().left;
+    familiesEl.scrollLeft = Math.max(0, familiesEl.scrollLeft + offset - (familiesEl.clientWidth - el.offsetWidth) / 2);
   };
   const showTone = (t: Tone) => {
     state.tone = t;
@@ -392,7 +414,10 @@ function initOne(root: HTMLElement) {
     applyHash();
     window.addEventListener('hashchange', applyHash);
   }
-  requestAnimationFrame(revealSelected);
+  requestAnimationFrame(() => {
+    revealSelected();
+    revealFamily();
+  });
   updateMore();
 }
 
