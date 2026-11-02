@@ -1,0 +1,104 @@
+---
+// "Explore Beyond Colours": two editorial image grids. Retina makes textures and
+// putty, and interior finishes (not wallpapers), so those are the two collections;
+// every tile links to a real product page, product section or the visualizer.
+import { Image } from 'astro:assets';
+import Icon from '@/components/Icon.astro';
+import PaintedRoom from '@/components/PaintedRoom.astro';
+import { productBySlug } from '@/data/products';
+import puttyPhoto from '@/assets/categories/putty.jpg';
+import interiorPhoto from '@/assets/categories/interior-emulsions.jpg';
+import accentPhoto from '@/assets/categories/waterbased-primers.jpg';
+
+const pack = (slug: string) => {
+  const p = productBySlug(slug)!;
+  return { label: p.name, href: p.href ?? '/products/#putty', image: p.image };
+};
+const groups = [
+  {
+    id: 'textures',
+    title: 'Textures',
+    href: '/products/#putty',
+    tiles: [
+      { area: 'a', label: 'Decorative texture', href: '/products/spray-plasters/hitek-textures/', photo: puttyPhoto, pos: '72% 50%' },
+      { area: 'b', ...pack('texture') },
+      { area: 'c', ...pack('coarse-putty') },
+      { area: 'd', ...pack('wall-fix') },
+    ],
+  },
+  {
+    id: 'finishes',
+    title: 'Wall Finishes',
+    href: '/products/#interior-emulsions',
+    tiles: [
+      { area: 'a', label: 'High-sheen luxury', href: productBySlug('royal-vogue')!.href!, photo: interiorPhoto, pos: '58% 50%' },
+      { area: 'b', label: 'Bold accent walls', href: '/colors/', photo: accentPhoto, pos: '62% 50%' },
+      { area: 'c', label: 'Warm neutral living', href: '/colors/#QC1095', room: { id: 'living-room', hex: '#D9C4A4' } },
+      { area: 'd', label: 'Smooth matt elegance', href: productBySlug('glow-premium')!.href!, room: { id: 'dining', hex: '#CA8382' } },
+    ],
+  },
+];
+---
+
+<section class="section beyond" aria-labelledby="beyond-title" id="beyond">
+  <div class="container">
+    <h2 class="beyond__title" id="beyond-title" data-reveal>Explore Beyond Colours</h2>
+    <div class="beyond__groups">
+      {groups.map((g) => (
+        <div class="bgroup" data-reveal-stagger="70">
+          <div class="bgroup__head">
+            <h3 class="bgroup__title">{g.title}</h3>
+            <a class="btn btn--secondary" href={g.href}>View all <span class="sr-only">{g.title.toLowerCase()}</span><Icon name="arrow-right" /></a>
+          </div>
+          {g.tiles.map((t) => (
+            <a class:list={['btile', `btile--${t.area}`, !('photo' in t) && !('room' in t) && 'btile--pack']} href={t.href}>
+              {'photo' in t && t.photo ? (
+                <Image src={t.photo} alt="" widths={[360, 640]} sizes="(max-width: 960px) 50vw, 300px" class="btile__img" style={`object-position:${t.pos}`} />
+              ) : 'room' in t && t.room ? (
+                <PaintedRoom room={t.room.id} hex={t.room.hex} alt="" sizes="(max-width: 960px) 50vw, 300px" widths={[360, 700]} class="btile__img" />
+              ) : (
+                <Image src={(t as { image: any }).image} alt="" width={200} height={210} class="btile__pack" />
+              )}
+              <span class="btile__label">{t.label} <Icon name="arrow-up-right" /></span>
+            </a>
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .beyond__title { margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem); text-align: center; font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.75rem); font-weight: 750; letter-spacing: var(--tracking-display); }
+  .beyond__groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(2rem, 1rem + 3vw, 4.5rem); }
+  .bgroup {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto repeat(3, clamp(7rem, 5rem + 4vw, 10rem));
+    grid-template-areas: 'head b' 'a b' 'a c' 'd c';
+    gap: var(--s-3);
+  }
+  .bgroup__head { grid-area: head; display: grid; justify-items: start; align-content: start; gap: var(--s-4); padding-bottom: var(--s-3); }
+  .bgroup__title { font-size: clamp(2.75rem, 1.8rem + 3vw, 4.5rem); font-weight: 300; letter-spacing: var(--tracking-display); line-height: 1; }
+  .btile { position: relative; overflow: hidden; border-radius: var(--r-md); background: var(--sand); isolation: isolate; color: var(--white); text-decoration: none; }
+  .btile--a { grid-area: a; }
+  .btile--b { grid-area: b; }
+  .btile--c { grid-area: c; }
+  .btile--d { grid-area: d; }
+  .btile :global(.btile__img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1000ms var(--ease-out); }
+  .btile:hover :global(.btile__img) { transform: scale(1.06); }
+  .btile::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgb(20 14 10 / 0.6), transparent 45%); pointer-events: none; }
+  .btile--pack { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-2); padding: var(--s-3); background: radial-gradient(circle at 50% 40%, var(--white), var(--sand) 75%); color: var(--ink-deep); }
+  .btile--pack::after { display: none; }
+  .btile :global(.btile__pack) { flex: 1 1 0; min-height: 0; width: auto; max-height: 78%; object-fit: contain; filter: drop-shadow(0 14px 16px rgb(40 20 6 / 0.25)); transition: transform 500ms var(--ease-out); }
+  .btile:hover :global(.btile__pack) { transform: translateY(-5px) rotate(-2deg); }
+  .btile__label { position: absolute; left: var(--s-3); bottom: var(--s-3); right: var(--s-3); z-index: 1; display: flex; align-items: center; gap: 0.35rem; font-family: var(--font-display); font-size: 0.875rem; font-weight: 700; line-height: 1.25; }
+  .btile--pack .btile__label { position: static; justify-content: center; }
+  .btile__label :global(.icon) { flex: none; width: 0.95rem; height: 0.95rem; opacity: 0.85; }
+  .btile:focus-visible { outline: 3px solid var(--ink-deep); outline-offset: 3px; }
+  @media (max-width: 960px) { .beyond__groups { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 480px) {
+    .bgroup { grid-template-rows: auto repeat(3, 8rem); }
+    .bgroup__title { font-size: 2.5rem; }
+  }
+</style>

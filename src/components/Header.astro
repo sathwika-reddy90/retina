@@ -9,6 +9,14 @@ import { LODR_HEADING as LODR } from '@/data/investors';
 const path = Astro.url.pathname;
 const isActive = (prefixes: string[]) => prefixes.some((p) => path === p || path.startsWith(p));
 const productCols = [productNav.slice(0, 2), productNav.slice(2, 5), productNav.slice(5)];
+// Services: tools and help that already exist on the site (no new routes).
+const servicesNav: { label: string; href?: string; dialog?: string }[] = [
+  { label: 'Painting Advice', dialog: 'dialog-advice' },
+  { label: 'Paint Budget Calculator', href: '/#calculator' },
+  { label: 'Colour Visualizer', href: '/colors/' },
+  { label: 'Find a Store', href: '/find-a-store-near-you/' },
+  { label: 'Become a Franchise Partner', href: '/franchise/' },
+];
 ---
 
 <div class="utility" aria-label="Contact and quick links">
@@ -88,6 +96,18 @@ const productCols = [productNav.slice(0, 2), productNav.slice(2, 5), productNav.
         </li>
 
         <li class="nav__item"><a class="nav__link" href="/colors/" aria-current={path.startsWith('/colors/') ? 'page' : undefined}>Colours</a></li>
+        <li class="nav__item" data-menu>
+          <button class="nav__link" type="button" aria-expanded="false" aria-controls="menu-services" data-current={isActive(['/find-a-store-near-you/', '/franchise/']) ? '' : undefined}>
+            Services <Icon name="chevron-down" class="nav__chev" />
+          </button>
+          <div class="menu menu--compact" id="menu-services">
+            <ul role="list" class="menu__links">
+              {servicesNav.map((l) => (
+                <li>{l.href ? <a href={l.href} aria-current={path === l.href ? 'page' : undefined}>{l.label}</a> : <button type="button" data-open-dialog={l.dialog}>{l.label}</button>}</li>
+              ))}
+            </ul>
+          </div>
+        </li>
 
         <li class="nav__item nav__item--mega" data-menu>
           <button class="nav__link" type="button" aria-expanded="false" aria-controls="menu-investors" data-current={isActive(['/investor-relations/', '/elementor-3030/', '/egm/', '/postal-ballot/', '/iepf-related-matters/']) ? '' : undefined}>
@@ -157,6 +177,12 @@ const productCols = [productNav.slice(0, 2), productNav.slice(2, 5), productNav.
     </details>
     <a class="drawer__link" href="/colors/">Colours</a>
     <details>
+      <summary>Services <Icon name="chevron-down" /></summary>
+      <ul role="list">
+        {servicesNav.map((l) => <li>{l.href ? <a href={l.href}>{l.label}</a> : <button type="button" class="drawer__btn" data-open-dialog={l.dialog}>{l.label}</button>}</li>)}
+      </ul>
+    </details>
+    <details>
       <summary>Investors <Icon name="chevron-down" /></summary>
       <ul role="list">
         <li><a href="/investor-relations/"><strong>Investor overview</strong></a></li>
@@ -219,6 +245,7 @@ const productCols = [productNav.slice(0, 2), productNav.slice(2, 5), productNav.
     gap: 0.3rem;
     height: 44px;
     padding: 0 0.9rem;
+    white-space: nowrap;
     border: 0;
     border-radius: var(--r-pill);
     background: none;
@@ -272,7 +299,7 @@ const productCols = [productNav.slice(0, 2), productNav.slice(2, 5), productNav.
     box-shadow: var(--shadow-md);
   }
   .menu__links { margin: 0; padding: 0; list-style: none; }
-  .menu__links a {
+  .menu__links a, .menu__links button {
     display: block;
     padding: 0.65rem 0.9rem;
     border-radius: var(--r-sm);
@@ -281,7 +308,8 @@ const productCols = [productNav.slice(0, 2), productNav.slice(2, 5), productNav.
     text-decoration: none;
     color: var(--ink);
   }
-  .menu__links a:hover, .menu__links a[aria-current='page'] { background: var(--orange-50); color: var(--orange-800); }
+  .menu__links button { width: 100%; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
+  .menu__links a:hover, .menu__links button:hover, .menu__links a[aria-current='page'] { background: var(--orange-50); color: var(--orange-800); }
 
   .menu--mega {
     left: 0;
@@ -394,6 +422,11 @@ const productCols = [productNav.slice(0, 2), productNav.slice(2, 5), productNav.
   .site-header__cta:hover :global(.icon) { opacity: 1; transform: none; margin-right: 0; }
   .site-header__menu { display: none; }
 
+  /* Narrow desktops: tighter links so all seven items and the CTA stay on one line. */
+  @media (min-width: 1181px) and (max-width: 1320px) {
+    .site-header__inner { gap: var(--s-4); }
+    .nav__link { padding-inline: 0.6rem; font-size: 0.9375rem; }
+  }
   @media (max-width: 1180px) {
     .nav { display: none; }
     .site-header__menu { display: inline-grid; }
@@ -450,7 +483,8 @@ const productCols = [productNav.slice(0, 2), productNav.slice(2, 5), productNav.
   .drawer__nav summary :global(.icon) { transition: transform var(--t-base); }
   .drawer__nav details[open] summary :global(.icon) { transform: rotate(180deg); }
   .drawer__nav details ul { margin: 0; padding: var(--s-2) 0 var(--s-4); list-style: none; }
-  .drawer__nav details li a { display: block; padding: 0.55rem 0; color: var(--ink); text-decoration: none; }
+  .drawer__nav details li a, .drawer__btn { display: block; padding: 0.55rem 0; color: var(--ink); text-decoration: none; }
+  .drawer__btn { width: 100%; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
   .drawer__group { padding-top: var(--s-2); }
   .drawer__group-title { display: block; font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); text-decoration: none; padding: 0.4rem 0 0.1rem; }
   .drawer__group ul { padding: 0 0 0 0.75rem !important; border-left: 2px solid var(--orange-100); }

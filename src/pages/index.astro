@@ -2,23 +2,30 @@
 import { Image, getImage } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
-import ProductCard from '@/components/ProductCard.astro';
 import Visualizer from '@/components/Visualizer.astro';
 import VideoEmbed from '@/components/VideoEmbed.astro';
 import Modal from '@/components/Modal.astro';
+import CategoryGrid from '@/components/home/CategoryGrid.astro';
+import ColourCarousel from '@/components/home/ColourCarousel.astro';
+import FeaturedProducts from '@/components/home/FeaturedProducts.astro';
+import BeyondColours from '@/components/home/BeyondColours.astro';
+import ColourTools from '@/components/home/ColourTools.astro';
+import DesignerCollections from '@/components/home/DesignerCollections.astro';
+import OneStop from '@/components/home/OneStop.astro';
+import PaintCalculator from '@/components/home/PaintCalculator.astro';
+import Inspiration from '@/components/home/Inspiration.astro';
 
-import livingRoom from '@/assets/rooms/living-room.png';
-import livingRoomShade from '@/assets/rooms/light/living-room-shade.png';
-import livingRoomLight from '@/assets/rooms/light/living-room-light.png';
+import bedroom from '@/assets/rooms/bedroom.png';
+import bedroomShade from '@/assets/rooms/light/bedroom-shade.png';
+import bedroomLight from '@/assets/rooms/light/bedroom-light.png';
 import exteriorHome from '@/assets/imagery/exterior-home.jpg';
 import storeInterior from '@/assets/imagery/store-interior.jpg';
 import officeBuilding from '@/assets/imagery/office-building.jpg';
 import bseListing from '@/assets/news/bse/Retinas-Shares-got-listed-in-BSE-SME-Platform-2.jpg';
 import mdPortrait from '@/assets/team/md-portrait.png';
-import royalVogue from '@/assets/products/royal-vogue.png';
 
 import { company, homeStats, experience, homeVision, homeMission, franchisePhone } from '@/data/site';
-import { products, productBySlug, homeFeatured, type Product } from '@/data/products';
+import { productBySlug, type Product } from '@/data/products';
 import { whyChooseUs, mdMessage } from '@/data/about';
 import { storePromise, growBusiness, franchisePromo, homeFranchise } from '@/data/franchise';
 import { posts, announcements, blogTitle } from '@/data/news';
@@ -29,29 +36,29 @@ const inkOn = (hex: string) => {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
   return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? 'dark' : 'light';
 };
-const shadeTotal = shadeCount.toLocaleString('en-IN');
-const heroShades = ['QC0263', 'QC1213', 'QC0164', 'QC1013', 'QC0604', 'QC0465', 'QC1105'].map((c) => findShade(c)!);
-const heroRoom = await getImage({ src: livingRoom, width: 1280, format: 'webp', quality: 80 });
-const heroShade = await getImage({ src: livingRoomShade, width: 1280, format: 'webp', quality: 72 });
-const heroLight = await getImage({ src: livingRoomLight, width: 1280, format: 'webp', quality: 72 });
-const heroRoomSm = await getImage({ src: livingRoom, width: 760, format: 'webp', quality: 78 });
+// A curated campaign palette of real Retina codes; the first is the brand orange every visualizer opens on.
+const heroShades = ['QC0241', 'QC1211', 'QC0192', 'QC1013', 'QC0912', 'QC0671', 'QC1175'].map((c) => findShade(c)!);
+// The bedroom is the hero photograph: its walls are cut out so the paint layer shows through, with lighting maps on top.
+const [heroRoom, heroShade, heroLight] = await Promise.all(
+  [bedroom, bedroomShade, bedroomLight].map(async (src, i) => {
+    const widths = [800, Math.min(1600, src.width)];
+    const set = await Promise.all(widths.map((width) => getImage({ src, width, format: 'webp', quality: i === 0 ? 80 : 72 })));
+    return { src: set[1].src, srcset: set.map((img, j) => `${img.src} ${widths[j]}w`).join(', ') };
+  }),
+);
+const heroSizes = '(max-width: 960px) 100vw, 56vw';
 
 const pick = (slugs: string[]) => slugs.map((s) => productBySlug(s)).filter((p): p is Product => Boolean(p));
-const tabs: { id: string; label: string; items: Product[] }[] = [
-  { id: 'featured', label: 'Featured', items: pick(homeFeatured) },
-  { id: 'exterior', label: 'Exterior Emulsions', items: products.filter((p) => p.category === 'exterior-emulsions') },
-  { id: 'interior', label: 'Interior Emulsions', items: products.filter((p) => p.category === 'interior-emulsions') },
-  { id: 'primers', label: 'Primers', items: products.filter((p) => p.category.endsWith('primers')) },
-  { id: 'distempers', label: 'Distempers & Enamels', items: products.filter((p) => p.category === 'distempers' || p.category === 'enamels') },
-  { id: 'putty', label: 'Putty & Texture', items: products.filter((p) => p.category === 'putty') },
-];
 const exteriorTrio = pick(['weather-expert', 'expo-ultimax', 'expo-advanced']);
 
+// Quick access: each card opens an existing page, section, form or tool on this site.
 const quickLinks = [
-  { icon: 'brush', title: 'Explore Paints', text: 'Emulsions, primers, distempers, putty and textures for every surface.', href: '/products/' },
-  { icon: 'palette', title: 'Discover Colours', text: `Browse ${(Math.floor(shadeCount / 100) * 100).toLocaleString('en-IN')}+ Retina shades and preview them in a room.`, href: '/colors/' },
-  { icon: 'map-pin', title: 'Find a Store', text: 'Locate your nearest Retina store for top-quality paints and expert advice!', href: '/find-a-store-near-you/' },
-  { icon: 'sparkles', title: 'Get Expert Advice', text: 'Need help choosing the right paint? Our experts are here to guide you!', dialog: 'dialog-advice' },
+  { icon: 'brush', title: 'Painting Services', text: 'Need help choosing the right paint? Our experts are here to guide you!', dialog: 'dialog-advice' },
+  { icon: 'sliders', title: 'Paint Cost Calculator', text: 'Get an indicative budget for your painting project.', href: '#calculator' },
+  { icon: 'droplet', title: 'Waterproofing Solutions', text: 'Waterproof and damp-proof primers for exterior walls.', href: '/products/#waterproof-primers' },
+  { icon: 'home', title: 'Interior Painting', text: 'Interior emulsions in matt and high-sheen finishes.', href: '/products/#interior-emulsions' },
+  { icon: 'palette', title: 'Explore Colours', text: `Browse ${(Math.floor(shadeCount / 100) * 100).toLocaleString('en-IN')}+ Retina shades and preview them in a room.`, href: '/colors/' },
+  { icon: 'map-pin', title: 'Find a Dealer', text: 'Locate your nearest Retina store for top-quality paints and expert advice!', href: '/find-a-store-near-you/' },
 ];
 
 const credentials = [
@@ -65,118 +72,95 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
 
 <BaseLayout title="Home" description={company.intro}>
   <Fragment slot="head">
-    <link rel="preload" as="image" href={heroRoom.src} imagesrcset={`${heroRoomSm.src} 760w, ${heroRoom.src} 1280w`} imagesizes="(max-width: 960px) 100vw, 52vw" fetchpriority="high" />
+    <link rel="preload" as="image" href={heroRoom.src} imagesrcset={heroRoom.srcset} imagesizes={heroSizes} fetchpriority="high" />
   </Fragment>
 
   <!-- ============ HERO ============ -->
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero__bg" aria-hidden="true">
-      <span class="hero__glow"></span>
-      <span class="hero__ring hero__ring--lg"></span>
-      <span class="hero__ring hero__ring--sm"></span>
-    </div>
-    <div class="container hero__grid">
+  <section class="hero" aria-labelledby="hero-title" data-hero-room style={`--wall:${heroShades[0].hex}`}>
+    <div class="hero__panel">
       <div class="hero__copy">
-        <p class="eyebrow hero__in" style="--i:0">{company.tagline}</p>
-        <h1 class="t-display hero__title hero__in" style="--i:1" id="hero-title">
-          Transform your space with
-          <span class="stroke">
-            <span class="stroke__text">superior paints</span>
-            <svg class="stroke__paint" viewBox="0 0 500 60" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-              <path class="stroke__body" d="M6 34C18 18 70 14 140 15c80 1 160-5 240-3 50 1 92 2 110 10 9 5 7 18-4 23-16 7-66 5-126 6-80 2-160-1-230 2-50 2-100 3-118-3-9-3-11-10-6-16Z" />
-              <path class="stroke__streak" d="M28 25c96-5 236-8 420-5M34 44c126 3 276 0 436-3" />
-              <path class="stroke__shine" d="M60 31c120-3 250-5 380-3" />
-            </svg>
-          </span>
+        <p class="eyebrow eyebrow--light hero__in" style="--i:0">Bringing colours to life with innovation &amp; quality</p>
+        <h1 class="hero__title hero__in" style="--i:1" id="hero-title">
+          <span class="hero__line">Transform</span>
+          <span class="hero__line">Your World</span>
+          <span class="hero__line">with <span class="hero__accent">Colour</span></span>
         </h1>
-        <p class="t-lead hero__lead hero__in" style="--i:2">{company.intro.split('. With')[0]}.</p>
-        <div class="hero__ctas">
-          <a class="btn btn--lg hero__in" style="--i:3" href="/products/">Browse Products <Icon name="arrow-right" /></a>
-          <a class="btn btn--lg btn--secondary hero__in" style="--i:4" href="/colors/"><Icon name="palette" /> Explore Colours</a>
+        <p class="hero__lead hero__in" style="--i:2">Premium paints that bring lasting beauty, dependable protection and thoughtful design to every wall, inside and out.</p>
+        <div class="hero__ctas hero__in" style="--i:3">
+          <a class="btn btn--lg" href="/products/">Explore Products <Icon name="arrow-right" /></a>
+          <a class="btn btn--lg btn--ghost-light" href="/colors/"><Icon name="palette" /> Explore Colours</a>
         </div>
-        <ul role="list" class="hero__trust hero__in" style="--i:5">
-          <li><span class="hero__trust-icon"><Icon name="certificate" /></span><span>ISO 9001:2015 <br />certified</span></li>
-          <li><span class="hero__trust-icon"><Icon name="trending-up" /></span><span>Listed on <br />BSE SME</span></li>
-          <li><span class="hero__trust-icon"><Icon name="shield" /></span><span>Up to 8 years <br />warranty</span></li>
-        </ul>
+      </div>
+      <ul role="list" class="hero__trust hero__in" style="--i:4">
+        <li><span class="hero__trust-icon"><Icon name="certificate" /></span><span>ISO 9001:2015 <br />certified</span></li>
+        <li><span class="hero__trust-icon"><Icon name="trending-up" /></span><span>Listed on <br />BSE SME</span></li>
+        <li><span class="hero__trust-icon"><Icon name="shield" /></span><span>Up to 8 years <br />warranty</span></li>
+      </ul>
+    </div>
+
+    <div class="hero__media">
+      <div class="hero__scene">
+        <div class="hero__paint" aria-hidden="true"></div>
+        <img src={heroShade.src} srcset={heroShade.srcset} sizes={heroSizes} alt="" class="hero__shade" width="1280" height="854" decoding="async" aria-hidden="true" />
+        <img src={heroLight.src} srcset={heroLight.srcset} sizes={heroSizes} alt="" class="hero__light" width="1280" height="854" decoding="async" aria-hidden="true" />
+        <img
+          class="hero__photo"
+          src={heroRoom.src}
+          srcset={heroRoom.srcset}
+          sizes={heroSizes}
+          width={bedroom.width}
+          height={bedroom.height}
+          alt="A softly lit bedroom with a velvet bed and pendant lights, its feature wall painted in a Retina shade"
+          fetchpriority="high"
+          decoding="async"
+        />
       </div>
 
-      <div class="hero__visual" data-hero-room style={`--wall:${heroShades[0].hex}`}>
-        <div class="hero__stage">
-          <div class="hero__frame">
-            <div class="hero__scene">
-              <div class="hero__paint" aria-hidden="true"></div>
-              <img src={heroShade.src} alt="" class="hero__shade" width={heroShade.attributes.width} height={heroShade.attributes.height} decoding="async" aria-hidden="true" />
-              <img src={heroLight.src} alt="" class="hero__light" width={heroLight.attributes.width} height={heroLight.attributes.height} decoding="async" aria-hidden="true" />
-              <img
-                class="hero__photo"
-                src={heroRoom.src}
-                srcset={`${heroRoomSm.src} 760w, ${heroRoom.src} 1280w`}
-                sizes="(max-width: 960px) 100vw, 52vw"
-                width={heroRoom.attributes.width}
-                height={heroRoom.attributes.height}
-                alt="A bright living room with a white sofa, curtains and a plant, its walls painted in a Retina shade"
-                fetchpriority="high"
-                decoding="async"
-              />
-            </div>
-            <div class="hero__card">
-              <span class="hero__card-chip"></span>
-              <span class="hero__card-text">
-                <span class="hero__card-label">On the wall</span>
-                <strong data-hero-code>{heroShades[0].code}</strong>
-              </span>
-              <a href={`/colors/#${heroShades[0].code}`} class="hero__card-link" data-hero-link aria-label={`Open ${heroShades[0].code} in the colour visualizer`}><Icon name="arrow-up-right" /></a>
-            </div>
-          </div>
-
-          <div class="palette" role="radiogroup" aria-label="Try a Retina shade on the wall" data-palette>
-            <p class="palette__title" aria-hidden="true">Shades</p>
-            {heroShades.map((s, i) => (
-              <button
-                type="button"
-                role="radio"
-                class="hero__chip"
-                style={`--c:${s.hex};--i:${i}`}
-                data-code={s.code}
-                data-hex={s.hex}
-                data-ink={inkOn(s.hex)}
-                aria-checked={i === 0 ? 'true' : 'false'}
-                tabindex={i === 0 ? 0 : -1}
-                aria-label={`Paint the wall ${s.code}`}
-              >
-                <Icon name="check" class="hero__chip-check" />
-                <span class="palette__tip" aria-hidden="true">{s.code}</span>
-              </button>
-            ))}
-            <a class="palette__more" href="/colors/" style={`--i:${heroShades.length}`} aria-label={`Explore all ${shadeTotal} Retina shades in the colour visualizer`}>
-              <Icon name="plus" />
-              <span class="palette__tip" aria-hidden="true">All {shadeTotal} shades</span>
-            </a>
-          </div>
-
-          <Image src={royalVogue} alt="" width={240} height={250} class="hero__pack" loading="eager" />
+      <div class="shadebar hero__in" style="--i:3" data-float-avoid>
+        <a href={`/colors/#${heroShades[0].code}`} class="shadebar__code" data-hero-link aria-label={`Open ${heroShades[0].code} in the colour visualizer`}>
+          <span class="shadebar__dot" aria-hidden="true"></span>
+          <span class="shadebar__text"><span class="shadebar__label">On the wall</span><strong data-hero-code>{heroShades[0].code}</strong></span>
+        </a>
+        <div class="palette" role="radiogroup" aria-label="Try a Retina shade on the wall" data-palette>
+          {heroShades.map((s, i) => (
+            <button
+              type="button"
+              role="radio"
+              class="hero__chip"
+              style={`--c:${s.hex};--i:${i}`}
+              data-code={s.code}
+              data-hex={s.hex}
+              data-ink={inkOn(s.hex)}
+              aria-checked={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              aria-label={`Paint the wall ${s.code}`}
+            >
+              <Icon name="check" class="hero__chip-check" />
+              <span class="palette__tip" aria-hidden="true">{s.code}</span>
+            </button>
+          ))}
+          <a class="palette__more" href="/colors/" aria-label={`Explore all ${shadeCount.toLocaleString('en-IN')} Retina shades in the colour visualizer`}>
+            <Icon name="plus" />
+            <span class="palette__tip" aria-hidden="true">More shades</span>
+          </a>
         </div>
-        <p class="hero__hint"><Icon name="hand" /> Tap a shade to repaint the room · <a href="/colors/">Open the colour visualizer</a></p>
       </div>
     </div>
   </section>
 
-  <!-- ============ QUICK DISCOVERY ============ -->
-  <section class="quick" aria-label="Quick links">
+  <!-- ============ QUICK ACCESS ============ -->
+  <section class="quick" aria-label="Quick access">
     <div class="container">
       <ul role="list" class="quick__list" data-reveal>
         {quickLinks.map((q) => (
           <li class="quick__item">
             <span class="quick__icon"><Icon name={q.icon} /></span>
-            <span class="quick__text">
-              {q.href ? (
-                <a href={q.href} class="quick__title">{q.title}</a>
-              ) : (
-                <button type="button" class="quick__title" data-open-dialog={q.dialog}>{q.title}</button>
-              )}
-              <span class="quick__desc">{q.text}</span>
-            </span>
+            {q.href ? (
+              <a href={q.href} class="quick__title">{q.title}</a>
+            ) : (
+              <button type="button" class="quick__title" data-open-dialog={q.dialog}>{q.title}</button>
+            )}
+            <span class="quick__desc">{q.text}</span>
             <Icon name="arrow-right" class="quick__arrow" />
           </li>
         ))}
@@ -184,49 +168,9 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     </div>
   </section>
 
-  <!-- ============ PRODUCTS ============ -->
-  <section class="section showcase" aria-labelledby="products-title">
-    <div class="container">
-      <div class="section-head section-head--split" data-reveal>
-        <div class="stack" style="--stack: var(--s-4)">
-          <p class="eyebrow">Our Products</p>
-          <h2 class="t-h2" id="products-title">Premium Paints for Every Surface</h2>
-          <p class="t-lead">Explore our wide range of high-quality paints, primers, enamels, and textures.</p>
-        </div>
-        <a class="link-arrow" href="/products/">View all products <Icon name="arrow-right" /></a>
-      </div>
-
-      <div class="tabs" data-tabs>
-        <div class="tabs__list" role="tablist" aria-label="Product categories">
-          {tabs.map((t, i) => (
-            <button
-              type="button"
-              role="tab"
-              id={`tab-${t.id}`}
-              aria-controls={`panel-${t.id}`}
-              aria-selected={i === 0 ? 'true' : 'false'}
-              tabindex={i === 0 ? 0 : -1}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        {tabs.map((t, i) => (
-          <div class="tabs__panel" role="tabpanel" id={`panel-${t.id}`} aria-labelledby={`tab-${t.id}`} hidden={i !== 0} tabindex="0">
-            <div class="rail" data-rail>
-              <ul role="list" class="rail__track">
-                {t.items.map((p) => <li class="rail__item"><ProductCard product={p} /></li>)}
-              </ul>
-              <div class="rail__nav">
-                <button type="button" class="rail__btn" data-rail-prev aria-label="Previous products"><Icon name="arrow-left" /></button>
-                <button type="button" class="rail__btn" data-rail-next aria-label="Next products"><Icon name="arrow-right" /></button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
+  <ColourCarousel />
+  <FeaturedProducts />
+  <CategoryGrid />
 
   <!-- ============ EXTERIOR PROTECTION ============ -->
   <section class="exterior on-dark" aria-labelledby="exterior-title">
@@ -259,16 +203,23 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   <section class="section viz-section" aria-labelledby="viz-title" id="visualizer">
     <div class="container">
       <div style="--viz-bg: var(--orange-50)">
-        <Visualizer variant="compact" id="home-viz" initialRoom="bed-room" headingLevel="h3">
+        <Visualizer variant="compact" id="home-viz" initialRoom="kids-room" headingLevel="h3">
           <div class="stack viz-head" style="--stack: var(--s-3)" slot="intro">
-            <p class="eyebrow">Color Visualizer</p>
-            <h2 class="t-h2" id="viz-title">Experience Your Own Color Combination</h2>
-            <p class="t-lead">Choose a room, explore beautiful Retina shades, and see your walls transform instantly. <a class="link-arrow" href="/colors/">Open the full visualizer <Icon name="arrow-right" /></a></p>
+            <p class="eyebrow">Colour Visualizer</p>
+            <h2 class="t-h2" id="viz-title">See Your Walls in a New Light</h2>
+            <p class="t-lead">Choose a room, pick a Retina shade and watch only the walls change, with furniture and light left as they are. <a class="link-arrow" href="/colors/">Open the full visualizer <Icon name="arrow-right" /></a></p>
           </div>
         </Visualizer>
       </div>
     </div>
   </section>
+
+  <BeyondColours />
+  <ColourTools />
+  <DesignerCollections />
+  <OneStop />
+  <PaintCalculator />
+  <Inspiration />
 
   <!-- ============ WHY CHOOSE US ============ -->
   <section class="section why" aria-labelledby="why-title">
@@ -469,47 +420,6 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     });
   }
 
-  // Tabs (WAI-ARIA tabs pattern with automatic activation).
-  document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((root) => {
-    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
-    const activate = (tab: HTMLButtonElement, focus = false) => {
-      tabs.forEach((t) => {
-        const on = t === tab;
-        t.setAttribute('aria-selected', String(on));
-        t.tabIndex = on ? 0 : -1;
-        document.getElementById(t.getAttribute('aria-controls')!)!.hidden = !on;
-      });
-      if (focus) tab.focus();
-    };
-    tabs.forEach((t, i) => {
-      t.addEventListener('click', () => activate(t));
-      t.addEventListener('keydown', (e) => {
-        const map: Record<string, number> = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 };
-        if (!(e.key in map)) return;
-        e.preventDefault();
-        activate(tabs[(map[e.key] + tabs.length) % tabs.length], true);
-      });
-    });
-  });
-
-  // Horizontal product rails.
-  document.querySelectorAll<HTMLElement>('[data-rail]').forEach((rail) => {
-    const track = rail.querySelector<HTMLElement>('.rail__track')!;
-    const prev = rail.querySelector<HTMLButtonElement>('[data-rail-prev]')!;
-    const next = rail.querySelector<HTMLButtonElement>('[data-rail-next]')!;
-    const update = () => {
-      const max = track.scrollWidth - track.clientWidth - 2;
-      prev.disabled = track.scrollLeft <= 2;
-      next.disabled = track.scrollLeft >= max;
-      rail.toggleAttribute('data-static', max <= 0);
-    };
-    const step = () => (track.querySelector<HTMLElement>('.rail__item')?.offsetWidth ?? 300) + 24;
-    prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
-    next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
-    track.addEventListener('scroll', update, { passive: true });
-    new ResizeObserver(update).observe(track);
-  });
-
   // Franchise prompt: shown once per session, after the visitor engages.
   const promo = document.querySelector<HTMLElement>('[data-promo]');
   if (promo) {
@@ -547,155 +457,118 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
 
 <style>
   /* ---------- Hero ---------- */
+  /* Split hero: a charcoal copy panel on the left, the painted room on the right with a floating shade bar. */
   .hero {
+    --hero-bg: #1c1612;
+    --hero-text: #fffaf4;
+    --hero-soft: rgb(255 246 236 / 0.76);
+    --hero-line: rgb(255 255 255 / 0.14);
+    --edge: max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter)));
     position: relative;
     isolation: isolate;
-    padding-block: clamp(2.25rem, 1.25rem + 4vw, 5rem) clamp(3.5rem, 2.5rem + 4vw, 6.5rem);
-    background: var(--paper);
+    display: grid;
+    grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
+    min-height: clamp(36rem, calc(100svh - var(--header-h) - 3.5rem), 50rem);
+    background: var(--hero-bg);
+    color: var(--hero-text);
     overflow: hidden;
   }
-  .hero__bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-  .hero__glow {
-    position: absolute;
-    right: -12%;
-    top: -18%;
-    width: min(70rem, 78vw);
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgb(255 214 184 / 0.75), rgb(255 240 229 / 0.55) 45%, rgb(255 254 252 / 0) 100%);
-  }
-  .hero__ring { position: absolute; border-radius: 50%; border-style: solid; border-color: rgb(242 129 33 / 0.08); }
-  .hero__ring--lg { right: -15rem; top: -17rem; width: 46rem; aspect-ratio: 1; border-width: 5.5rem; }
-  .hero__ring--sm { left: -8rem; bottom: -11rem; width: 22rem; aspect-ratio: 1; border-width: 2.75rem; border-color: rgb(242 129 33 / 0.06); }
 
-  .hero__grid {
+  /* Copy panel */
+  .hero__panel {
     display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: clamp(2rem, 1rem + 4vw, 5rem);
-    align-items: center;
+    grid-template-rows: 1fr auto;
+    gap: var(--s-8);
+    padding: clamp(2.5rem, 1.5rem + 3vw, 4.5rem) clamp(2rem, 1rem + 3vw, 4rem) clamp(4rem, 3rem + 2.5vw, 5.5rem) var(--edge);
+    background: radial-gradient(42rem 30rem at 0% 100%, rgb(242 129 33 / 0.16), transparent 70%), var(--hero-bg);
   }
-  .hero__copy { display: grid; gap: var(--s-5); justify-items: start; }
-  .hero__title { max-width: 12ch; }
-
-  /* Paint-stroke highlight behind the key phrase */
-  .stroke { position: relative; display: inline-block; isolation: isolate; white-space: nowrap; }
-  .stroke__text { position: relative; }
-  .stroke__paint {
-    position: absolute;
-    left: -0.08em;
-    bottom: 0.13em;
-    z-index: -1;
-    width: calc(100% + 0.2em);
-    height: 0.46em;
-    overflow: visible;
+  .hero__copy { align-self: center; display: grid; justify-items: start; gap: var(--s-5); width: 100%; max-width: 34rem; container-type: inline-size; }
+  .hero__title {
+    font-family: var(--font-display);
+    /* "Your World", the widest line, is ~5.3em: never wider than the copy column */
+    font-size: min(clamp(3rem, 1.5rem + 4vw, 5.5rem), 18cqi);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: var(--tracking-display);
+    color: var(--white);
   }
-  .stroke__body { fill: var(--orange-300); }
-  .stroke__streak { fill: none; stroke: var(--orange-400); stroke-width: 3; stroke-linecap: round; opacity: 0.55; }
-  .stroke__shine { fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; opacity: 0.35; }
-
-  .hero__lead { max-width: 33rem; }
+  .hero__line { display: block; white-space: nowrap; }
+  .hero__accent { color: var(--orange-400); }
+  .hero__lead { max-width: 31rem; font-size: var(--fs-lead); line-height: 1.6; color: var(--hero-soft); }
   .hero__ctas { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-2); }
+  .hero__ctas :global(.btn--ghost-light:hover .icon) { color: var(--orange-300); }
+
   .hero__trust {
     display: grid;
     grid-template-columns: repeat(3, auto);
     justify-content: start;
-    margin: var(--s-4) 0 0;
+    margin: 0;
     padding: var(--s-5) 0 0;
     list-style: none;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--hero-line);
     font-size: 0.8125rem;
     font-weight: 500;
     line-height: 1.35;
-    color: var(--ink-soft);
+    color: var(--hero-soft);
   }
-  .hero__trust li { display: flex; align-items: center; gap: 0.6rem; padding-right: var(--s-5); }
-  .hero__trust li + li { padding-left: var(--s-5); border-left: 1px solid var(--line); }
-  .hero__trust-icon { display: grid; place-items: center; flex: none; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--orange-100); color: var(--orange-700); }
+  .hero__trust li { display: flex; align-items: center; gap: 0.55rem; padding-right: var(--s-4); white-space: nowrap; }
+  .hero__trust li + li { padding-left: var(--s-4); border-left: 1px solid var(--hero-line); }
+  .hero__trust-icon { display: grid; place-items: center; flex: none; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: rgb(242 129 33 / 0.16); color: var(--orange-300); }
   .hero__trust-icon :global(.icon) { width: 1.1rem; height: 1.1rem; }
 
-  /* Room preview */
-  .hero__visual { position: relative; }
-  .hero__stage { position: relative; padding-right: 2.25rem; }
-  .hero__frame {
-    position: relative;
-    aspect-ratio: 5 / 4;
-    border-radius: 28px;
-    overflow: hidden;
-    background: var(--sand);
-    box-shadow: 0 2px 4px rgb(60 30 10 / 0.05), 0 24px 48px -20px rgb(60 30 10 / 0.35), 0 60px 90px -50px rgb(217 92 22 / 0.35);
-  }
-  .hero__scene { position: absolute; inset: 0; isolation: isolate; transition: transform 1400ms var(--ease-out); }
-  .hero__frame:hover .hero__scene { transform: scale(1.025); }
-  .hero__paint { position: absolute; inset: 0; background: var(--wall); transition: background-color 700ms var(--ease-in-out); }
-  .hero__scene img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* Room photograph */
+  .hero__media { position: relative; min-height: 100%; }
+  .hero__media::before { content: ''; position: absolute; inset: 0 auto 0 0; z-index: 1; width: 14%; background: linear-gradient(to right, rgb(28 22 18 / 0.55), transparent); pointer-events: none; }
+  .hero__scene { position: absolute; inset: 0; isolation: isolate; overflow: hidden; }
+  .hero__paint { position: absolute; inset: 0; background: var(--wall); transition: background-color 800ms var(--ease-in-out); }
+  .hero__scene img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 58% 60%; }
   .hero__shade { mix-blend-mode: multiply; }
   .hero__light { mix-blend-mode: screen; }
 
-  .hero__card {
+  /* Floating shade bar over the room */
+  .shadebar {
     position: absolute;
-    left: var(--s-5);
-    top: var(--s-5);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.65rem;
-    padding: 0.45rem 0.45rem 0.45rem 0.5rem;
-    border-radius: var(--r-pill);
-    background: rgb(255 255 255 / 0.94);
-    backdrop-filter: blur(8px);
-    box-shadow: var(--shadow-sm);
-  }
-  .hero__card-chip { width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--wall); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); transition: background-color 700ms var(--ease-in-out); }
-  .hero__card-text { display: grid; line-height: 1.15; padding-right: 0.25rem; min-width: 4.5rem; }
-  .hero__card-label { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange-700); }
-  .hero__card-text strong { font-family: var(--font-display); font-size: 1.0625rem; color: var(--ink-deep); }
-  .hero__card-link { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--ink-deep); color: var(--white); transition: background-color 220ms, transform 260ms var(--ease-out); }
-  .hero__card-link:hover { background: var(--orange-600); transform: rotate(45deg); }
-  .hero__card-link :global(.icon) { width: 1rem; height: 1rem; }
-
-  /* Palette docked to the right edge of the room */
-  .palette {
-    position: absolute;
-    right: 0;
-    top: 50%;
+    left: 50%;
+    bottom: clamp(3.5rem, 2.5rem + 2.5vw, 5rem);
     z-index: 2;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.55rem;
-    padding: 0.7rem 0.6rem 0.6rem;
+    gap: var(--s-4);
+    padding: 0.55rem 0.7rem 0.55rem 0.55rem;
     border-radius: var(--r-pill);
     background: var(--white);
-    box-shadow: 0 2px 6px rgb(60 30 10 / 0.08), 0 24px 40px -18px rgb(60 30 10 / 0.35);
-    transform: translateY(-50%);
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1), 0 24px 48px -20px rgb(0 0 0 / 0.55);
+    color: var(--ink-deep);
+    transform: translateX(-50%);
+    white-space: nowrap;
   }
-  .palette__title { font-size: 0.5625rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--orange-700); margin-bottom: 0.1rem; }
+  .shadebar__code { display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.15rem 0.9rem 0.15rem 0.15rem; border-right: 1px solid var(--line); color: inherit; text-decoration: none; }
+  .shadebar__code:focus-visible { outline: 2.5px solid var(--ink-deep); outline-offset: 3px; border-radius: var(--r-pill); }
+  .shadebar__dot { width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--wall); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); transition: background-color 800ms var(--ease-in-out); }
+  .shadebar__text { display: grid; line-height: 1.15; }
+  .shadebar__label { font-size: 0.625rem; font-weight: 750; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange-700); }
+  .shadebar__text strong { font-family: var(--font-display); font-size: 1rem; }
+
+  .palette { display: flex; align-items: center; gap: 0.5rem; }
   .hero__chip, .palette__more {
     position: relative;
     display: grid;
     place-items: center;
-    width: 2.6rem;
-    height: 2.6rem;
+    flex: none;
+    width: 2.4rem;
+    height: 2.4rem;
     padding: 0;
     border: 0;
     border-radius: 50%;
     background: var(--c);
-    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
     transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out);
   }
-  .hero__chip::after {
-    content: '';
-    position: absolute;
-    inset: -5px;
-    border-radius: 50%;
-    border: 2.5px solid var(--orange-500);
-    opacity: 0;
-    transform: scale(0.7);
-    transition: opacity 240ms var(--ease-out), transform 300ms var(--ease-out);
-  }
-  .hero__chip:hover, .palette__more:hover { transform: scale(1.12); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08), 0 8px 16px -8px rgb(0 0 0 / 0.45); }
-  .hero__chip:focus-visible, .palette__more:focus-visible { outline: 2.5px solid var(--ink-deep); outline-offset: 6px; }
+  .hero__chip::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2.5px solid var(--orange-500); opacity: 0; transform: scale(0.7); transition: opacity 240ms var(--ease-out), transform 300ms var(--ease-out); }
+  .hero__chip:hover, .palette__more:hover { transform: scale(1.12); }
+  .hero__chip:focus-visible, .palette__more:focus-visible { outline: 2.5px solid var(--ink-deep); outline-offset: 5px; }
   .hero__chip[aria-checked='true']::after { opacity: 1; transform: none; }
-  .hero__chip :global(.hero__chip-check) { width: 1.05rem; height: 1.05rem; stroke-width: 3; opacity: 0; transform: scale(0.4); transition: opacity 220ms, transform 300ms var(--ease-out); }
+  .hero__chip :global(.hero__chip-check) { width: 1rem; height: 1rem; stroke-width: 3; opacity: 0; transform: scale(0.4); transition: opacity 220ms, transform 300ms var(--ease-out); }
   .hero__chip[data-ink='dark'] { color: var(--ink-deep); }
   .hero__chip[data-ink='light'] { color: var(--white); }
   .hero__chip[aria-checked='true'] :global(.hero__chip-check) { opacity: 1; transform: none; }
@@ -703,8 +576,8 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .palette__more :global(.icon) { width: 1.1rem; height: 1.1rem; stroke-width: 2.25; }
   .palette__tip {
     position: absolute;
-    right: calc(100% + 0.85rem);
-    top: 50%;
+    left: 50%;
+    bottom: calc(100% + 0.8rem);
     padding: 0.3rem 0.6rem;
     border-radius: var(--r-pill);
     background: var(--ink-deep);
@@ -715,101 +588,91 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
-    transform: translate(6px, -50%);
+    transform: translate(-50%, 6px);
     transition: opacity 180ms var(--ease-out), transform 240ms var(--ease-out);
   }
   .hero__chip:hover .palette__tip, .hero__chip:focus-visible .palette__tip,
-  .palette__more:hover .palette__tip, .palette__more:focus-visible .palette__tip { opacity: 1; transform: translate(0, -50%); }
+  .palette__more:hover .palette__tip, .palette__more:focus-visible .palette__tip { opacity: 1; transform: translate(-50%, 0); }
 
-  .hero__stage :global(.hero__pack) {
-    position: absolute;
-    left: -2rem;
-    bottom: -2.25rem;
-    z-index: 2;
-    width: clamp(6.5rem, 3.5rem + 7vw, 10rem);
-    height: auto;
-    filter: drop-shadow(0 22px 22px rgb(40 20 6 / 0.35));
-    pointer-events: none;
-  }
-  .hero__hint {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.4rem;
-    margin-top: var(--s-5);
-    padding-right: 2.25rem;
-    font-size: 0.8125rem;
-    color: var(--ink-soft);
-  }
-  .hero__hint :global(.icon) { width: 1rem; height: 1rem; color: var(--orange-600); }
-  .hero__hint a { color: var(--ink-deep); font-weight: 600; text-decoration-color: var(--orange-400); text-underline-offset: 0.2em; }
-  .hero__hint a:hover { color: var(--orange-700); }
-
-  /* Entrance choreography (once, on load) */
+  /* Entrance (once, on load) */
   @media (prefers-reduced-motion: no-preference) {
     .hero__in { animation: hero-rise 800ms var(--ease-out) backwards; animation-delay: calc(80ms + var(--i, 0) * 90ms); }
-    .hero__title { animation-duration: 950ms; }
-    .stroke__paint { animation: stroke-in 900ms cubic-bezier(0.65, 0, 0.35, 1) 650ms backwards; }
-    .hero__visual { animation: hero-visual 1000ms var(--ease-out) 120ms backwards; }
-    .hero__card { animation: hero-rise 700ms var(--ease-out) 620ms backwards; }
-    .hero__stage :global(.hero__pack) { animation: pack-in 900ms var(--ease-out) 700ms backwards; }
-    .palette { animation: palette-in 700ms var(--ease-out) 520ms backwards; }
-    .hero__chip, .palette__more { animation: chip-in 420ms var(--ease-out) backwards; animation-delay: calc(720ms + var(--i) * 55ms); }
-    .hero__ring { animation: ring-in 1800ms var(--ease-out) 100ms backwards; }
-    .hero__glow { animation: glow-in 1600ms var(--ease-out) backwards; }
+    .hero__line { animation: line-in 900ms var(--ease-out) backwards; }
+    .hero__line:nth-child(2) { animation-delay: 120ms; }
+    .hero__line:nth-child(3) { animation-delay: 240ms; }
+    .hero__scene { animation: hero-settle 1800ms var(--ease-out) backwards; }
+    .shadebar { animation-name: bar-in; }
+    .hero__chip, .palette__more { animation: chip-in 420ms var(--ease-out) backwards; animation-delay: calc(560ms + var(--i, 7) * 50ms); }
     [data-hero-code][data-swap] { animation: code-swap 360ms var(--ease-out); }
   }
   @keyframes hero-rise { from { opacity: 0; transform: translateY(22px); } }
-  @keyframes hero-visual { from { opacity: 0.01; transform: translateY(28px) scale(0.985); } }
-  @keyframes stroke-in { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-  @keyframes pack-in { from { opacity: 0; transform: translateY(18px) rotate(-6deg); } }
-  @keyframes palette-in { from { opacity: 0; transform: translate(12px, -50%); } }
+  @keyframes line-in { from { opacity: 0; transform: translateY(0.4em); clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 -10% 0); } }
+  @keyframes hero-settle { from { opacity: 0; transform: scale(1.06); } }
+  @keyframes bar-in { from { opacity: 0; transform: translate(-50%, 18px); } }
   @keyframes chip-in { from { opacity: 0; transform: scale(0.4); } }
-  @keyframes ring-in { from { opacity: 0; transform: scale(0.82); } }
-  @keyframes glow-in { from { opacity: 0; } }
   @keyframes code-swap { from { opacity: 0; transform: translateY(6px); } }
 
-  @media (max-width: 960px) {
-    .hero__grid { grid-template-columns: minmax(0, 1fr); gap: var(--s-8); }
-    .hero__title { max-width: 14ch; }
-    .hero__glow { right: -40%; top: 30%; width: 120vw; }
-    .hero__ring--lg { right: -20rem; top: auto; bottom: -6rem; width: 34rem; border-width: 4rem; }
-    .hero__ring--sm { display: none; }
-    .hero__stage { padding-right: 0; padding-bottom: 1.9rem; }
-    .palette { top: auto; right: auto; left: 50%; bottom: 0; flex-direction: row; padding: 0.5rem 0.6rem; transform: translateX(-50%); }
-    .palette__title { display: none; }
-    .palette__tip { right: auto; left: 50%; top: auto; bottom: calc(100% + 0.7rem); transform: translate(-50%, 6px); }
-    .hero__chip:hover .palette__tip, .hero__chip:focus-visible .palette__tip,
-    .palette__more:hover .palette__tip, .palette__more:focus-visible .palette__tip { transform: translate(-50%, 0); }
-    .hero__stage :global(.hero__pack) { left: auto; right: -0.5rem; bottom: auto; top: -1.75rem; width: 5.75rem; }
-    .hero__hint { justify-content: center; padding-right: 0; text-align: center; }
-    @media (prefers-reduced-motion: no-preference) {
-      .palette { animation-name: palette-in-m; }
-    }
-  }
-  @keyframes palette-in-m { from { opacity: 0; transform: translate(-50%, 12px); } }
-  @media (max-width: 560px) {
-    .hero__trust { grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; font-size: 0.75rem; }
-    .hero__trust li { flex-direction: column; align-items: flex-start; gap: 0.4rem; padding-right: var(--s-3); }
-    .hero__trust li + li { padding-left: var(--s-3); }
+  /* Wide screens: the copy aligns with the page container, so give its panel more of the width. */
+  @media (min-width: 1600px) { .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  /* Laptops: a wider copy panel so the credentials stay on two lines each. */
+  @media (min-width: 961px) and (max-width: 1400px) {
+    .hero { grid-template-columns: minmax(0, 48fr) minmax(0, 52fr); }
+    .hero__trust li { gap: 0.5rem; padding-right: var(--s-4); }
+    .hero__trust li + li { padding-left: var(--s-4); }
     .hero__trust-icon { width: 2rem; height: 2rem; }
-    .hero__ctas { width: 100%; }
-    .hero__ctas :global(.btn) { flex: 1 1 auto; }
-    .hero__chip, .palette__more { width: 2.3rem; height: 2.3rem; }
-    .palette { gap: 0.35rem; }
-    .hero__card { left: var(--s-3); top: var(--s-3); }
   }
-  @media (max-width: 380px) {
-    .hero__chip, .palette__more { width: 2.1rem; height: 2.1rem; }
-    .palette { gap: 0.3rem; padding: 0.45rem 0.5rem; }
+  /* Small laptops */
+  @media (min-width: 961px) and (max-width: 1180px) {
+    .hero { grid-template-columns: minmax(0, 48fr) minmax(0, 52fr); }
+    .hero__title { font-size: min(clamp(3rem, 0.5rem + 4.6vw, 4.25rem), 18cqi); }
+    .hero__trust li { padding-right: var(--s-3); }
+    .hero__trust li + li { padding-left: var(--s-3); }
+    .shadebar__code { display: none; }
+  }
+  /* Short laptop screens (1280×720, 1366×768) */
+  @media (min-width: 961px) and (max-height: 820px) {
+    .hero__panel { padding-top: 2rem; padding-bottom: 3.25rem; gap: var(--s-5); }
+    .hero__title { font-size: min(clamp(3rem, 0.5rem + 3.8vw, 4.25rem), 18cqi); }
+    .hero__trust { padding-top: var(--s-4); }
+    .hero__copy { gap: var(--s-4); }
   }
 
-  /* ---------- Quick discovery ---------- */
+  /* Tablets and phones: the room leads, the shade bar sits on the seam, the copy panel follows. */
+  @media (max-width: 960px) {
+    .hero { display: flex; flex-direction: column; min-height: 0; }
+    .hero__media { order: -1; aspect-ratio: 16 / 11; max-height: 62svh; min-height: 0; }
+    .hero__media::before { display: none; }
+    .shadebar { bottom: 0; transform: translate(-50%, 50%); }
+    .hero__panel { padding: calc(var(--s-8) + 1.5rem) var(--gutter) clamp(3.5rem, 2.5rem + 4vw, 5rem); gap: var(--s-6); }
+    .hero__copy { max-width: 40rem; }
+    @media (prefers-reduced-motion: no-preference) { .shadebar { animation-name: bar-in-m; } }
+  }
+  @keyframes bar-in-m { from { opacity: 0; transform: translate(-50%, calc(50% + 18px)); } }
+  @media (max-width: 560px) {
+    .hero__title { font-size: min(18cqi, 4.25rem); }
+    .hero__ctas { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; }
+    .shadebar { left: var(--gutter); right: var(--gutter); justify-content: space-between; gap: var(--s-2); padding: 0.45rem; transform: translateY(50%); }
+    .shadebar__code { display: none; }
+    .palette { flex: 1; justify-content: space-between; gap: 0.25rem; }
+    .hero__chip, .palette__more { width: min(2.5rem, calc((100vw - 2 * var(--gutter) - 3rem) / 8)); height: auto; aspect-ratio: 1; }
+    .palette__tip { display: none; }
+    .hero__trust { grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; font-size: 0.75rem; }
+    .hero__trust li { flex-direction: column; align-items: flex-start; gap: 0.4rem; padding-right: var(--s-3); white-space: normal; }
+    .hero__trust li + li { padding-left: var(--s-3); }
+    .hero__trust-icon { width: 2rem; height: 2rem; }
+    @media (prefers-reduced-motion: no-preference) { .shadebar { animation-name: bar-in-s; } }
+  }
+  @keyframes bar-in-s { from { opacity: 0; transform: translateY(calc(50% + 18px)); } }
+  @media (min-width: 420px) and (max-width: 560px) {
+    .hero__ctas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hero__ctas :global(.btn) { padding-inline: 0.75rem; font-size: 0.975rem; }
+  }
+
+  /* ---------- Quick access ---------- */
   .quick { position: relative; z-index: 2; margin-top: calc(-1 * clamp(1rem, 0.5rem + 1.5vw, 2rem)); }
   .quick__list {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     margin: 0;
     padding: 0;
     list-style: none;
@@ -817,111 +680,57 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     border-radius: var(--r-lg);
     background: var(--white);
     box-shadow: var(--shadow-md);
+    overflow: hidden;
   }
   .quick__item {
     position: relative;
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: var(--s-4);
-    align-items: start;
-    padding: var(--s-6) var(--s-5);
+    align-content: start;
+    justify-items: start;
+    gap: 0.55rem;
+    padding: var(--s-6) var(--s-5) var(--s-6);
     transition: background-color var(--t-base);
   }
   .quick__item + .quick__item { border-left: 1px solid var(--line); }
-  .quick__item:first-child { border-radius: var(--r-lg) 0 0 var(--r-lg); }
-  .quick__item:last-child { border-radius: 0 var(--r-lg) var(--r-lg) 0; }
   .quick__item:hover { background: var(--orange-50); }
-  .quick__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%; background: var(--orange-100); color: var(--orange-700); transition: background-color 260ms var(--ease-out), color 260ms var(--ease-out), transform 300ms var(--ease-out); }
-  .quick__item:hover .quick__icon { background: var(--orange-500); color: var(--ink-deep); transform: rotate(-8deg) scale(1.06); }
-  .quick__item::before { content: ''; position: absolute; left: var(--s-5); right: var(--s-5); top: -1px; height: 3px; border-radius: 0 0 3px 3px; background: var(--orange-500); transform: scaleX(0); transform-origin: left; transition: transform 400ms var(--ease-out); }
+  .quick__item::before { content: ''; position: absolute; left: var(--s-5); right: var(--s-5); top: 0; height: 3px; border-radius: 0 0 3px 3px; background: var(--orange-500); transform: scaleX(0); transform-origin: left; transition: transform 400ms var(--ease-out); }
   .quick__item:hover::before { transform: scaleX(1); }
-  .quick__text { display: grid; gap: 0.3rem; }
+  .quick__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; margin-bottom: 0.25rem; border-radius: 14px; background: var(--orange-50); box-shadow: inset 0 0 0 1px var(--orange-200); color: var(--orange-700); transition: background-color 260ms var(--ease-out), color 260ms var(--ease-out), transform 300ms var(--ease-out); }
+  .quick__icon :global(.icon) { width: 1.35rem; height: 1.35rem; stroke-width: 1.75; }
+  .quick__item:hover .quick__icon { background: var(--orange-500); color: var(--white); box-shadow: none; transform: translateY(-2px); }
   .quick__title {
     padding: 0;
     border: 0;
     background: none;
     font-family: var(--font-display);
-    font-size: 1.0625rem;
+    font-size: 1rem;
     font-weight: 700;
+    line-height: 1.3;
     color: var(--ink-deep);
     text-align: left;
     text-decoration: none;
     letter-spacing: -0.01em;
   }
-  .quick__title::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
-  .quick__desc { font-size: 0.875rem; line-height: 1.5; color: var(--ink-soft); }
-  .quick__item :global(.quick__arrow) { width: 1.1rem; height: 1.1rem; margin-top: 0.2rem; color: var(--orange-600); transition: transform var(--t-base) var(--ease-out); }
-  .quick__item:hover :global(.quick__arrow) { transform: translateX(4px); }
-  @media (max-width: 1080px) {
+  .quick__title::after { content: ''; position: absolute; inset: 0; }
+  .quick__title:focus-visible { outline: none; }
+  .quick__item:has(.quick__title:focus-visible) { outline: 3px solid var(--ink-deep); outline-offset: -3px; }
+  .quick__desc { font-size: 0.8125rem; line-height: 1.5; color: var(--ink-soft); }
+  .quick__item :global(.quick__arrow) { position: absolute; right: var(--s-5); top: var(--s-6); width: 1.1rem; height: 1.1rem; color: var(--orange-600); opacity: 0; transform: translateX(-4px); transition: opacity var(--t-base), transform var(--t-base) var(--ease-out); }
+  .quick__item:hover :global(.quick__arrow) { opacity: 1; transform: none; }
+  @media (max-width: 1180px) {
+    .quick__list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .quick__item:nth-child(4) { border-left: 0; }
+    .quick__item:nth-child(n + 4) { border-top: 1px solid var(--line); }
+  }
+  @media (max-width: 640px) {
     .quick__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .quick__item:nth-child(3) { border-left: 0; }
+    .quick__item { padding: var(--s-5) var(--s-4); }
+    .quick__item:nth-child(4) { border-left: 1px solid var(--line); }
+    .quick__item:nth-child(odd) { border-left: 0; }
     .quick__item:nth-child(n + 3) { border-top: 1px solid var(--line); }
-    .quick__item:first-child, .quick__item:last-child { border-radius: 0; }
+    .quick__desc { display: none; }
+    .quick__item :global(.quick__arrow) { display: none; }
   }
-  @media (max-width: 560px) {
-    .quick__list { grid-template-columns: minmax(0, 1fr); }
-    .quick__item + .quick__item { border-left: 0; border-top: 1px solid var(--line); }
-    .quick__item { padding: var(--s-5); }
-  }
-
-  /* ---------- Tabs + rail ---------- */
-  .tabs__list {
-    display: flex;
-    gap: 0.4rem;
-    margin-bottom: var(--s-6);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .tabs__list::-webkit-scrollbar { display: none; }
-  .tabs__list [role='tab'] {
-    flex: none;
-    min-height: 44px;
-    padding: 0.55rem 1.15rem;
-    border: 1px solid var(--line-strong);
-    border-radius: var(--r-pill);
-    background: var(--white);
-    font-family: var(--font-display);
-    font-size: 0.925rem;
-    font-weight: 600;
-    color: var(--ink-soft);
-    transition: all var(--t-fast);
-  }
-  .tabs__list [role='tab']:hover { color: var(--ink-deep); border-color: var(--ink-mute); }
-  .tabs__list [role='tab'][aria-selected='true'] { background: var(--orange-500); border-color: var(--orange-500); color: var(--ink-deep); box-shadow: 0 8px 18px -12px rgb(217 92 22 / 0.8); }
-  .tabs__panel:focus-visible { outline-offset: 8px; }
-
-  .rail { position: relative; }
-  .rail__track {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: calc((100% - 3 * var(--grid-gap)) / 4);
-    gap: var(--grid-gap);
-    margin: 0;
-    padding: 0.5rem 0.25rem 1.25rem;
-    list-style: none;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-  }
-  .rail__track::-webkit-scrollbar { display: none; }
-  .rail__item { scroll-snap-align: start; }
-  .rail__nav { display: flex; justify-content: flex-end; gap: var(--s-2); margin-top: var(--s-2); }
-  .rail[data-static] .rail__nav { display: none; }
-  .rail__btn {
-    display: grid;
-    place-items: center;
-    width: 48px;
-    height: 48px;
-    border: 1px solid var(--line-strong);
-    border-radius: 50%;
-    background: var(--white);
-    color: var(--ink-deep);
-    transition: all var(--t-fast);
-  }
-  .rail__btn:hover:not(:disabled) { background: var(--ink-deep); color: var(--white); border-color: var(--ink-deep); }
-  .rail__btn:disabled { opacity: 0.35; cursor: default; }
-  @media (max-width: 1080px) { .rail__track { grid-auto-columns: calc((100% - 2 * var(--grid-gap)) / 2.6); } }
-  @media (max-width: 640px) { .rail__track { grid-auto-columns: 78%; } }
 
   /* ---------- Exterior band ---------- */
   .exterior {
@@ -1032,7 +841,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     color: var(--ink-deep);
     box-shadow: var(--shadow-md);
   }
-  .story__stat strong { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+  .story__stat strong { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; line-height: 1; letter-spacing: var(--tracking-display); }
   .story__stat span { font-size: 0.875rem; font-weight: 600; }
   .story__copy { display: grid; gap: var(--s-5); justify-items: start; }
   .story__vm { display: grid; gap: var(--s-3); margin: 0; padding: var(--s-5); border-radius: var(--r-md); background: var(--cream); width: 100%; }
@@ -1041,7 +850,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .story__vm dd { margin: 0; color: var(--ink-soft); }
   .story__stats { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: var(--s-7); margin: 0; }
   .story__stats div { display: flex; flex-direction: column-reverse; }
-  .story__stats dd { margin: 0; font-family: var(--font-display); font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem); font-weight: 750; letter-spacing: -0.03em; color: var(--orange-600); line-height: 1.1; }
+  .story__stats dd { margin: 0; font-family: var(--font-display); font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem); font-weight: 750; letter-spacing: var(--tracking-display); color: var(--orange-600); line-height: 1.1; }
   .story__stats dt { font-size: 0.875rem; color: var(--ink-soft); }
   .creds {
     display: grid;
@@ -1073,7 +882,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .quote :global(.quote__img) { width: clamp(7rem, 5rem + 6vw, 12rem); height: auto; border-radius: 50%; }
   .quote__body { display: grid; gap: var(--s-4); }
   .quote__body blockquote { margin: 0; }
-  .quote__body blockquote p { font-family: var(--font-display); font-size: clamp(1.4rem, 1.15rem + 1.1vw, 2.15rem); font-weight: 500; line-height: 1.3; letter-spacing: -0.02em; color: var(--ink-deep); text-wrap: balance; }
+  .quote__body blockquote p { font-family: var(--font-display); font-size: clamp(1.4rem, 1.15rem + 1.1vw, 2.15rem); font-weight: 500; line-height: 1.3; letter-spacing: var(--tracking-heading); color: var(--ink-deep); text-wrap: balance; }
   .quote__body figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-5); color: var(--ink-soft); }
   .quote__body figcaption strong { color: var(--ink-deep); }
   @media (max-width: 640px) { .quote { grid-template-columns: minmax(0, 1fr); } }
@@ -1123,7 +932,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   }
   .franchise__stats div { display: grid; padding: var(--s-4) var(--s-5); }
   .franchise__stats div + div { border-left: 1px solid var(--line); }
-  .franchise__stats dd { margin: 0; font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: var(--orange-700); }
+  .franchise__stats dd { margin: 0; font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; letter-spacing: var(--tracking-display); line-height: 1.1; color: var(--orange-700); }
   .franchise__stats dt { font-size: 0.8125rem; color: var(--ink-soft); }
   @media (max-width: 960px) {
     .franchise__card { grid-template-columns: minmax(0, 1fr); }

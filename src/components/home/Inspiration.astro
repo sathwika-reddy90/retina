@@ -1,0 +1,119 @@
+---
+// Trends & Inspirations: flip cards. The front is a room painted in a real Retina
+// shade (or a product photo); the back gives a short colour idea and a link to try it.
+// Cards flip on hover, on keyboard focus, and on tap for touch screens.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Icon from '@/components/Icon.astro';
+import PaintedRoom from '@/components/PaintedRoom.astro';
+import { findShade } from '@/data/colours';
+import puttyPhoto from '@/assets/categories/putty.jpg';
+
+type Card = { title: string; text: string; code?: string; room?: string; photo?: ImageMetadata; href?: string; cta?: string };
+const cards: Card[] = [
+  { title: 'Warm Neutrals for Living Rooms', room: 'living-room', code: 'QC1095', text: 'Soft, warm neutrals make a living room feel open and welcoming, and sit easily with wood, cane and white furniture.' },
+  { title: 'Calm Blues for Restful Bedrooms', room: 'bed-room', code: 'QC0652', text: 'Muted blues bring a quiet, settled mood to a bedroom, especially behind the headboard as a single feature wall.' },
+  { title: 'Fresh Greens in the Kitchen', room: 'kitchen', code: 'QC0994', text: 'A garden green freshens up white cabinets and steel fittings, and keeps a busy kitchen feeling light.' },
+  { title: 'Earthy Tones for Exteriors', room: 'house', code: 'QC1102', text: 'Warm, earthy shades flatter stone, wood and greenery outside, and age gracefully in strong sunlight.' },
+  { title: 'Make a Statement with Accent Walls', room: 'dining', code: 'QC0391', text: 'Paint one wall in a bold shade and keep the rest light: an easy way to add drama without overwhelming the room.' },
+  { title: 'Cheerful Colours for Kids’ Rooms', room: 'kids-room', code: 'QC0161', text: 'Sunny yellows feel playful and energetic; balance them with white furniture and soft textiles.' },
+  { title: 'Bold Blues for Modern Façades', room: 'apartment', code: 'QC0703', text: 'A confident blue gives an apartment block a crisp, contemporary look that stands out on the street.' },
+  { title: 'Add Depth with Textures', photo: puttyPhoto, href: '/products/spray-plasters/hitek-textures/', cta: 'Explore Retina Texture', text: 'Textured finishes catch the light and add character to feature walls, entrances and living spaces.' },
+];
+const items = cards.map((c) => {
+  const shade = c.code ? findShade(c.code)! : undefined;
+  return { ...c, shade, href: c.href ?? `/colors/#${c.code}`, cta: c.cta ?? 'Try this look' };
+});
+---
+
+<section class="section trends" aria-labelledby="trends-title">
+  <div class="container">
+    <div class="section-head section-head--center" data-reveal>
+      <p class="eyebrow">Inspiration</p>
+      <h2 class="t-h2" id="trends-title">Trends &amp; Inspirations</h2>
+      <p class="t-lead">Colour ideas for every room. Hover or tap a card to flip it.</p>
+    </div>
+
+    <ul role="list" class="trends__grid" data-reveal-stagger="60">
+      {items.map((c) => (
+        <li class="fcard" data-flip>
+          <div class="fcard__inner">
+            <div class="fcard__face fcard__front">
+              {c.room ? (
+                <PaintedRoom room={c.room} hex={c.shade!.hex} alt="" sizes="(max-width: 560px) 100vw, (max-width: 1024px) 50vw, 300px" widths={[360, 700]} class="fcard__img" />
+              ) : (
+                <Image src={c.photo!} alt="" widths={[360, 640]} sizes="(max-width: 560px) 100vw, (max-width: 1024px) 50vw, 300px" class="fcard__img" />
+              )}
+              <h3 class="fcard__title">{c.title}</h3>
+              <span class="fcard__hint" aria-hidden="true"><Icon name="refresh" /></span>
+            </div>
+            <div class="fcard__face fcard__back">
+              <p class="fcard__back-title" aria-hidden="true">{c.title}</p>
+              <p class="fcard__text">{c.text}</p>
+              {c.shade && (
+                <p class="fcard__shade"><span class="fcard__chip" style={`background:${c.shade.hex}`}></span>{c.shade.name ?? c.shade.code} · {c.shade.hex.toUpperCase()}</p>
+              )}
+              <a class="fcard__link" href={c.href}>{c.cta} <Icon name="arrow-right" /><span class="sr-only">: {c.title}</span></a>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<script>
+  // Touch screens have no hover: a tap flips the card, a second tap on the link follows it.
+  const coarse = window.matchMedia('(hover: none)');
+  document.querySelectorAll<HTMLElement>('[data-flip]').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      if (!coarse.matches) return;
+      const onLink = (e.target as HTMLElement).closest('a');
+      if (onLink && card.hasAttribute('data-flipped')) return;
+      e.preventDefault();
+      document.querySelectorAll('[data-flip][data-flipped]').forEach((c) => c !== card && c.removeAttribute('data-flipped'));
+      card.toggleAttribute('data-flipped');
+    });
+  });
+</script>
+
+<style>
+  .trends__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.75rem, 0.5rem + 1vw, 1.5rem); margin: 0; padding: 0; list-style: none; }
+  .fcard { aspect-ratio: 3 / 4; perspective: 1400px; cursor: pointer; }
+  .fcard__inner { position: relative; height: 100%; transform-style: preserve-3d; transition: transform 750ms cubic-bezier(0.4, 0.2, 0.2, 1); }
+  @media (hover: hover) { .fcard:hover .fcard__inner { transform: rotateY(180deg); } }
+  .fcard:focus-within .fcard__inner, .fcard[data-flipped] .fcard__inner { transform: rotateY(180deg); }
+  /* A turned-away face still catches clicks, so only the visible face takes pointer input. */
+  .fcard__back { pointer-events: none; }
+  @media (hover: hover) { .fcard:hover .fcard__front { pointer-events: none; } .fcard:hover .fcard__back { pointer-events: auto; } }
+  .fcard:focus-within .fcard__front, .fcard[data-flipped] .fcard__front { pointer-events: none; }
+  .fcard:focus-within .fcard__back, .fcard[data-flipped] .fcard__back { pointer-events: auto; }
+  .fcard__face { position: absolute; inset: 0; overflow: hidden; border-radius: var(--r-md); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+
+  .fcard__front { background: var(--sand); }
+  .fcard__front :global(.fcard__img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .fcard__front::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgb(20 14 10 / 0.78), rgb(20 14 10 / 0.1) 50%, transparent 70%); }
+  .fcard__title { position: absolute; left: var(--s-5); right: var(--s-5); bottom: var(--s-5); z-index: 1; font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem); line-height: 1.2; color: var(--white); }
+  .fcard__hint { position: absolute; top: var(--s-4); right: var(--s-4); z-index: 1; display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: rgb(255 255 255 / 0.9); color: var(--ink-deep); }
+  .fcard__hint :global(.icon) { width: 1rem; height: 1rem; }
+
+  .fcard__back { display: flex; flex-direction: column; gap: var(--s-4); padding: clamp(1.25rem, 1rem + 1vw, 1.75rem); background: #2b2724; color: var(--white); transform: rotateY(180deg); }
+  .fcard__back-title { padding-bottom: var(--s-4); border-bottom: 1.5px solid rgb(255 255 255 / 0.75); font-family: var(--font-display); font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem); font-weight: 700; line-height: 1.2; text-align: center; }
+  .fcard__text { flex: 1; font-size: 0.9375rem; line-height: 1.6; color: rgb(255 255 255 / 0.82); }
+  .fcard__shade { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-display); font-size: 0.8125rem; font-weight: 700; color: rgb(255 255 255 / 0.9); }
+  .fcard__chip { width: 1.25rem; height: 1.25rem; border-radius: 50%; box-shadow: 0 0 0 2px rgb(255 255 255 / 0.85); }
+  .fcard__link { display: inline-flex; align-items: center; gap: 0.4rem; align-self: flex-start; font-family: var(--font-display); font-weight: 700; color: var(--orange-300); text-decoration: none; }
+  .fcard__link :global(.icon) { width: 1rem; height: 1rem; transition: transform var(--t-base) var(--ease-out); }
+  .fcard__link:hover :global(.icon) { transform: translateX(4px); }
+  .fcard__link:focus-visible { outline: 2.5px solid var(--white); outline-offset: 3px; border-radius: 4px; }
+
+  /* Without motion: swap faces with a fade instead of a 3D turn. */
+  @media (prefers-reduced-motion: reduce) {
+    .fcard__inner { transition: none; transform: none !important; }
+    .fcard__back { transform: none; opacity: 0; transition: opacity 200ms; }
+    .fcard:hover .fcard__back, .fcard:focus-within .fcard__back, .fcard[data-flipped] .fcard__back { opacity: 1; }
+  }
+
+  @media (max-width: 1024px) { .trends__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fcard { aspect-ratio: 4 / 5; } }
+  @media (max-width: 560px) { .trends__grid { grid-template-columns: minmax(0, 1fr); } .fcard { aspect-ratio: 5 / 4; } }
+</style>

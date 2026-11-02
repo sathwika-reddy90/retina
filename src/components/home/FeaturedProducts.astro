@@ -1,0 +1,113 @@
+---
+// Featured Products: wide promotional banners for real Retina products. Name, summary,
+// features and warranty all come from the product data.
+import { Image } from 'astro:assets';
+import Icon from '@/components/Icon.astro';
+import { productBySlug, categoryById, type Product } from '@/data/products';
+
+// Banner colour and headline tint per category.
+const theme: Record<string, { bg: string; accent: string }> = {
+  'exterior-emulsions': { bg: '#1d2a4d', accent: '#b9d6ff' },
+  'interior-emulsions': { bg: '#3b1f3c', accent: '#f3c6e8' },
+  'waterproof-primers': { bg: '#0f3a3f', accent: '#a7e6df' },
+};
+const slides = ['weather-expert', 'royal-vogue', 'eco-damp', 'expo-ultimax', 'glow-premium']
+  .map((s) => productBySlug(s))
+  .filter((p): p is Product & { href: string } => Boolean(p?.href))
+  .map((p) => ({ p, category: categoryById(p.category).label, ...(theme[p.category] ?? theme['exterior-emulsions']) }));
+---
+
+<section class="section featured" aria-labelledby="featured-title">
+  <div class="container" data-carousel>
+    <div class="featured__head" data-reveal>
+      <div class="stack" style="--stack: var(--s-3)">
+        <p class="eyebrow">Our Products</p>
+        <h2 class="featured__title" id="featured-title">Featured Products</h2>
+      </div>
+      <div class="carousel-nav">
+        <button type="button" class="carousel-btn" data-carousel-prev aria-label="Previous product"><Icon name="arrow-left" /></button>
+        <button type="button" class="carousel-btn" data-carousel-next aria-label="Next product"><Icon name="arrow-right" /></button>
+      </div>
+    </div>
+
+    <div class="carousel-track featured__track" data-carousel-track aria-roledescription="carousel" aria-label="Featured products">
+      {slides.map(({ p, category, bg, accent }, i) => (
+        <article class="slide" aria-roledescription="slide" aria-label={`${i + 1} of ${slides.length}: ${p.name}`}>
+          <div class="slide__banner" style={`--bg:${bg};--accent:${accent}`}>
+            <div class="slide__info">
+              <p class="slide__cat">{category}</p>
+              <h3 class="slide__name">{p.name}</h3>
+              <ul role="list" class="slide__features">
+                {p.warranty && <li><span class="slide__ficon slide__ficon--accent"><Icon name="award" /></span>{p.warranty} Years <br />warranty</li>}
+                {p.features.slice(0, p.warranty ? 2 : 3).map((f) => <li><span class="slide__ficon"><Icon name="check-circle" /></span>{f}</li>)}
+              </ul>
+            </div>
+            <div class="slide__pack">
+              <Image src={p.image} alt={`${p.name} pack`} widths={[260, 420]} sizes="(max-width: 760px) 50vw, 300px" />
+            </div>
+            <div class="slide__pitch">
+              <p class="slide__summary">{p.summary}</p>
+              <a class="btn btn--ghost-light" href={p.href}>Explore Product <Icon name="arrow-right" /></a>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+    <div class="carousel-dots featured__dots" data-carousel-dots></div>
+  </div>
+</section>
+
+<script>
+  import { initCarousels } from '@/scripts/carousel';
+  initCarousels();
+</script>
+
+<style>
+  .featured__head { display: flex; align-items: end; justify-content: space-between; gap: var(--s-5); margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem); }
+  .featured__title { font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.75rem); font-weight: 750; letter-spacing: var(--tracking-display); line-height: 1.05; }
+  .featured__track { gap: var(--s-5); }
+  .slide { width: 100%; padding-bottom: 3rem; }
+  .slide__banner {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.8fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+    min-height: clamp(22rem, 18rem + 8vw, 28rem);
+    padding: clamp(2rem, 1.5rem + 2vw, 3.5rem) clamp(1.75rem, 1rem + 3vw, 4.5rem);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(circle at 50% var(--glow-y, 60%), rgb(255 255 255 / 0.12) 0 var(--glow-r, 22%), transparent calc(var(--glow-r, 22%) + 0.2%)),
+      linear-gradient(135deg, rgb(255 255 255 / 0.06), transparent 45%),
+      var(--bg);
+    color: var(--white);
+  }
+  .slide__cat { font-size: 0.75rem; font-weight: 750; letter-spacing: 0.14em; text-transform: uppercase; color: var(--orange-300); }
+  .slide__name { margin-top: 0.5rem; font-size: clamp(2rem, 1.4rem + 2vw, 3.25rem); font-weight: 750; line-height: 1.05; letter-spacing: var(--tracking-display); color: var(--white); }
+  .slide__features { display: flex; flex-wrap: wrap; gap: var(--s-5); margin: var(--s-6) 0 0; padding: 0; list-style: none; }
+  .slide__features li { display: grid; justify-items: start; gap: 0.5rem; max-width: 6.5rem; font-size: 0.875rem; line-height: 1.3; color: rgb(255 255 255 / 0.88); }
+  .slide__ficon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 12px; background: rgb(255 255 255 / 0.1); color: var(--white); }
+  .slide__ficon--accent { background: var(--orange-500); color: var(--ink-deep); }
+  .slide__ficon :global(.icon) { width: 1.35rem; height: 1.35rem; }
+  .slide__pack { align-self: stretch; position: relative; }
+  .slide__pack :global(img) { position: absolute; left: 50%; bottom: calc(-1 * clamp(2rem, 1.5rem + 2vw, 3.5rem) - 2.5rem); width: auto; height: 118%; max-width: none; transform: translateX(-50%); filter: drop-shadow(0 28px 30px rgb(0 0 0 / 0.45)); transition: transform 600ms var(--ease-out); }
+  .slide__banner:hover .slide__pack :global(img) { transform: translateX(-50%) translateY(-6px); }
+  .slide__pitch { display: grid; justify-items: start; gap: var(--s-5); }
+  .slide__summary { font-family: var(--font-display); font-size: clamp(1.375rem, 1rem + 1.2vw, 2.125rem); font-weight: 600; line-height: 1.2; letter-spacing: var(--tracking-heading); color: var(--accent); }
+  .featured__dots { margin-top: var(--s-2); }
+
+  @media (max-width: 1024px) {
+    .slide__banner { grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.7fr); }
+    .slide__pitch { grid-column: 1 / -1; }
+    .slide__pack { grid-column: 2; grid-row: 1; }
+    .slide__pack :global(img) { height: 100%; bottom: 0; }
+  }
+  @media (max-width: 640px) {
+    .featured__head .carousel-nav { display: none; }
+    .slide { padding-bottom: 0; }
+    .slide__banner { --glow-y: 6.5rem; --glow-r: 5.5rem; grid-template-columns: minmax(0, 1fr); padding-top: 13rem; }
+    .slide__pack { position: absolute; inset: 1.25rem 0 auto; height: 11rem; grid-column: auto; grid-row: auto; }
+    .slide__pack :global(img) { height: 100%; bottom: 0; }
+    .slide__features { gap: var(--s-4); }
+  }
+</style>

@@ -23,7 +23,6 @@ body {
   font-family: var(--font-body);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
-  font-feature-settings: 'cv11', 'ss01';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -57,9 +56,9 @@ p, li, dd { text-wrap: pretty; }
   font-size: var(--fs-display);
   line-height: var(--lh-tight);
   letter-spacing: var(--tracking-display);
-  font-weight: 650;
+  font-weight: 800;
 }
-.t-h1 { font-size: var(--fs-h1); line-height: 1.08; letter-spacing: var(--tracking-display); font-weight: 650; }
+.t-h1 { font-size: var(--fs-h1); line-height: 1.08; letter-spacing: var(--tracking-display); font-weight: 800; }
 .t-h2 { font-size: var(--fs-h2); line-height: 1.12; }
 .t-h3 { font-size: var(--fs-h3); line-height: var(--lh-snug); letter-spacing: var(--tracking-snug); }
 .t-h4 { font-size: var(--fs-h4); line-height: var(--lh-snug); letter-spacing: -0.005em; }
@@ -365,3 +364,30 @@ dialog.modal::backdrop { background: rgb(27 23 20 / 0.55); backdrop-filter: blur
 @keyframes fade-in { from { opacity: 0; } }
 
 body:has(dialog[open]) { overflow: hidden; }
+
+/* ---------- Carousel controls (scripts/carousel.ts) ---------- */
+.carousel-nav { display: flex; gap: var(--s-3); }
+.carousel-btn {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: 1.5px solid var(--ink-deep);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-deep);
+  transition: background-color var(--t-fast), color var(--t-fast), border-color var(--t-fast), opacity var(--t-fast);
+}
+.carousel-btn .icon { width: 1.2rem; height: 1.2rem; }
+.carousel-btn:hover:not(:disabled) { background: var(--ink-deep); color: var(--white); }
+.carousel-btn:disabled { opacity: 0.3; cursor: default; }
+.carousel-btn--light { border-color: rgb(255 255 255 / 0.8); color: var(--white); }
+.carousel-btn--light:hover:not(:disabled) { background: var(--white); color: var(--ink-deep); }
+.carousel-btn--light:focus-visible { outline-color: var(--white); }
+.carousel-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-track > * { flex: none; scroll-snap-align: start; }
+.carousel-dots { display: flex; justify-content: center; gap: 0.5rem; }
+.carousel-dot { width: 0.6rem; height: 0.6rem; padding: 0; border: 0; border-radius: var(--r-pill); background: var(--line-strong); transition: width var(--t-base) var(--ease-out), background-color var(--t-base); }
+.carousel-dot[aria-current='true'] { width: 1.75rem; background: var(--orange-500); }

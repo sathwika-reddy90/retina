@@ -1,0 +1,75 @@
+---
+// One-stop section: the help Retina actually offers (expert advice, its stores and
+// the franchise programme), presented as a dark editorial panel.
+import { Image } from 'astro:assets';
+import Icon from '@/components/Icon.astro';
+import interiorColour from '@/assets/imagery/interior-colour.jpg';
+import storeInterior from '@/assets/imagery/store-interior.jpg';
+import storeIllustration from '@/assets/imagery/store-illustration.png';
+---
+
+<section class="onestop" aria-labelledby="onestop-title">
+  <div class="container">
+    <div class="onestop__panel">
+      <svg class="onestop__lines" viewBox="0 0 1200 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path d="M1220 80c-120 60-60 220-200 260s-260-60-340 40-40 260-200 300-300-40-500 60" />
+        <path d="M900 920c40-120 180-140 240-90s80 10 80-60" />
+      </svg>
+
+      <div class="onestop__head" data-reveal>
+        <h2 class="onestop__title" id="onestop-title">One-Stop Shop for All Things Paint</h2>
+        <p class="onestop__lead">From choosing the right shade and primer to finding a store near you, Retina Paints is with you at every step of your painting project.</p>
+      </div>
+
+      <div class="onestop__grid" data-reveal-stagger="100">
+        <article class="ocard ocard--tall">
+          <Image src={interiorColour} alt="Living spaces with walls painted deep blue, crimson and forest green" widths={[480, 800]} sizes="(max-width: 960px) 100vw, 33vw" class="ocard__img" />
+          <h3 class="ocard__title">Painting Advice</h3>
+          <p class="ocard__text">Planning to repaint your home? Our experts can help you choose the right paints, primers and colours for every surface.</p>
+          <button type="button" class="btn btn--ghost-light" data-open-dialog="dialog-advice">Request a Painting Enquiry <Icon name="arrow-right" /></button>
+        </article>
+        <article class="ocard ocard--mid">
+          <Image src={storeInterior} alt="Interior of a Retina Paints store" widths={[480, 800]} sizes="(max-width: 960px) 100vw, 33vw" class="ocard__img" />
+          <h3 class="ocard__title">Retina Stores</h3>
+          <p class="ocard__text">Visit a Retina store to see shade cards, compare finishes and get advice on the right products.</p>
+          <a class="btn btn--ghost-light" href="/find-a-store-near-you/">Find a Store <Icon name="arrow-right" /></a>
+        </article>
+        <article class="ocard ocard--top">
+          <Image src={storeIllustration} alt="Illustration of a Retina Paints exclusive showroom" widths={[480, 800]} sizes="(max-width: 960px) 100vw, 33vw" class="ocard__img ocard__img--illus" />
+          <h3 class="ocard__title">Own a Franchise</h3>
+          <p class="ocard__text">Partner with Retina Paints and grow your business with your own exclusive showroom.</p>
+          <a class="btn btn--ghost-light" href="/franchise/">Explore the Franchise <Icon name="arrow-right" /></a>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .onestop { --gold: #d6a84f; --gold-hi: #f6dc9c; padding-block: var(--section-y-sm); }
+  .onestop__panel { position: relative; isolation: isolate; overflow: hidden; padding: clamp(2.5rem, 1.5rem + 3vw, 5rem) clamp(1.75rem, 1rem + 3vw, 4.5rem); border-radius: var(--r-xl); background: #0d0b0a; color: var(--white); }
+  .onestop__lines { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; fill: none; stroke: var(--gold); stroke-width: 1.5; opacity: 0.5; }
+  .onestop__lines path { vector-effect: non-scaling-stroke; }
+  .onestop__head { display: grid; gap: var(--s-4); max-width: 44rem; margin-bottom: clamp(2rem, 1.5rem + 2.5vw, 4rem); }
+  .onestop__title { font-size: clamp(2.25rem, 1.5rem + 2.8vw, 4rem); font-weight: 750; line-height: 1.04; letter-spacing: var(--tracking-display); background: linear-gradient(170deg, var(--gold-hi), var(--gold) 75%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .onestop__lead { font-size: var(--fs-lead); line-height: 1.6; color: rgb(255 255 255 / 0.75); }
+  .onestop__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 1rem + 2vw, 3rem); align-items: start; }
+  .ocard { display: grid; justify-items: start; gap: var(--s-4); }
+  .ocard :global(.ocard__img) { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-lg); transition: transform 700ms var(--ease-out); }
+  .ocard--mid { margin-top: clamp(0rem, -2rem + 6vw, 5rem); }
+  .ocard--top :global(.ocard__img) { aspect-ratio: 4 / 3; }
+  .ocard :global(.ocard__img--illus) { background: #f7f1ea; object-fit: contain; padding: var(--s-3); }
+  .ocard:hover :global(.ocard__img) { transform: translateY(-6px); }
+  .ocard__title { font-size: clamp(1.75rem, 1.35rem + 1.2vw, 2.5rem); font-weight: 750; letter-spacing: var(--tracking-display); color: var(--white); }
+  .ocard__text { font-size: 1rem; line-height: 1.55; color: rgb(255 255 255 / 0.75); }
+  .ocard :global(.btn) { margin-top: var(--s-2); }
+  @media (max-width: 960px) {
+    .onestop__grid { grid-template-columns: minmax(0, 1fr); }
+    .ocard--mid { margin-top: 0; }
+    .ocard :global(.ocard__img) { aspect-ratio: 16 / 10; }
+  }
+  @media (max-width: 640px) {
+    .onestop .container { padding-inline: 0; }
+    .onestop__panel { border-radius: 0; padding-inline: var(--gutter); }
+  }
+</style>

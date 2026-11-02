@@ -1,0 +1,132 @@
+---
+// Colour Tools: a dark showcase of the colour and product tools already on the site.
+// Each card links to a working destination (page, product section or homepage tool).
+import { Image } from 'astro:assets';
+import Icon from '@/components/Icon.astro';
+import PaintedRoom from '@/components/PaintedRoom.astro';
+import colourVision from '@/assets/imagery/colour-vision.jpg';
+import exteriorPhoto from '@/assets/categories/exterior-emulsions.jpg';
+import woodPhoto from '@/assets/categories/oil-based-primers.jpg';
+
+const cards = [
+  { title: 'Colours Curated for Your Space', href: '#colours', photo: colourVision, pos: '30% 50%' },
+  { title: 'Your Ideal Wall Paint Products', href: '/products/', photo: exteriorPhoto, pos: '72% 50%' },
+  { title: 'Wood & Metal Primers', href: '/products/#oilbased-primers', photo: woodPhoto, pos: '80% 50%' },
+  { title: 'Try Shades in a Room', href: '#visualizer', room: { id: 'kitchen', hex: '#227582' } },
+  { title: 'Paint Finish Inspiration', href: '#beyond', room: { id: 'bed-room', hex: '#8A3C5D' } },
+  { title: 'Paint Budget Calculator', href: '#calculator', icon: 'sliders' },
+];
+---
+
+<section class="tools" aria-labelledby="tools-title">
+  <div class="container">
+    <div class="tools__panel" data-carousel>
+      <svg class="tools__lines" viewBox="0 0 1200 600" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path d="M-20 420C140 300 260 520 420 470S600 260 760 300 980 520 1220 380" />
+        <path d="M480 -20c40 90 150 110 230 70s170-40 220 30 140 70 290 20" />
+        <path d="M-20 560c160-60 300 20 420-30" />
+      </svg>
+      <div class="tools__intro">
+        <h2 class="tools__title" id="tools-title">Colour <br />Tools</h2>
+        <p class="tools__lead">Everything you need to choose with confidence, in one place.</p>
+        <div class="carousel-nav">
+          <button type="button" class="carousel-btn carousel-btn--light" data-carousel-prev aria-label="Previous tools"><Icon name="arrow-left" /></button>
+          <button type="button" class="carousel-btn carousel-btn--light" data-carousel-next aria-label="Next tools"><Icon name="arrow-right" /></button>
+        </div>
+      </div>
+      <ul role="list" class="carousel-track tools__track" data-carousel-track aria-label="Colour tools">
+        {cards.map((c) => (
+          <li>
+            <a class="tcard" href={c.href}>
+              <span class="tcard__title">{c.title}</span>
+              <span class="tcard__media">
+                {c.photo ? (
+                  <Image src={c.photo} alt="" widths={[320, 560]} sizes="300px" class="tcard__img" style={`object-position:${c.pos}`} />
+                ) : c.room ? (
+                  <PaintedRoom room={c.room.id} hex={c.room.hex} alt="" sizes="300px" widths={[320, 600]} class="tcard__img" />
+                ) : (
+                  <span class="tcard__icon"><Icon name={c.icon!} /></span>
+                )}
+              </span>
+              <Icon name="arrow-up-right" class="tcard__arrow" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { initCarousels } from '@/scripts/carousel';
+  initCarousels();
+</script>
+
+<style>
+  .tools { --gold: #d6a84f; --gold-hi: #f6dc9c; padding-block: var(--section-y-sm); }
+  .tools__panel {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(13rem, 18rem) minmax(0, 1fr);
+    gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+    align-items: center;
+    overflow: hidden;
+    padding: clamp(2rem, 1.5rem + 2.5vw, 4rem) 0 clamp(2rem, 1.5rem + 2.5vw, 4rem) clamp(1.75rem, 1rem + 3vw, 4rem);
+    border-radius: var(--r-xl);
+    background: #0d0b0a;
+    color: var(--white);
+  }
+  .tools__lines { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; fill: none; stroke: var(--gold); stroke-width: 1.5; opacity: 0.55; vector-effect: non-scaling-stroke; }
+  .tools__lines path { vector-effect: non-scaling-stroke; }
+  .tools__intro { display: grid; justify-items: start; gap: var(--s-5); }
+  .tools__title {
+    font-size: clamp(3rem, 2rem + 3.5vw, 5rem);
+    font-weight: 750;
+    line-height: 0.98;
+    letter-spacing: var(--tracking-display);
+    background: linear-gradient(170deg, var(--gold-hi), var(--gold) 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .tools__lead { max-width: 15rem; font-size: 0.9375rem; color: rgb(255 255 255 / 0.72); }
+  .tools__track { gap: var(--s-4); margin: 0; padding: 0 clamp(1.75rem, 1rem + 3vw, 4rem) 0 0; list-style: none; }
+  .tcard {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: var(--s-5);
+    width: clamp(15rem, 12rem + 6vw, 19rem);
+    height: clamp(24rem, 20rem + 6vw, 29rem);
+    padding: var(--s-6) var(--s-6) 0;
+    border: 1px solid rgb(214 168 79 / 0.18);
+    border-radius: var(--r-lg);
+    background: #1f1d1b;
+    color: var(--white);
+    text-decoration: none;
+    transition: transform 360ms var(--ease-out), border-color 360ms, background-color 360ms;
+  }
+  .tcard:hover { transform: translateY(-6px); border-color: rgb(214 168 79 / 0.6); background: #262320; }
+  .tcard:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
+  .tcard__title { font-family: var(--font-display); font-size: clamp(1.5rem, 1.2rem + 0.9vw, 2rem); font-weight: 750; line-height: 1.12; letter-spacing: var(--tracking-heading); }
+  .tcard__media { position: relative; display: block; margin-inline: calc(-1 * var(--s-6)); overflow: hidden; border-radius: var(--r-md) var(--r-md) var(--r-lg) var(--r-lg); }
+  .tcard__media :global(.tcard__img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.88; transition: transform 1000ms var(--ease-out), opacity 400ms; }
+  .tcard:hover .tcard__media :global(.tcard__img) { transform: scale(1.06); opacity: 1; }
+  .tcard__icon { position: absolute; inset: 0; display: grid; place-items: center; background: radial-gradient(circle at 50% 60%, rgb(214 168 79 / 0.22), transparent 60%); color: var(--gold-hi); }
+  .tcard__icon :global(.icon) { width: 4.5rem; height: 4.5rem; stroke-width: 1.2; }
+  .tcard :global(.tcard__arrow) { position: absolute; right: var(--s-5); bottom: var(--s-5); z-index: 1; width: 2.75rem; height: 2.75rem; padding: 0.7rem; border-radius: 50%; background: rgb(13 11 10 / 0.7); color: var(--gold-hi); transition: transform var(--t-base) var(--ease-out), background-color var(--t-base); }
+  .tcard:hover :global(.tcard__arrow) { transform: rotate(45deg); background: var(--gold); color: #0d0b0a; }
+
+  @media (max-width: 960px) {
+    .tools__panel { grid-template-columns: minmax(0, 1fr); padding-right: 0; }
+    .tools__title br { display: none; }
+    .tools__lead { max-width: none; }
+  }
+  @media (max-width: 640px) {
+    .tools .container { padding-inline: 0; }
+    .tools__panel { border-radius: 0; padding-left: var(--gutter); }
+    .tools__track { padding-right: var(--gutter); }
+    .tcard { width: 74vw; }
+  }
+</style>

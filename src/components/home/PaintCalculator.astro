@@ -1,0 +1,174 @@
+---
+// Indicative paint budget: area × coats × the visitor's own rate per sq ft.
+// No Retina prices are built in, and nothing is assumed about labour, primer or tax.
+import Icon from '@/components/Icon.astro';
+---
+
+<section class="section section--cream calc" aria-labelledby="calc-title" id="calculator">
+  <div class="container calc__grid">
+    <div class="calc__intro" data-reveal>
+      <p class="eyebrow">Paint Budget Calculator</p>
+      <h2 class="t-h2" id="calc-title">Estimate Your Painting Budget</h2>
+      <p class="t-lead">Enter your wall area, coats and the rate you expect to pay to get a quick, indicative estimate.</p>
+      <div class="calc__formula">
+        <p class="calc__formula-label">How it is calculated</p>
+        <p class="calc__formula-eq">Estimated cost = Area × Number of coats × Price per sq ft</p>
+      </div>
+      <p class="calc__note"><Icon name="info" /> This is an indicative estimate, not an official Retina Paints quotation. It covers only what your rate per sq ft covers; labour, primer, putty and taxes are not added separately.</p>
+    </div>
+
+    <form class="calc__card" novalidate data-calc data-reveal style="--reveal-delay: 100ms">
+      <div class="field" data-field="area">
+        <label for="calc-area">Area to be painted <span class="calc__unit">(sq ft)</span> <span class="req" aria-hidden="true">*</span></label>
+        <input id="calc-area" name="area" type="number" inputmode="decimal" min="1" max="1000000" step="any" required aria-describedby="calc-area-error" autocomplete="off" />
+        <p class="field__error" id="calc-area-error" aria-live="polite"></p>
+      </div>
+
+      <fieldset class="field calc__type">
+        <legend class="label">Project type</legend>
+        <div class="calc__seg">
+          <label><input type="radio" name="type" value="Interior" checked /> <span><Icon name="home" /> Interior</span></label>
+          <label><input type="radio" name="type" value="Exterior" /> <span><Icon name="building" /> Exterior</span></label>
+        </div>
+      </fieldset>
+
+      <div class="calc__row">
+        <div class="field" data-field="coats">
+          <label for="calc-coats">Number of coats <span class="req" aria-hidden="true">*</span></label>
+          <select id="calc-coats" name="coats" required aria-describedby="calc-coats-error">
+            <option value="1">1 coat</option>
+            <option value="2" selected>2 coats</option>
+            <option value="3">3 coats</option>
+          </select>
+          <p class="field__error" id="calc-coats-error" aria-live="polite"></p>
+        </div>
+        <div class="field" data-field="rate">
+          <label for="calc-rate">Price per sq ft <span class="calc__unit">(₹)</span> <span class="req" aria-hidden="true">*</span></label>
+          <input id="calc-rate" name="rate" type="number" inputmode="decimal" min="0.01" max="100000" step="any" required aria-describedby="calc-rate-hint calc-rate-error" autocomplete="off" />
+          <p class="field__hint" id="calc-rate-hint">The rate you have been quoted or expect to pay.</p>
+          <p class="field__error" id="calc-rate-error" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="calc__actions">
+        <button type="submit" class="btn">Calculate Estimate</button>
+        <button type="reset" class="btn btn--secondary"><Icon name="refresh" /> Reset</button>
+      </div>
+
+      <div class="calc__result" aria-live="polite" data-calc-result hidden>
+        <p class="calc__result-label">Indicative estimate · <span data-calc-type></span> project</p>
+        <p class="calc__total" data-calc-total></p>
+        <p class="calc__breakdown" data-calc-breakdown></p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script>
+  const inr = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 });
+  const num = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 });
+
+  document.querySelectorAll<HTMLFormElement>('[data-calc]').forEach((form) => {
+    const result = form.querySelector<HTMLElement>('[data-calc-result]')!;
+    const fields = {
+      area: { min: 1, max: 1_000_000, empty: 'Enter the area to be painted.', range: 'Enter an area between 1 and 10,00,000 sq ft.' },
+      coats: { min: 1, max: 3, empty: 'Choose the number of coats.', range: 'Choose between 1 and 3 coats.' },
+      rate: { min: 0.01, max: 100_000, empty: 'Enter a price per sq ft.', range: 'Enter a price between ₹0.01 and ₹1,00,000 per sq ft.' },
+    } as const;
+
+    const setError = (name: keyof typeof fields, msg: string) => {
+      const wrap = form.querySelector<HTMLElement>(`[data-field="${name}"]`)!;
+      const input = wrap.querySelector<HTMLInputElement | HTMLSelectElement>('input, select')!;
+      wrap.querySelector('.field__error')!.textContent = msg;
+      wrap.toggleAttribute('data-invalid', Boolean(msg));
+      input.setAttribute('aria-invalid', String(Boolean(msg)));
+    };
+    const read = (name: keyof typeof fields) => {
+      const raw = (form.elements.namedItem(name) as HTMLInputElement).value.trim();
+      const rule = fields[name];
+      if (raw === '') return setError(name, rule.empty), NaN;
+      const v = Number(raw);
+      if (!Number.isFinite(v) || v < rule.min || v > rule.max) return setError(name, rule.range), NaN;
+      setError(name, '');
+      return v;
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const area = read('area');
+      const coats = read('coats');
+      const rate = read('rate');
+      if ([area, coats, rate].some(Number.isNaN)) {
+        result.hidden = true;
+        form.querySelector<HTMLElement>('[data-invalid] input, [data-invalid] select')?.focus();
+        return;
+      }
+      const type = (form.elements.namedItem('type') as RadioNodeList).value;
+      const total = area * coats * rate;
+      form.querySelector('[data-calc-type]')!.textContent = type;
+      form.querySelector('[data-calc-total]')!.textContent = inr.format(total);
+      form.querySelector('[data-calc-breakdown]')!.textContent =
+        `${num.format(area)} sq ft × ${coats} coat${coats > 1 ? 's' : ''} × ${inr.format(rate)} per sq ft = ${inr.format(total)}`;
+      result.hidden = false;
+    });
+
+    // Clear an error as soon as the visitor fixes the field.
+    (['area', 'rate'] as const).forEach((name) =>
+      (form.elements.namedItem(name) as HTMLInputElement).addEventListener('input', () => {
+        if (form.querySelector(`[data-field="${name}"][data-invalid]`)) read(name);
+      }),
+    );
+    form.addEventListener('reset', () => {
+      (Object.keys(fields) as (keyof typeof fields)[]).forEach((n) => setError(n, ''));
+      result.hidden = true;
+    });
+  });
+</script>
+
+<style>
+  .calc__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(2rem, 1rem + 3vw, 4.5rem); align-items: start; }
+  .calc__intro { display: grid; gap: var(--s-5); }
+  .calc__formula { padding: var(--s-4) var(--s-5); border-left: 3px solid var(--orange-500); border-radius: 0 var(--r-md) var(--r-md) 0; background: var(--white); }
+  .calc__formula-label { font-size: 0.6875rem; font-weight: 750; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange-700); }
+  .calc__formula-eq { margin-top: 0.25rem; font-family: var(--font-display); font-size: 1.0625rem; font-weight: 650; color: var(--ink-deep); }
+  .calc__note { display: flex; gap: 0.5rem; font-size: 0.875rem; line-height: 1.55; color: var(--ink-soft); }
+  .calc__note :global(.icon) { flex: none; width: 1.05rem; height: 1.05rem; margin-top: 0.15rem; color: var(--ink-mute); }
+
+  .calc__card { display: grid; gap: var(--s-5); padding: clamp(1.5rem, 1rem + 1.5vw, 2.25rem); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--white); box-shadow: var(--shadow-md); }
+  .calc__unit { font-weight: 500; color: var(--ink-soft); }
+  .calc__row { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: var(--s-4); align-items: start; }
+  .calc__type { margin: 0; padding: 0; border: 0; min-width: 0; }
+  .calc__type legend { margin-bottom: 0.45rem; padding: 0; }
+  .calc__seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+  .calc__seg label { position: relative; cursor: pointer; }
+  .calc__seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .calc__seg span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    border: 1.5px solid var(--line-strong);
+    border-radius: var(--r-md);
+    font-family: var(--font-display);
+    font-weight: 650;
+    color: var(--ink-soft);
+    transition: border-color var(--t-fast), background-color var(--t-fast), color var(--t-fast);
+  }
+  .calc__seg span :global(.icon) { width: 1.1rem; height: 1.1rem; }
+  .calc__seg input:checked + span { border-color: var(--orange-500); background: var(--orange-50); color: var(--ink-deep); }
+  .calc__seg input:focus-visible + span { outline: 3px solid var(--ink-deep); outline-offset: 2px; }
+  .calc__actions { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+
+  .calc__result { padding: var(--s-5); border-radius: var(--r-md); background: var(--ink-deep); color: var(--white); }
+  .calc__result[hidden] { display: none; }
+  .calc__result-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange-300); }
+  .calc__total { margin-top: 0.25rem; font-family: var(--font-display); font-size: clamp(2rem, 1.5rem + 1.5vw, 2.75rem); font-weight: 750; letter-spacing: var(--tracking-heading); }
+  .calc__breakdown { margin-top: 0.25rem; font-size: 0.875rem; color: rgb(255 255 255 / 0.78); font-variant-numeric: tabular-nums; }
+
+  @media (max-width: 960px) { .calc__grid { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 520px) {
+    .calc__row { grid-template-columns: minmax(0, 1fr); }
+    .calc__actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  }
+</style>

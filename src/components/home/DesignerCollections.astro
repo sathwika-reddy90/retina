@@ -1,0 +1,114 @@
+---
+// Designer Collections: curated groups of real Retina shades (src/data/palettes.ts)
+// plus the texture range. No catalogue files exist, so cards link to the visualizer
+// or product page instead of offering downloads.
+import { Image } from 'astro:assets';
+import Icon from '@/components/Icon.astro';
+import PaintedRoom from '@/components/PaintedRoom.astro';
+import { moodShades } from '@/data/palettes';
+import puttyPhoto from '@/assets/categories/putty.jpg';
+
+const pick = (mood: string, idx: number[]) => { const all = moodShades(mood); return idx.map((i) => all[i]); };
+const collections = [
+  { name: 'Designer Accents', text: 'Confident, characterful shades for statement walls.', shades: pick('bold', [0, 1, 2, 4, 5]), room: 'dining', lead: 4 },
+  { name: 'Exterior Earth', text: 'Grounded, sun-warmed tones for elegant façades.', shades: pick('earthy', [0, 1, 2, 4, 6]), room: 'house', lead: 1 },
+  { name: 'Serene Interiors', text: 'Soft blues and greens for calm, restful rooms.', shades: [...pick('blues', [0, 4, 5]), ...pick('greens', [1, 5])], room: 'bed-room', lead: 1 },
+  { name: 'Timeless Neutrals', text: 'Warm whites and beiges that suit every space.', shades: pick('warm', [0, 1, 3, 5, 7]), room: 'living-room', lead: 2 },
+].map((c) => ({ ...c, href: `/colors/#${c.shades[c.lead].code}` }));
+---
+
+<section class="section designer" aria-labelledby="designer-title">
+  <div class="container" data-carousel>
+    <div class="designer__head" data-reveal>
+      <div class="stack" style="--stack: var(--s-3)">
+        <p class="eyebrow">Curated by Retina</p>
+        <h2 class="designer__title" id="designer-title">Designer Collections</h2>
+      </div>
+      <div class="carousel-nav">
+        <button type="button" class="carousel-btn" data-carousel-prev aria-label="Previous collections"><Icon name="arrow-left" /></button>
+        <button type="button" class="carousel-btn" data-carousel-next aria-label="Next collections"><Icon name="arrow-right" /></button>
+      </div>
+    </div>
+
+    <ul role="list" class="carousel-track designer__track" data-carousel-track aria-label="Collections">
+      {collections.map((c) => (
+        <li class="dcard">
+          <div class="dcard__stack" aria-hidden="true">
+            <span class="dcard__sheet">{c.shades.map((s) => <span style={`background:${s.hex}`}></span>)}</span>
+            <PaintedRoom room={c.room} hex={c.shades[c.lead].hex} alt="" sizes="(max-width: 640px) 70vw, 280px" widths={[320, 600]} class="dcard__photo" />
+          </div>
+          <h3 class="dcard__name">{c.name}</h3>
+          <p class="dcard__text">{c.text}</p>
+          <ul role="list" class="dcard__swatches" aria-label={`Shades in ${c.name}`}>
+            {c.shades.map((s) => <li style={`background:${s.hex}`} title={`${s.code} · ${s.hex.toUpperCase()}`}><span class="sr-only">{s.code}</span></li>)}
+          </ul>
+          <a class="dcard__link" href={c.href}>Explore Collection <Icon name="arrow-right" /></a>
+        </li>
+      ))}
+      <li class="dcard">
+        <div class="dcard__stack" aria-hidden="true">
+          <span class="dcard__sheet dcard__sheet--texture"></span>
+          <Image src={puttyPhoto} alt="" widths={[320, 600]} sizes="(max-width: 640px) 70vw, 280px" class="dcard__photo dcard__photo--img" />
+        </div>
+        <h3 class="dcard__name">Decorative Finishes</h3>
+        <p class="dcard__text">Retina Texture and putty for walls with depth and detail.</p>
+        <a class="dcard__link" href="/products/spray-plasters/hitek-textures/">Explore Collection <Icon name="arrow-right" /></a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<script>
+  import { initCarousels } from '@/scripts/carousel';
+  initCarousels();
+</script>
+
+<style>
+  .designer { background: #f3ede4; }
+  .designer__head { display: flex; align-items: end; justify-content: space-between; gap: var(--s-5); margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem); }
+  .designer__title { font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.75rem); font-weight: 750; letter-spacing: var(--tracking-display); line-height: 1.05; }
+  .designer__track { gap: clamp(1.5rem, 1rem + 2vw, 3rem); margin: 0; padding: 1.5rem 0 0.5rem; list-style: none; }
+  .dcard { position: relative; display: grid; justify-items: center; gap: var(--s-3); width: clamp(16rem, 13rem + 6vw, 19rem); text-align: center; }
+  .dcard__stack { position: relative; width: 82%; aspect-ratio: 4 / 5; margin-bottom: var(--s-4); }
+  .dcard__sheet {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: repeat(5, 1fr);
+    overflow: hidden;
+    border: 6px solid var(--white);
+    border-radius: 10px;
+    box-shadow: 0 18px 30px -18px rgb(60 30 10 / 0.45);
+    transform: rotate(-7deg) translate(-8%, 2%);
+    transition: transform 500ms var(--ease-out);
+  }
+  .dcard__sheet--texture { background: linear-gradient(135deg, #3a8c88, #2d6f6c); }
+  .dcard :global(.dcard__photo) {
+    position: absolute;
+    inset: 0;
+    border: 6px solid var(--white);
+    border-radius: 10px;
+    box-shadow: 0 24px 40px -20px rgb(60 30 10 / 0.5);
+    transform: rotate(2deg);
+    transition: transform 500ms var(--ease-out);
+  }
+  .dcard :global(.dcard__photo--img) { width: 100%; height: 100%; object-fit: cover; object-position: 70% 50%; }
+  .dcard:hover .dcard__sheet { transform: rotate(-11deg) translate(-14%, 1%); }
+  .dcard:hover :global(.dcard__photo) { transform: rotate(0deg) translateY(-6px); }
+  .dcard__name { font-size: clamp(1.5rem, 1.25rem + 0.8vw, 1.875rem); font-weight: 400; letter-spacing: var(--tracking-heading); }
+  .dcard__text { max-width: 17rem; font-size: 0.9375rem; line-height: 1.5; color: var(--ink-soft); }
+  .dcard__swatches { display: flex; gap: 0.35rem; margin: var(--s-1) 0 0; padding: 0; list-style: none; }
+  .dcard__swatches li { width: 1.5rem; height: 1.5rem; border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); }
+  .dcard__link { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: var(--s-2); font-family: var(--font-display); font-weight: 700; color: var(--ink-deep); text-decoration: none; }
+  .dcard__link::after { content: ''; position: absolute; inset: 0; }
+  .dcard__link :global(.icon) { width: 1.05rem; height: 1.05rem; color: var(--orange-600); transition: transform var(--t-base) var(--ease-out); }
+  .dcard:hover .dcard__link :global(.icon) { transform: translateX(4px); }
+  .dcard__link:focus-visible { outline: none; }
+  .dcard:has(.dcard__link:focus-visible) { outline: 3px solid var(--ink-deep); outline-offset: 6px; border-radius: var(--r-md); }
+  @media (max-width: 640px) {
+    .designer__head .carousel-nav { display: none; }
+    .designer .container { padding-right: 0; }
+    .designer__track { padding-right: var(--gutter); }
+    .dcard { width: 72vw; }
+  }
+</style>

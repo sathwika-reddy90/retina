@@ -1,0 +1,112 @@
+---
+// "Discover Colours That Inspire": tall colour cards, each a room painted in a real
+// Retina shade above a block of the shade itself. Every card opens the shade in the
+// colour visualizer. Codes and values come from the shade catalogue.
+import Icon from '@/components/Icon.astro';
+import PaintedRoom from '@/components/PaintedRoom.astro';
+import { findShade } from '@/data/colours';
+import { inkOn } from '@/data/palettes';
+
+const cards = [
+  { code: 'QC1212', mood: 'Earthy Tones', room: 'living-room', text: 'Warm terracotta that makes a living room feel instantly cosy.' },
+  { code: 'QC0271', mood: 'Bold Accents', room: 'dining', text: 'A spirited orange for dining spaces made for long conversations.' },
+  { code: 'QC0161', mood: 'Bold Accents', room: 'kids-room', text: 'Sunny yellow for bright, playful kids’ rooms.' },
+  { code: 'QC0992', mood: 'Fresh Greens', room: 'kitchen', text: 'Fresh garden green that wakes up the kitchen.' },
+  { code: 'QC0652', mood: 'Elegant Blues', room: 'bed-room', text: 'A calm, airy blue for restful bedrooms.' },
+  { code: 'QC0461', mood: 'Bold Accents', room: 'living-room', text: 'Deep plum for a dramatic, grown-up feature wall.' },
+  { code: 'QC1102', mood: 'Earthy Tones', room: 'house', text: 'A grounded earthy tone for elegant exteriors.' },
+].map((c) => {
+  const s = findShade(c.code)!;
+  return { ...c, hex: s.hex, name: s.name ?? s.code, ink: inkOn(s.hex) };
+});
+---
+
+<section class="section colours" aria-labelledby="colours-title" id="colours">
+  <div class="colours__grid" data-carousel>
+    <div class="colours__intro" data-reveal>
+      <p class="eyebrow">Colour Inspiration</p>
+      <h2 class="colours__title" id="colours-title">Discover Colours That Inspire</h2>
+      <p class="t-lead">Real Retina shades, seen in real rooms. Tap a card to try the colour in your own space.</p>
+      <a class="btn btn--secondary" href="/colors/">View colour catalogue <Icon name="arrow-right" /></a>
+      <div class="carousel-nav colours__nav">
+        <button type="button" class="carousel-btn" data-carousel-prev aria-label="Previous colours"><Icon name="arrow-left" /></button>
+        <button type="button" class="carousel-btn" data-carousel-next aria-label="Next colours"><Icon name="arrow-right" /></button>
+      </div>
+    </div>
+
+    <ul role="list" class="carousel-track colours__track" data-carousel-track aria-label="Featured shades">
+      {cards.map((c) => (
+        <li class="ccard" style={`--c:${c.hex}`} data-ink={c.ink}>
+          <a class="ccard__link" href={`/colors/#${c.code}`} aria-label={`${c.name}, ${c.mood}: ${c.text} Open in the colour visualizer`}>
+            <PaintedRoom room={c.room} hex={c.hex} alt="" sizes="(max-width: 640px) 78vw, 340px" widths={[400, 700]} class="ccard__room" />
+            <span class="ccard__body">
+              <span class="ccard__chip">
+                <span class="ccard__brand">Retina</span>
+                <span class="ccard__code">{c.name}</span>
+                <span class="ccard__mood">{c.mood}</span>
+              </span>
+              <span class="ccard__text">{c.text}</span>
+              <Icon name="arrow-right" class="ccard__arrow" />
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<script>
+  import { initCarousels } from '@/scripts/carousel';
+  initCarousels();
+</script>
+
+<style>
+  .colours { overflow: hidden; }
+  .colours__grid {
+    display: grid;
+    grid-template-columns: minmax(16rem, 24rem) minmax(0, 1fr);
+    gap: clamp(2rem, 1rem + 3vw, 4rem);
+    align-items: center;
+    padding-left: max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter)));
+  }
+  .colours__intro { display: grid; justify-items: start; gap: var(--s-5); }
+  .colours__title { font-size: clamp(2.5rem, 1.6rem + 3vw, 4.25rem); font-weight: 750; line-height: 1.02; letter-spacing: var(--tracking-display); }
+  .colours__nav { margin-top: var(--s-4); }
+
+  .colours__track { gap: clamp(0.75rem, 0.5rem + 1vw, 1.5rem); margin: 0; padding: 0.5rem var(--gutter) 0.5rem 0; list-style: none; scroll-padding-left: 0; }
+  .ccard { width: clamp(15rem, 12rem + 9vw, 21rem); }
+  .ccard__link {
+    display: grid;
+    grid-template-rows: 58% 1fr;
+    height: clamp(28rem, 24rem + 8vw, 36rem);
+    overflow: hidden;
+    border-radius: var(--r-lg);
+    background: var(--c);
+    color: var(--ink-deep);
+    text-decoration: none;
+    transition: transform 380ms var(--ease-out), box-shadow 380ms var(--ease-out);
+  }
+  .ccard[data-ink='light'] .ccard__link { color: var(--white); }
+  .ccard__link:hover { transform: translateY(-6px); box-shadow: 0 28px 48px -26px rgb(40 20 6 / 0.55); }
+  .ccard__link:focus-visible { outline: 3px solid var(--ink-deep); outline-offset: 4px; }
+  .ccard__link :global(.ccard__room) { position: relative; height: 100%; --painted-pos: 50% 55%; }
+  .ccard__body { position: relative; display: grid; align-content: end; gap: var(--s-3); padding: var(--s-5); }
+  /* A shade-card label, outlined in the card's text colour */
+  .ccard__chip { display: grid; width: 9.5rem; border: 1.5px solid currentColor; border-radius: 4px 14px 4px 4px; }
+  .ccard__brand { padding: 0.3rem 0.6rem; border-bottom: 1.5px solid currentColor; font-family: var(--font-display); font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.04em; }
+  .ccard__code { padding: 1.4rem 0.6rem 0; font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+  .ccard__mood { padding: 0 0.6rem 0.45rem; font-size: 0.8125rem; opacity: 0.85; }
+  .ccard__text { max-width: 15rem; font-size: 0.875rem; line-height: 1.45; opacity: 0.9; }
+  .ccard__body :global(.ccard__arrow) { position: absolute; right: var(--s-5); bottom: var(--s-5); width: 1.5rem; height: 1.5rem; transition: transform var(--t-base) var(--ease-out); }
+  .ccard__link:hover :global(.ccard__arrow) { transform: translateX(5px); }
+
+  @media (max-width: 960px) {
+    .colours__grid { grid-template-columns: minmax(0, 1fr); padding-left: 0; }
+    .colours__intro { padding-inline: var(--gutter); }
+    .colours__track { padding-left: var(--gutter); scroll-padding-left: var(--gutter); }
+  }
+  @media (max-width: 640px) {
+    .ccard { width: 78vw; }
+    .ccard__link { height: 30rem; }
+  }
+</style>

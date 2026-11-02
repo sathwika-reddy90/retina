@@ -1,0 +1,96 @@
+---
+// "Everything Your Space Needs": one card per real product category. Titles describe
+// what Retina actually makes (wood and metal are primers, so they share a card), and
+// every description and product name comes from the product data.
+import { Image } from 'astro:assets';
+import Icon from '@/components/Icon.astro';
+import { categoryById, productsIn, productBySlug, type CategoryId } from '@/data/products';
+
+const cards: { title: string; category: CategoryId; pack: string }[] = [
+  { title: 'Interior Wall Paints', category: 'interior-emulsions', pack: 'royal-vogue' },
+  { title: 'Exterior Wall Paints', category: 'exterior-emulsions', pack: 'weather-expert' },
+  { title: 'Waterproofing Solutions', category: 'waterproof-primers', pack: 'eco-damp' },
+  { title: 'Wood & Metal Primers', category: 'oilbased-primers', pack: 'red-oxide' },
+  { title: 'Primers & Undercoats', category: 'waterbased-primers', pack: 'jet-advanced' },
+  { title: 'Wall Textures & Putty', category: 'putty', pack: 'texture' },
+];
+const items = cards.map((c) => {
+  const cat = categoryById(c.category);
+  return { ...c, photo: cat.image!, text: cat.tagline!, names: productsIn(c.category).map((p) => p.name), packImage: productBySlug(c.pack)!.image };
+});
+---
+
+<section class="section cats" aria-labelledby="cats-title">
+  <div class="container">
+    <div class="section-head section-head--split" data-reveal>
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">Shop by Surface</p>
+        <h2 class="t-h2" id="cats-title">Everything Your Space Needs</h2>
+        <p class="t-lead">Discover paint solutions for every surface, inside and outside your home.</p>
+      </div>
+      <a class="link-arrow" href="/products/">View all products <Icon name="arrow-right" /></a>
+    </div>
+
+    <ul role="list" class="cats__grid" data-reveal-stagger="70">
+      {items.map((c) => (
+        <li class="cat">
+          <div class="cat__media">
+            <Image src={c.photo} alt="" widths={[480, 800]} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px" class="cat__photo" />
+            <Image src={c.packImage} alt="" width={180} height={190} class="cat__pack" />
+          </div>
+          <div class="cat__body">
+            <h3 class="cat__title"><a href={`/products/#${c.category}`}>{c.title}</a></h3>
+            <p class="cat__text">{c.text}</p>
+            <p class="cat__names">{c.names.join(' · ')}</p>
+            <span class="cat__cta" aria-hidden="true">Explore Products <Icon name="arrow-right" /></span>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .cats__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 0.6rem + 1.4vw, 1.75rem); margin: 0; padding: 0; list-style: none; }
+  .cat {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--white);
+    transition: transform 320ms var(--ease-out), box-shadow 320ms var(--ease-out), border-color 320ms;
+  }
+  .cat:hover { transform: translateY(-4px); border-color: var(--orange-200); box-shadow: var(--shadow-md); }
+  .cat:focus-within { border-color: var(--orange-400); }
+  .cat__media { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--sand); }
+  .cat__media :global(.cat__photo) { width: 100%; height: 100%; object-fit: cover; object-position: 78% 50%; transition: transform 900ms var(--ease-out); }
+  .cat:hover .cat__media :global(.cat__photo) { transform: scale(1.05); }
+  .cat__media :global(.cat__pack) {
+    position: absolute;
+    left: var(--s-4);
+    bottom: var(--s-3);
+    width: auto;
+    height: 62%;
+    filter: drop-shadow(0 14px 16px rgb(30 15 5 / 0.35));
+    transition: transform 420ms var(--ease-out);
+  }
+  .cat:hover .cat__media :global(.cat__pack) { transform: translateY(-4px) rotate(-2deg); }
+  .cat__body { display: grid; align-content: start; gap: var(--s-2); padding: var(--s-5) var(--s-5) var(--s-6); }
+  .cat__title { font-size: var(--fs-h4); line-height: 1.25; }
+  .cat__title a { color: var(--ink-deep); text-decoration: none; }
+  .cat__title a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+  .cat__title a:focus-visible { outline: none; }
+  .cat:has(.cat__title a:focus-visible) { outline: 3px solid var(--ink-deep); outline-offset: 3px; }
+  .cat__text { font-size: 0.9375rem; color: var(--ink-soft); }
+  .cat__names { font-size: 0.8125rem; font-weight: 600; color: var(--ink-mute); }
+  .cat__cta { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: var(--s-2); font-family: var(--font-display); font-size: 0.9375rem; font-weight: 700; color: var(--orange-700); }
+  .cat__cta :global(.icon) { width: 1rem; height: 1rem; transition: transform var(--t-base) var(--ease-out); }
+  .cat:hover .cat__cta :global(.icon) { transform: translateX(4px); }
+  @media (max-width: 1024px) { .cats__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 640px) {
+    .cats__grid { grid-template-columns: minmax(0, 1fr); }
+    .cat__media { aspect-ratio: 2 / 1; }
+  }
+</style>
