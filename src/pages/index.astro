@@ -1,10 +1,11 @@
 ---
-import { Image, getImage } from 'astro:assets';
+import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
 import Visualizer from '@/components/Visualizer.astro';
 import VideoEmbed from '@/components/VideoEmbed.astro';
 import Modal from '@/components/Modal.astro';
+import HeroCarousel from '@/components/home/HeroCarousel.astro';
 import CategoryGrid from '@/components/home/CategoryGrid.astro';
 import ColourCarousel from '@/components/home/ColourCarousel.astro';
 import FeaturedProducts from '@/components/home/FeaturedProducts.astro';
@@ -15,9 +16,6 @@ import OneStop from '@/components/home/OneStop.astro';
 import PaintCalculator from '@/components/home/PaintCalculator.astro';
 import Inspiration from '@/components/home/Inspiration.astro';
 
-import bedroom from '@/assets/rooms/bedroom.png';
-import bedroomShade from '@/assets/rooms/light/bedroom-shade.png';
-import bedroomLight from '@/assets/rooms/light/bedroom-light.png';
 import exteriorHome from '@/assets/imagery/exterior-home.jpg';
 import storeInterior from '@/assets/imagery/store-interior.jpg';
 import officeBuilding from '@/assets/imagery/office-building.jpg';
@@ -29,24 +27,9 @@ import { productBySlug, type Product } from '@/data/products';
 import { whyChooseUs, mdMessage } from '@/data/about';
 import { storePromise, growBusiness, franchisePromo, homeFranchise } from '@/data/franchise';
 import { posts, announcements, blogTitle } from '@/data/news';
-import { findShade, shadeCount } from '@/data/colours';
+import { shadeCount } from '@/data/colours';
 import { docUrl } from '@/data/site';
 
-const inkOn = (hex: string) => {
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-  return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? 'dark' : 'light';
-};
-// A curated campaign palette of real Retina codes; the first is the brand orange every visualizer opens on.
-const heroShades = ['QC0241', 'QC1211', 'QC0192', 'QC1013', 'QC0912', 'QC0671', 'QC1175'].map((c) => findShade(c)!);
-// The bedroom is the hero photograph: its walls are cut out so the paint layer shows through, with lighting maps on top.
-const [heroRoom, heroShade, heroLight] = await Promise.all(
-  [bedroom, bedroomShade, bedroomLight].map(async (src, i) => {
-    const widths = [800, Math.min(1600, src.width)];
-    const set = await Promise.all(widths.map((width) => getImage({ src, width, format: 'webp', quality: i === 0 ? 80 : 72 })));
-    return { src: set[1].src, srcset: set.map((img, j) => `${img.src} ${widths[j]}w`).join(', ') };
-  }),
-);
-const heroSizes = '(max-width: 960px) 100vw, 56vw';
 
 const pick = (slugs: string[]) => slugs.map((s) => productBySlug(s)).filter((p): p is Product => Boolean(p));
 const exteriorTrio = pick(['weather-expert', 'expo-ultimax', 'expo-advanced']);
@@ -71,82 +54,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
 ---
 
 <BaseLayout title="Home" description={company.intro}>
-  <Fragment slot="head">
-    <link rel="preload" as="image" href={heroRoom.src} imagesrcset={heroRoom.srcset} imagesizes={heroSizes} fetchpriority="high" />
-  </Fragment>
-
-  <!-- ============ HERO ============ -->
-  <section class="hero" aria-labelledby="hero-title" data-hero-room style={`--wall:${heroShades[0].hex}`}>
-    <div class="hero__panel">
-      <div class="hero__copy">
-        <p class="eyebrow eyebrow--light hero__in" style="--i:0">Bringing colours to life with innovation &amp; quality</p>
-        <h1 class="hero__title hero__in" style="--i:1" id="hero-title">
-          <span class="hero__line">Transform</span>
-          <span class="hero__line">Your World</span>
-          <span class="hero__line">with <span class="hero__accent">Colour</span></span>
-        </h1>
-        <p class="hero__lead hero__in" style="--i:2">Premium paints that bring lasting beauty, dependable protection and thoughtful design to every wall, inside and out.</p>
-        <div class="hero__ctas hero__in" style="--i:3">
-          <a class="btn btn--lg" href="/products/">Explore Products <Icon name="arrow-right" /></a>
-          <a class="btn btn--lg btn--ghost-light" href="/colors/"><Icon name="palette" /> Explore Colours</a>
-        </div>
-      </div>
-      <ul role="list" class="hero__trust hero__in" style="--i:4">
-        <li><span class="hero__trust-icon"><Icon name="certificate" /></span><span>ISO 9001:2015 <br />certified</span></li>
-        <li><span class="hero__trust-icon"><Icon name="trending-up" /></span><span>Listed on <br />BSE SME</span></li>
-        <li><span class="hero__trust-icon"><Icon name="shield" /></span><span>Up to 8 years <br />warranty</span></li>
-      </ul>
-    </div>
-
-    <div class="hero__media">
-      <div class="hero__scene">
-        <div class="hero__paint" aria-hidden="true"></div>
-        <img src={heroShade.src} srcset={heroShade.srcset} sizes={heroSizes} alt="" class="hero__shade" width="1280" height="854" decoding="async" aria-hidden="true" />
-        <img src={heroLight.src} srcset={heroLight.srcset} sizes={heroSizes} alt="" class="hero__light" width="1280" height="854" decoding="async" aria-hidden="true" />
-        <img
-          class="hero__photo"
-          src={heroRoom.src}
-          srcset={heroRoom.srcset}
-          sizes={heroSizes}
-          width={bedroom.width}
-          height={bedroom.height}
-          alt="A softly lit bedroom with a velvet bed and pendant lights, its feature wall painted in a Retina shade"
-          fetchpriority="high"
-          decoding="async"
-        />
-      </div>
-
-      <div class="shadebar hero__in" style="--i:3" data-float-avoid>
-        <a href={`/colors/#${heroShades[0].code}`} class="shadebar__code" data-hero-link aria-label={`Open ${heroShades[0].code} in the colour visualizer`}>
-          <span class="shadebar__dot" aria-hidden="true"></span>
-          <span class="shadebar__text"><span class="shadebar__label">On the wall</span><strong data-hero-code>{heroShades[0].code}</strong></span>
-        </a>
-        <div class="palette" role="radiogroup" aria-label="Try a Retina shade on the wall" data-palette>
-          {heroShades.map((s, i) => (
-            <button
-              type="button"
-              role="radio"
-              class="hero__chip"
-              style={`--c:${s.hex};--i:${i}`}
-              data-code={s.code}
-              data-hex={s.hex}
-              data-ink={inkOn(s.hex)}
-              aria-checked={i === 0 ? 'true' : 'false'}
-              tabindex={i === 0 ? 0 : -1}
-              aria-label={`Paint the wall ${s.code}`}
-            >
-              <Icon name="check" class="hero__chip-check" />
-              <span class="palette__tip" aria-hidden="true">{s.code}</span>
-            </button>
-          ))}
-          <a class="palette__more" href="/colors/" aria-label={`Explore all ${shadeCount.toLocaleString('en-IN')} Retina shades in the colour visualizer`}>
-            <Icon name="plus" />
-            <span class="palette__tip" aria-hidden="true">More shades</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <HeroCarousel />
 
   <!-- ============ QUICK ACCESS ============ -->
   <section class="quick" aria-label="Quick access">
@@ -386,40 +294,6 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
 </BaseLayout>
 
 <script>
-  // Hero: the docked palette repaints the room (radio group with arrow-key support).
-  const hero = document.querySelector<HTMLElement>('[data-hero-room]');
-  if (hero) {
-    const code = hero.querySelector<HTMLElement>('[data-hero-code]')!;
-    const link = hero.querySelector<HTMLAnchorElement>('[data-hero-link]')!;
-    const chips = Array.from(hero.querySelectorAll<HTMLButtonElement>('.hero__chip'));
-    const pick = (chip: HTMLButtonElement, focus = false) => {
-      hero.style.setProperty('--wall', chip.dataset.hex!);
-      chips.forEach((c) => {
-        const on = c === chip;
-        c.setAttribute('aria-checked', String(on));
-        c.tabIndex = on ? 0 : -1;
-      });
-      if (code.textContent !== chip.dataset.code) {
-        code.textContent = chip.dataset.code!;
-        code.removeAttribute('data-swap');
-        void code.offsetWidth; // restart the label animation
-        code.setAttribute('data-swap', '');
-      }
-      link.href = `/colors/#${chip.dataset.code}`;
-      link.setAttribute('aria-label', `Open ${chip.dataset.code} in the colour visualizer`);
-      if (focus) chip.focus();
-    };
-    chips.forEach((chip, i) => {
-      chip.addEventListener('click', () => pick(chip));
-      chip.addEventListener('keydown', (e) => {
-        const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
-        if (step === undefined) return;
-        e.preventDefault();
-        pick(chips[(i + step + chips.length) % chips.length], true);
-      });
-    });
-  }
-
   // Franchise prompt: shown once per session, after the visitor engages.
   const promo = document.querySelector<HTMLElement>('[data-promo]');
   if (promo) {
@@ -456,218 +330,6 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
 </script>
 
 <style>
-  /* ---------- Hero ---------- */
-  /* Split hero: a charcoal copy panel on the left, the painted room on the right with a floating shade bar. */
-  .hero {
-    --hero-bg: #1c1612;
-    --hero-text: #fffaf4;
-    --hero-soft: rgb(255 246 236 / 0.76);
-    --hero-line: rgb(255 255 255 / 0.14);
-    --edge: max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter)));
-    position: relative;
-    isolation: isolate;
-    display: grid;
-    grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
-    min-height: clamp(36rem, calc(100svh - var(--header-h) - 3.5rem), 50rem);
-    background: var(--hero-bg);
-    color: var(--hero-text);
-    overflow: hidden;
-  }
-
-  /* Copy panel */
-  .hero__panel {
-    display: grid;
-    grid-template-rows: 1fr auto;
-    gap: var(--s-8);
-    padding: clamp(2.5rem, 1.5rem + 3vw, 4.5rem) clamp(2rem, 1rem + 3vw, 4rem) clamp(4rem, 3rem + 2.5vw, 5.5rem) var(--edge);
-    background: radial-gradient(42rem 30rem at 0% 100%, rgb(242 129 33 / 0.16), transparent 70%), var(--hero-bg);
-  }
-  .hero__copy { align-self: center; display: grid; justify-items: start; gap: var(--s-5); width: 100%; max-width: 34rem; container-type: inline-size; }
-  .hero__title {
-    font-family: var(--font-display);
-    /* "Your World", the widest line, is ~5.3em: never wider than the copy column */
-    font-size: min(clamp(3rem, 1.5rem + 4vw, 5.5rem), 18cqi);
-    font-weight: 800;
-    line-height: 1.02;
-    letter-spacing: var(--tracking-display);
-    color: var(--white);
-  }
-  .hero__line { display: block; white-space: nowrap; }
-  .hero__accent { color: var(--orange-400); }
-  .hero__lead { max-width: 31rem; font-size: var(--fs-lead); line-height: 1.6; color: var(--hero-soft); }
-  .hero__ctas { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-2); }
-  .hero__ctas :global(.btn--ghost-light:hover .icon) { color: var(--orange-300); }
-
-  .hero__trust {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    justify-content: start;
-    margin: 0;
-    padding: var(--s-5) 0 0;
-    list-style: none;
-    border-top: 1px solid var(--hero-line);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    line-height: 1.35;
-    color: var(--hero-soft);
-  }
-  .hero__trust li { display: flex; align-items: center; gap: 0.55rem; padding-right: var(--s-4); white-space: nowrap; }
-  .hero__trust li + li { padding-left: var(--s-4); border-left: 1px solid var(--hero-line); }
-  .hero__trust-icon { display: grid; place-items: center; flex: none; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: rgb(242 129 33 / 0.16); color: var(--orange-300); }
-  .hero__trust-icon :global(.icon) { width: 1.1rem; height: 1.1rem; }
-
-  /* Room photograph */
-  .hero__media { position: relative; min-height: 100%; }
-  .hero__media::before { content: ''; position: absolute; inset: 0 auto 0 0; z-index: 1; width: 14%; background: linear-gradient(to right, rgb(28 22 18 / 0.55), transparent); pointer-events: none; }
-  .hero__scene { position: absolute; inset: 0; isolation: isolate; overflow: hidden; }
-  .hero__paint { position: absolute; inset: 0; background: var(--wall); transition: background-color 800ms var(--ease-in-out); }
-  .hero__scene img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 58% 60%; }
-  .hero__shade { mix-blend-mode: multiply; }
-  .hero__light { mix-blend-mode: screen; }
-
-  /* Floating shade bar over the room */
-  .shadebar {
-    position: absolute;
-    left: 50%;
-    bottom: clamp(3.5rem, 2.5rem + 2.5vw, 5rem);
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    gap: var(--s-4);
-    padding: 0.55rem 0.7rem 0.55rem 0.55rem;
-    border-radius: var(--r-pill);
-    background: var(--white);
-    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1), 0 24px 48px -20px rgb(0 0 0 / 0.55);
-    color: var(--ink-deep);
-    transform: translateX(-50%);
-    white-space: nowrap;
-  }
-  .shadebar__code { display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.15rem 0.9rem 0.15rem 0.15rem; border-right: 1px solid var(--line); color: inherit; text-decoration: none; }
-  .shadebar__code:focus-visible { outline: 2.5px solid var(--ink-deep); outline-offset: 3px; border-radius: var(--r-pill); }
-  .shadebar__dot { width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--wall); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); transition: background-color 800ms var(--ease-in-out); }
-  .shadebar__text { display: grid; line-height: 1.15; }
-  .shadebar__label { font-size: 0.625rem; font-weight: 750; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange-700); }
-  .shadebar__text strong { font-family: var(--font-display); font-size: 1rem; }
-
-  .palette { display: flex; align-items: center; gap: 0.5rem; }
-  .hero__chip, .palette__more {
-    position: relative;
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 2.4rem;
-    height: 2.4rem;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: var(--c);
-    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
-    transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out);
-  }
-  .hero__chip::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2.5px solid var(--orange-500); opacity: 0; transform: scale(0.7); transition: opacity 240ms var(--ease-out), transform 300ms var(--ease-out); }
-  .hero__chip:hover, .palette__more:hover { transform: scale(1.12); }
-  .hero__chip:focus-visible, .palette__more:focus-visible { outline: 2.5px solid var(--ink-deep); outline-offset: 5px; }
-  .hero__chip[aria-checked='true']::after { opacity: 1; transform: none; }
-  .hero__chip :global(.hero__chip-check) { width: 1rem; height: 1rem; stroke-width: 3; opacity: 0; transform: scale(0.4); transition: opacity 220ms, transform 300ms var(--ease-out); }
-  .hero__chip[data-ink='dark'] { color: var(--ink-deep); }
-  .hero__chip[data-ink='light'] { color: var(--white); }
-  .hero__chip[aria-checked='true'] :global(.hero__chip-check) { opacity: 1; transform: none; }
-  .palette__more { background: var(--orange-50); color: var(--orange-700); box-shadow: inset 0 0 0 1.5px var(--orange-200); text-decoration: none; }
-  .palette__more :global(.icon) { width: 1.1rem; height: 1.1rem; stroke-width: 2.25; }
-  .palette__tip {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 0.8rem);
-    padding: 0.3rem 0.6rem;
-    border-radius: var(--r-pill);
-    background: var(--ink-deep);
-    color: var(--white);
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 700;
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transform: translate(-50%, 6px);
-    transition: opacity 180ms var(--ease-out), transform 240ms var(--ease-out);
-  }
-  .hero__chip:hover .palette__tip, .hero__chip:focus-visible .palette__tip,
-  .palette__more:hover .palette__tip, .palette__more:focus-visible .palette__tip { opacity: 1; transform: translate(-50%, 0); }
-
-  /* Entrance (once, on load) */
-  @media (prefers-reduced-motion: no-preference) {
-    .hero__in { animation: hero-rise 800ms var(--ease-out) backwards; animation-delay: calc(80ms + var(--i, 0) * 90ms); }
-    .hero__line { animation: line-in 900ms var(--ease-out) backwards; }
-    .hero__line:nth-child(2) { animation-delay: 120ms; }
-    .hero__line:nth-child(3) { animation-delay: 240ms; }
-    .hero__scene { animation: hero-settle 1800ms var(--ease-out) backwards; }
-    .shadebar { animation-name: bar-in; }
-    .hero__chip, .palette__more { animation: chip-in 420ms var(--ease-out) backwards; animation-delay: calc(560ms + var(--i, 7) * 50ms); }
-    [data-hero-code][data-swap] { animation: code-swap 360ms var(--ease-out); }
-  }
-  @keyframes hero-rise { from { opacity: 0; transform: translateY(22px); } }
-  @keyframes line-in { from { opacity: 0; transform: translateY(0.4em); clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 -10% 0); } }
-  @keyframes hero-settle { from { opacity: 0; transform: scale(1.06); } }
-  @keyframes bar-in { from { opacity: 0; transform: translate(-50%, 18px); } }
-  @keyframes chip-in { from { opacity: 0; transform: scale(0.4); } }
-  @keyframes code-swap { from { opacity: 0; transform: translateY(6px); } }
-
-  /* Wide screens: the copy aligns with the page container, so give its panel more of the width. */
-  @media (min-width: 1600px) { .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
-  /* Laptops: a wider copy panel so the credentials stay on two lines each. */
-  @media (min-width: 961px) and (max-width: 1400px) {
-    .hero { grid-template-columns: minmax(0, 48fr) minmax(0, 52fr); }
-    .hero__trust li { gap: 0.5rem; padding-right: var(--s-4); }
-    .hero__trust li + li { padding-left: var(--s-4); }
-    .hero__trust-icon { width: 2rem; height: 2rem; }
-  }
-  /* Small laptops */
-  @media (min-width: 961px) and (max-width: 1180px) {
-    .hero { grid-template-columns: minmax(0, 48fr) minmax(0, 52fr); }
-    .hero__title { font-size: min(clamp(3rem, 0.5rem + 4.6vw, 4.25rem), 18cqi); }
-    .hero__trust li { padding-right: var(--s-3); }
-    .hero__trust li + li { padding-left: var(--s-3); }
-    .shadebar__code { display: none; }
-  }
-  /* Short laptop screens (1280×720, 1366×768) */
-  @media (min-width: 961px) and (max-height: 820px) {
-    .hero__panel { padding-top: 2rem; padding-bottom: 3.25rem; gap: var(--s-5); }
-    .hero__title { font-size: min(clamp(3rem, 0.5rem + 3.8vw, 4.25rem), 18cqi); }
-    .hero__trust { padding-top: var(--s-4); }
-    .hero__copy { gap: var(--s-4); }
-  }
-
-  /* Tablets and phones: the room leads, the shade bar sits on the seam, the copy panel follows. */
-  @media (max-width: 960px) {
-    .hero { display: flex; flex-direction: column; min-height: 0; }
-    .hero__media { order: -1; aspect-ratio: 16 / 11; max-height: 62svh; min-height: 0; }
-    .hero__media::before { display: none; }
-    .shadebar { bottom: 0; transform: translate(-50%, 50%); }
-    .hero__panel { padding: calc(var(--s-8) + 1.5rem) var(--gutter) clamp(3.5rem, 2.5rem + 4vw, 5rem); gap: var(--s-6); }
-    .hero__copy { max-width: 40rem; }
-    @media (prefers-reduced-motion: no-preference) { .shadebar { animation-name: bar-in-m; } }
-  }
-  @keyframes bar-in-m { from { opacity: 0; transform: translate(-50%, calc(50% + 18px)); } }
-  @media (max-width: 560px) {
-    .hero__title { font-size: min(18cqi, 4.25rem); }
-    .hero__ctas { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; }
-    .shadebar { left: var(--gutter); right: var(--gutter); justify-content: space-between; gap: var(--s-2); padding: 0.45rem; transform: translateY(50%); }
-    .shadebar__code { display: none; }
-    .palette { flex: 1; justify-content: space-between; gap: 0.25rem; }
-    .hero__chip, .palette__more { width: min(2.5rem, calc((100vw - 2 * var(--gutter) - 3rem) / 8)); height: auto; aspect-ratio: 1; }
-    .palette__tip { display: none; }
-    .hero__trust { grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; font-size: 0.75rem; }
-    .hero__trust li { flex-direction: column; align-items: flex-start; gap: 0.4rem; padding-right: var(--s-3); white-space: normal; }
-    .hero__trust li + li { padding-left: var(--s-3); }
-    .hero__trust-icon { width: 2rem; height: 2rem; }
-    @media (prefers-reduced-motion: no-preference) { .shadebar { animation-name: bar-in-s; } }
-  }
-  @keyframes bar-in-s { from { opacity: 0; transform: translateY(calc(50% + 18px)); } }
-  @media (min-width: 420px) and (max-width: 560px) {
-    .hero__ctas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .hero__ctas :global(.btn) { padding-inline: 0.75rem; font-size: 0.975rem; }
-  }
-
   /* ---------- Quick access ---------- */
   .quick { position: relative; z-index: 2; margin-top: calc(-1 * clamp(1rem, 0.5rem + 1.5vw, 2rem)); }
   .quick__list {
