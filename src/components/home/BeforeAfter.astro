@@ -1,0 +1,100 @@
+---
+// "See the Difference": a draggable before/after comparison. Both halves are the same
+// visualizer room; the "before" wall is a deliberately tired, faded tone and the "after"
+// wall is a real Retina shade the visitor picks. Clearly labelled as a visualisation.
+import Icon from '@/components/Icon.astro';
+import PaintedRoom from '@/components/PaintedRoom.astro';
+import { findShade } from '@/data/colours';
+import { inkOn } from '@/data/palettes';
+
+const BEFORE = '#A9A396'; // illustrative faded wall, not a catalogue shade
+const shades = ['QC0652', 'QC1212', 'QC0992', 'QC1095', 'QC0461'].map((c) => findShade(c)!);
+---
+
+<section class="section diff" aria-labelledby="diff-title" data-diff style={`--after:${shades[0].hex};--pos:50%`}>
+  <div class="container diff__grid">
+    <div class="diff__intro" data-reveal>
+      <p class="eyebrow">See the Difference</p>
+      <h2 class="t-h2" id="diff-title">From Tired to Transformed</h2>
+      <p class="t-lead">Drag the handle to compare a faded wall with a fresh coat of Retina colour. Pick a shade to see a different result.</p>
+      <div class="diff__shades" role="radiogroup" aria-label="After colour">
+        {shades.map((s, i) => (
+          <button type="button" role="radio" class="diff__chip" style={`--c:${s.hex}`} data-hex={s.hex} data-code={s.code} data-ink={inkOn(s.hex)} aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} aria-label={`After colour ${s.code}`}>
+            <Icon name="check" />
+          </button>
+        ))}
+      </div>
+      <a class="link-arrow" href={`/colors/#${shades[0].code}`} data-diff-link>Try <span data-diff-code>{shades[0].code}</span> in your own room <Icon name="arrow-right" /></a>
+      <p class="diff__note"><Icon name="info" /> A visualisation made with our room visualizer. Actual results depend on your wall and lighting.</p>
+    </div>
+
+    <div class="diff__stage" data-reveal="zoom">
+      <PaintedRoom room="bed-room" hex={BEFORE} alt="Bedroom with a faded, tired-looking wall" sizes="(max-width: 960px) 100vw, 60vw" widths={[640, 1200]} class="diff__layer diff__before" />
+      <div class="diff__after-wrap" aria-hidden="true">
+        <PaintedRoom room="bed-room" alt="" sizes="(max-width: 960px) 100vw, 60vw" widths={[640, 1200]} class="diff__layer diff__after" />
+      </div>
+      <span class="diff__tag diff__tag--before">Before</span>
+      <span class="diff__tag diff__tag--after">After · <span data-diff-code>{shades[0].code}</span></span>
+      <span class="diff__divider" aria-hidden="true"><span class="diff__knob"><Icon name="chevron-left" /><Icon name="chevron-right" /></span></span>
+      <label class="sr-only" for="diff-range">Comparison position: before on the left, after on the right</label>
+      <input class="diff__range" id="diff-range" type="range" min="0" max="100" value="50" data-diff-range />
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-diff]').forEach((root) => {
+    const range = root.querySelector<HTMLInputElement>('[data-diff-range]')!;
+    const link = root.querySelector<HTMLAnchorElement>('[data-diff-link]')!;
+    const codes = root.querySelectorAll<HTMLElement>('[data-diff-code]');
+    const chips = Array.from(root.querySelectorAll<HTMLButtonElement>('.diff__chip'));
+    range.addEventListener('input', () => root.style.setProperty('--pos', `${range.value}%`));
+    const pick = (chip: HTMLButtonElement, focus = false) => {
+      root.style.setProperty('--after', chip.dataset.hex!);
+      chips.forEach((c) => { const on = c === chip; c.setAttribute('aria-checked', String(on)); c.tabIndex = on ? 0 : -1; });
+      codes.forEach((c) => (c.textContent = chip.dataset.code!));
+      link.href = `/colors/#${chip.dataset.code}`;
+      if (focus) chip.focus();
+    };
+    chips.forEach((chip, i) => {
+      chip.addEventListener('click', () => pick(chip));
+      chip.addEventListener('keydown', (e) => {
+        const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+        if (step === undefined) return;
+        e.preventDefault();
+        pick(chips[(i + step + chips.length) % chips.length], true);
+      });
+    });
+  });
+</script>
+
+<style>
+  .diff { background: var(--cream); }
+  .diff__grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(2rem, 1rem + 3vw, 4.5rem); align-items: center; }
+  .diff__intro { display: grid; justify-items: start; gap: var(--s-5); }
+  .diff__shades { display: flex; gap: 0.6rem; }
+  .diff__chip { position: relative; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; border: 0; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); transition: transform 200ms var(--ease-out); }
+  .diff__chip:hover { transform: scale(1.08); }
+  .diff__chip[aria-checked='true'] { box-shadow: 0 0 0 2px var(--cream), 0 0 0 4.5px var(--orange-500); }
+  .diff__chip:focus-visible { outline: 2.5px solid var(--ink-deep); outline-offset: 5px; }
+  .diff__chip :global(.icon) { width: 1.1rem; height: 1.1rem; stroke-width: 3; opacity: 0; transition: opacity 200ms; }
+  .diff__chip[data-ink='dark'] { color: var(--ink-deep); }
+  .diff__chip[data-ink='light'] { color: var(--white); }
+  .diff__chip[aria-checked='true'] :global(.icon) { opacity: 1; }
+  .diff__note { display: flex; gap: 0.5rem; font-size: 0.8125rem; line-height: 1.5; color: var(--ink-soft); }
+  .diff__note :global(.icon) { flex: none; width: 1rem; height: 1rem; margin-top: 0.15rem; color: var(--ink-mute); }
+
+  .diff__stage { position: relative; aspect-ratio: 3 / 2; overflow: hidden; border-radius: var(--r-xl); box-shadow: var(--shadow-md); isolation: isolate; }
+  .diff__stage :global(.diff__layer) { position: absolute; inset: 0; --painted-pos: 50% 60%; }
+  .diff__after-wrap { position: absolute; inset: 0; clip-path: inset(0 0 0 var(--pos)); --wall: var(--after); }
+  .diff__stage :global(.diff__before .painted__room) { filter: saturate(0.7) brightness(0.94); }
+  .diff__tag { position: absolute; top: var(--s-4); z-index: 2; padding: 0.35rem 0.75rem; border-radius: var(--r-pill); background: rgb(27 23 20 / 0.82); color: var(--white); font-family: var(--font-display); font-size: 0.8125rem; font-weight: 700; pointer-events: none; }
+  .diff__tag--before { left: var(--s-4); }
+  .diff__tag--after { right: var(--s-4); background: var(--white); color: var(--ink-deep); }
+  .diff__divider { position: absolute; top: 0; bottom: 0; left: var(--pos); z-index: 2; width: 3px; margin-left: -1.5px; background: var(--white); box-shadow: 0 0 14px rgb(0 0 0 / 0.35); pointer-events: none; }
+  .diff__knob { position: absolute; top: 50%; left: 50%; display: flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; margin: -1.5rem 0 0 -1.5rem; border-radius: 50%; background: var(--white); color: var(--ink-deep); box-shadow: var(--shadow-md); }
+  .diff__knob :global(.icon) { width: 0.95rem; height: 0.95rem; margin: 0 -2px; }
+  .diff__range { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; touch-action: pan-y; }
+  .diff__stage:has(.diff__range:focus-visible) .diff__knob { outline: 3px solid var(--orange-500); outline-offset: 3px; }
+  @media (max-width: 960px) { .diff__grid { grid-template-columns: minmax(0, 1fr); } }
+</style>

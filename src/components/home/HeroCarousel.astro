@@ -1,35 +1,44 @@
 ---
-// Homepage hero: three full-width campaign banners that fade between each other.
-// Every layer is real: Retina photography and banner art, product cutouts from the
-// product data, editable HTML text, and (slide 3) a room whose wall repaints in real
-// Retina shades. Behaviour lives in scripts/slideshow.ts.
-import { Image, getImage } from 'astro:assets';
+// Homepage hero: five full-width campaign banners, each with its own photograph,
+// colour tone and foreground accent. Every layer is real: licensed photography
+// (src/assets/banners/CREDITS.md), product cutouts and copy from the product data,
+// real Retina shade codes, and verified company credentials. Behaviour: scripts/slideshow.ts.
+import { Image } from 'astro:assets';
 import Icon from '@/components/Icon.astro';
-import PaintedRoom from '@/components/PaintedRoom.astro';
 import { productBySlug } from '@/data/products';
-import { findShade, shadeCount } from '@/data/colours';
-import { inkOn } from '@/data/palettes';
-import exteriorHome from '@/assets/imagery/exterior-home.jpg';
-import shieldHome from '@/assets/banners/shield-home.jpg';
-import shieldHomeMobile from '@/assets/banners/shield-home-mobile.jpg';
+import { findShade } from '@/data/colours';
+import modernLiving from '@/assets/banners/modern-living.jpg';
+import villa from '@/assets/banners/villa-exterior.jpg';
+import colourWalls from '@/assets/imagery/interior-colour.jpg';
+import limewash from '@/assets/banners/limewash-interior.jpg';
+import painting from '@/assets/banners/painting-wall.jpg';
 
-const packs = ['x-gen', 'expo-ultimax', 'expo-advanced', 'eco-damp', 'weather-expert'].map((s) => productBySlug(s)!);
-const weatherExpert = productBySlug('weather-expert')!;
-const shades = ['QC0241', 'QC1211', 'QC0192', 'QC1013', 'QC0912', 'QC0671', 'QC1175'].map((c) => findShade(c)!);
-const shieldMobile = await getImage({ src: shieldHomeMobile, width: 800, format: 'webp', quality: 76 });
+const p = (slug: string) => productBySlug(slug)!;
+const range = ['x-gen', 'expo-ultimax', 'expo-advanced', 'eco-damp', 'weather-expert'].map(p);
+const exteriors = ['expo-ultimax', 'weather-expert', 'expo-advanced'].map(p);
+const weatherExpert = p('weather-expert');
+const finishes = [p('royal-vogue'), p('texture')];
+// Closest catalogue shades to the three walls in the photograph (sampled colours).
+const wallShades = [
+  { code: 'QC0781', wall: 'Blue wall' },
+  { code: 'QC0411', wall: 'Crimson wall' },
+  { code: 'QC0901', wall: 'Green wall' },
+].map((w) => ({ ...w, shade: findShade(w.code)! }));
+const sizes = '100vw';
 ---
 
-<section class="hero" aria-roledescription="carousel" aria-label="Retina Paints highlights" data-slideshow data-interval="6000">
+<section class="hero" aria-roledescription="carousel" aria-label="Retina Paints highlights" data-slideshow data-interval="6500">
   <div class="hero__slides">
-    <!-- 1 · Premium paints -->
-    <article class="hslide hslide--products is-active" data-slide data-title="Superior Paints" aria-roledescription="slide" aria-label="1 of 3">
-      <Image src={exteriorHome} alt="A modern white house with timber details overlooking a city at sunset" widths={[960, 1440, 1920]} sizes="100vw" class="hslide__bg" loading="eager" fetchpriority="high" />
+    <!-- 1 · Premium modern living: the full range on an orange base -->
+    <article class="hslide hslide--living is-active" data-slide data-title="The Power of Colour" aria-roledescription="slide" aria-label="1 of 5">
+      <Image src={modernLiving} alt="A contemporary living room with a navy accent wall, warm pendant lights and a blue sofa" widths={[960, 1440, 1920]} sizes={sizes} class="hslide__bg" loading="eager" fetchpriority="high" />
       <svg class="hslide__wave" viewBox="0 0 1440 300" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 74C300 6 820 -6 1440 46V300H0Z" /></svg>
       <div class="container hslide__inner">
         <div class="hslide__copy">
-          <h1 class="hslide__title">Transform Your Space with Superior Paints</h1>
-          <p class="hslide__text">Discover premium interior and exterior paints designed to bring beauty, colour and lasting quality to every space.</p>
-          <a class="btn btn--lg" href="/products/">Browse Products <Icon name="arrow-right" /></a>
+          <p class="hslide__eyebrow">Interior &amp; exterior paints</p>
+          <h1 class="hslide__title">Transform Your Space with the Power of Colour</h1>
+          <p class="hslide__text">Premium paints, primers and finishes that bring beauty and lasting quality to every room of your home.</p>
+          <a class="btn btn--lg" href="/products/">Explore Our Products <Icon name="arrow-right" /></a>
         </div>
       </div>
       <ul role="list" class="hslide__features">
@@ -37,59 +46,93 @@ const shieldMobile = await getImage({ src: shieldHomeMobile, width: 800, format:
         <li><Icon name="shield" /> Up to 8 Years <br />Warranty</li>
       </ul>
       <div class="hslide__packs">
-        {packs.map((p, i) => <Image src={p.image} alt={i === 2 ? 'Retina Paints products: X-Gen+, Expo Ultimax, Expo Advanced, Eco Damp and Weather Expert' : ''} widths={[200, 360]} sizes="(max-width: 760px) 22vw, 220px" class:list={['hslide__pack', i === 2 && 'hslide__pack--lead']} loading="eager" />)}
+        {range.map((r, i) => <Image src={r.image} alt={i === 2 ? 'Retina Paints products: X-Gen+, Expo Ultimax, Expo Advanced, Eco Damp and Weather Expert' : ''} widths={[200, 360]} sizes="(max-width: 760px) 22vw, 220px" class:list={['hslide__pack', i === 2 && 'hslide__pack--lead']} loading="eager" />)}
       </div>
     </article>
 
-    <!-- 2 · Weather protection -->
-    <article class="hslide hslide--shield" data-slide data-title="Weather Protection" aria-roledescription="slide" aria-label="2 of 3" aria-hidden="true" inert>
-      <picture>
-        <source media="(max-width: 760px)" srcset={shieldMobile.src} />
-        <Image src={shieldHome} alt="A house protected inside a glowing transparent dome" widths={[960, 1440, 1920]} sizes="100vw" class="hslide__bg" />
-      </picture>
+    <!-- 2 · Exterior protection: navy tone, exterior emulsions -->
+    <article class="hslide hslide--villa" data-slide data-title="Exterior Protection" aria-roledescription="slide" aria-label="2 of 5" aria-hidden="true" inert>
+      <Image src={villa} alt="A modern white villa with timber accents in warm afternoon light" widths={[960, 1440, 1920]} sizes={sizes} class="hslide__bg" />
       <div class="container hslide__inner">
         <div class="hslide__copy">
-          <h2 class="hslide__title">Shield Your Home with Long-Lasting Protection!</h2>
-          <p class="hslide__text">Protect your exterior walls with paint solutions designed for durability and beautiful finishes.</p>
+          <p class="hslide__eyebrow">Exterior emulsions</p>
+          <h2 class="hslide__title">Beauty That Lasts. Protection That Performs.</h2>
+          <p class="hslide__text">Exterior paints made to keep your walls looking beautiful through sun, rain and dust, season after season.</p>
           <a class="btn btn--lg" href="/products/#exterior-emulsions">Explore Exterior Paints <Icon name="arrow-right" /></a>
         </div>
       </div>
-      <a class="hslide__feature-pack" href={weatherExpert.href!}>
-        <Image src={weatherExpert.image} alt="" widths={[200, 320]} sizes="180px" />
-        <span><strong>{weatherExpert.name}</strong>{weatherExpert.warranty} Years Warranty</span>
-      </a>
+      <div class="hslide__exterior">
+        <div class="hslide__exterior-packs">
+          {exteriors.map((e, i) => <Image src={e.image} alt={i === 1 ? `${e.name} pack` : ''} widths={[200, 320]} sizes="180px" class:list={['hslide__xpack', i === 1 && 'hslide__xpack--lead']} />)}
+        </div>
+        <a class="hslide__note" href={weatherExpert.href!}>
+          <strong>{weatherExpert.name} · {weatherExpert.warranty} Years Warranty</strong>
+          <span>{weatherExpert.features.slice(0, 3).join(' · ')}</span>
+        </a>
+      </div>
     </article>
 
-    <!-- 3 · Colour inspiration: the wall repaints in the chosen shade -->
-    <article class="hslide hslide--colour" data-slide data-title="Colour Inspiration" aria-roledescription="slide" aria-label="3 of 3" aria-hidden="true" inert data-hero-room style={`--wall:${shades[0].hex}`}>
-      <PaintedRoom room="living-room" alt="A bright living room with a white sofa, curtains and a plant, its wall painted in a Retina shade" sizes="100vw" widths={[960, 1600]} class="hslide__bg hslide__room" />
+    <!-- 3 · Discover your colours: the walls' closest Retina shades -->
+    <article class="hslide hslide--colours" data-slide data-title="Discover Your Colours" aria-roledescription="slide" aria-label="3 of 5" aria-hidden="true" inert>
+      <Image src={colourWalls} alt="Three living spaces with walls painted deep blue, crimson and forest green" widths={[960, 1600]} sizes={sizes} class="hslide__bg" />
       <div class="container hslide__inner">
         <div class="hslide__copy">
-          <h2 class="hslide__title">Bring Every Wall to Life with Colour</h2>
-          <p class="hslide__text">Discover inspiring shades and beautiful finishes to create spaces that reflect your style.</p>
+          <p class="hslide__eyebrow">1,000+ Retina shades</p>
+          <h2 class="hslide__title">Every Wall Has a Story. Find Yours.</h2>
+          <p class="hslide__text">Explore curated shades for every mood and try them on the walls of your own room.</p>
           <a class="btn btn--lg" href="/colors/"><Icon name="palette" /> Explore Colours</a>
         </div>
       </div>
-      <div class="shadebar" data-float-avoid>
-        <a href={`/colors/#${shades[0].code}`} class="shadebar__code" data-hero-link aria-label={`Open ${shades[0].code} in the colour visualizer`}>
-          <span class="shadebar__dot" aria-hidden="true"></span>
-          <span class="shadebar__text"><span class="shadebar__label">On the wall</span><strong data-hero-code>{shades[0].code}</strong></span>
-        </a>
-        <div class="palette" role="radiogroup" aria-label="Try a Retina shade on the wall">
-          {shades.map((s, i) => (
-            <button type="button" role="radio" class="hero__chip" style={`--c:${s.hex}`} data-code={s.code} data-hex={s.hex} data-ink={inkOn(s.hex)} aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} aria-label={`Paint the wall ${s.code}`}>
-              <Icon name="check" class="hero__chip-check" />
-            </button>
+      <div class="hslide__swatches">
+        <p class="hslide__swatches-label">Closest Retina shades to these walls</p>
+        <ul role="list">
+          {wallShades.map((w) => (
+            <li><a href={`/colors/#${w.code}`} style={`--c:${w.shade.hex}`}><span class="hslide__chip" aria-hidden="true"></span><strong>{w.code}</strong><span>{w.wall}</span></a></li>
           ))}
-          <a class="palette__more" href="/colors/" aria-label={`Explore all ${shadeCount.toLocaleString('en-IN')} Retina shades in the colour visualizer`}><Icon name="plus" /></a>
+        </ul>
+      </div>
+    </article>
+
+    <!-- 4 · Premium interior finishes: textured walls -->
+    <article class="hslide hslide--finish" data-slide data-title="Interior Finishes" aria-roledescription="slide" aria-label="4 of 5" aria-hidden="true" inert>
+      <Image src={limewash} alt="A calm room with warm, textured limewash walls and a leather armchair" widths={[960, 1440, 1920]} sizes={sizes} class="hslide__bg" />
+      <div class="container hslide__inner">
+        <div class="hslide__copy">
+          <p class="hslide__eyebrow">Interior emulsions &amp; textures</p>
+          <h2 class="hslide__title">Make Ordinary Walls Extraordinary.</h2>
+          <p class="hslide__text">From smooth high-sheen emulsions to decorative textures, give every wall a finish worth noticing.</p>
+          <a class="btn btn--lg" href="/products/#interior-emulsions">Discover Interior Paints <Icon name="arrow-right" /></a>
         </div>
       </div>
+      <ul role="list" class="hslide__products">
+        {finishes.map((f) => (
+          <li><a href={f.href!}><Image src={f.image} alt="" widths={[140, 240]} sizes="96px" /><span><strong>{f.name}</strong>{f.summary}</span></a></li>
+        ))}
+      </ul>
+    </article>
+
+    <!-- 5 · Professional quality: verified credentials, Retina green tone -->
+    <article class="hslide hslide--quality" data-slide data-title="Professional Quality" aria-roledescription="slide" aria-label="5 of 5" aria-hidden="true" inert>
+      <Image src={painting} alt="A painter on a stepladder rolling orange paint onto a white wall" widths={[960, 1440, 1920]} sizes={sizes} class="hslide__bg" />
+      <div class="container hslide__inner">
+        <div class="hslide__copy">
+          <p class="hslide__eyebrow">Retina Paints Limited</p>
+          <h2 class="hslide__title">Quality You Can See. Trust You Can Feel.</h2>
+          <p class="hslide__text">An ISO 9001:2015 certified paint manufacturer, bringing colour and protection to homes across India.</p>
+          <a class="btn btn--lg" href="/about-us/company-profile/">Discover Retina Paints <Icon name="arrow-right" /></a>
+        </div>
+      </div>
+      <ul role="list" class="hslide__badges">
+        <li><Icon name="certificate" /><span><strong>ISO 9001:2015</strong>certified</span></li>
+        <li><Icon name="trending-up" /><span><strong>Listed on</strong>BSE SME</span></li>
+        <li><Icon name="shield" /><span><strong>Up to 8 years</strong>warranty</span></li>
+      </ul>
     </article>
   </div>
 
   <button type="button" class="hero__arrow hero__arrow--prev" data-slide-prev aria-label="Previous slide"><Icon name="arrow-left" /></button>
   <button type="button" class="hero__arrow hero__arrow--next" data-slide-next aria-label="Next slide" data-float-avoid><Icon name="arrow-right" /></button>
-  <div class="hero__controls">
+  <div class="hero__controls" data-float-avoid>
     <div class="hero__dots" data-slide-dots></div>
     <button type="button" class="hero__pause" data-slide-pause aria-label="Pause slideshow" aria-pressed="false">
       <svg class="hero__pause-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="i-pause" d="M8 5v14M16 5v14" /><path class="i-play" d="M8 5l11 7-11 7z" /></svg>
@@ -100,35 +143,6 @@ const shieldMobile = await getImage({ src: shieldHomeMobile, width: 800, format:
 <script>
   import { initSlideshows } from '@/scripts/slideshow';
   initSlideshows();
-
-  // Slide 3: the swatches repaint the wall (radio group with arrow-key support).
-  document.querySelectorAll<HTMLElement>('[data-hero-room]').forEach((room) => {
-    const code = room.querySelector<HTMLElement>('[data-hero-code]')!;
-    const link = room.querySelector<HTMLAnchorElement>('[data-hero-link]')!;
-    const chips = Array.from(room.querySelectorAll<HTMLButtonElement>('.hero__chip'));
-    const pick = (chip: HTMLButtonElement, focus = false) => {
-      room.style.setProperty('--wall', chip.dataset.hex!);
-      chips.forEach((c) => {
-        const on = c === chip;
-        c.setAttribute('aria-checked', String(on));
-        c.tabIndex = on ? 0 : -1;
-      });
-      code.textContent = chip.dataset.code!;
-      link.href = `/colors/#${chip.dataset.code}`;
-      link.setAttribute('aria-label', `Open ${chip.dataset.code} in the colour visualizer`);
-      if (focus) chip.focus();
-    };
-    chips.forEach((chip, i) => {
-      chip.addEventListener('click', () => pick(chip));
-      chip.addEventListener('keydown', (e) => {
-        const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
-        if (step === undefined) return;
-        e.preventDefault();
-        e.stopPropagation();
-        pick(chips[(i + step + chips.length) % chips.length], true);
-      });
-    });
-  });
 </script>
 
 <style>
@@ -145,20 +159,24 @@ const shieldMobile = await getImage({ src: shieldHomeMobile, width: 800, format:
   }
   .hero__slides { display: grid; }
 
-  /* Slides stack in one grid cell and cross-fade */
-  .hslide { position: relative; grid-area: 1 / 1; min-height: var(--hero-h); overflow: hidden; opacity: 0; visibility: hidden; transition: opacity 900ms var(--ease-in-out), visibility 0s linear 900ms; }
-  .hslide.is-active { z-index: 1; opacity: 1; visibility: visible; transition: opacity 900ms var(--ease-in-out); }
+  /* Slides stack in one grid cell and cross-fade; each sets its own tone. */
+  .hslide { --tone: 14 10 8; position: relative; grid-area: 1 / 1; min-height: var(--hero-h); overflow: hidden; opacity: 0; visibility: hidden; touch-action: pan-y; transition: opacity 1000ms var(--ease-in-out), visibility 0s linear 1000ms; }
+  .hslide.is-active { z-index: 1; opacity: 1; visibility: visible; transition: opacity 1000ms var(--ease-in-out); }
   .hslide :global(.hslide__bg) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .hslide::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgb(14 10 8 / 0.8) 0%, rgb(14 10 8 / 0.5) 38%, rgb(14 10 8 / 0) 64%); pointer-events: none; }
-  .hslide__inner { position: relative; z-index: 3; display: grid; align-content: center; min-height: var(--hero-h); padding-block: clamp(2.5rem, 2rem + 2vw, 4rem) calc(var(--overlap) + 5rem); }
-  .hslide__copy { display: grid; justify-items: start; gap: var(--s-5); max-width: 38rem; margin-left: calc(var(--side) - var(--edge)); }
-  .hslide__title { font-size: clamp(2.5rem, 1.3rem + 3.6vw, 4.75rem); font-weight: 800; line-height: 1.05; letter-spacing: var(--tracking-display); color: var(--white); text-wrap: balance; text-shadow: 0 2px 24px rgb(0 0 0 / 0.25); }
+  .hslide::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgb(var(--tone) / 0.86) 0%, rgb(var(--tone) / 0.55) 38%, rgb(var(--tone) / 0) 66%), linear-gradient(to top, rgb(var(--tone) / 0.45), transparent 35%); pointer-events: none; }
+  .hslide__inner { position: relative; z-index: 3; display: grid; align-content: center; min-height: var(--hero-h); padding-block: clamp(2.5rem, 2rem + 2vw, 4rem) calc(var(--overlap) + 5.5rem); }
+  .hslide__copy { display: grid; justify-items: start; gap: var(--s-4); max-width: 38rem; margin-left: calc(var(--side) - var(--edge)); }
+  .hslide__eyebrow { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.8125rem; font-weight: 750; letter-spacing: 0.14em; text-transform: uppercase; color: var(--orange-300); }
+  .hslide__eyebrow::before { content: ''; width: 1.75rem; height: 2px; background: currentColor; }
+  .hslide__title { font-size: clamp(2.4rem, 1.2rem + 3.5vw, 4.5rem); font-weight: 800; line-height: 1.05; letter-spacing: var(--tracking-display); color: var(--white); text-wrap: balance; text-shadow: 0 2px 24px rgb(0 0 0 / 0.25); }
   .hslide__text { max-width: 32rem; font-size: var(--fs-lead); line-height: 1.6; color: rgb(255 248 240 / 0.88); }
+  .hslide__copy :global(.btn) { margin-top: var(--s-2); }
 
-  /* 1 · Products: orange curved base with the range of packs */
-  .hslide--products :global(.hslide__bg) { object-position: 62% 30%; }
-  .hslide--products .hslide__inner { align-content: start; padding-top: clamp(3rem, 1rem + 6vh, 6.5rem); padding-bottom: calc(var(--hero-h) * 0.36); }
-  .hslide__wave { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; width: 100%; height: 34%; fill: var(--orange-500); }
+  /* 1 · Living: orange curved base with the range of packs */
+  .hslide--living { --tone: 24 16 12; }
+  .hslide--living :global(.hslide__bg) { object-position: 70% 40%; }
+  .hslide--living .hslide__inner { align-content: start; padding-top: clamp(2.5rem, 1rem + 5vh, 5.5rem); padding-bottom: calc(var(--hero-h) * 0.36); }
+  .hslide__wave { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; width: 100%; height: 32%; fill: var(--orange-500); }
   .hslide__features { position: absolute; left: var(--side); bottom: calc(var(--overlap) + 2.75rem); z-index: 3; display: flex; gap: clamp(1.5rem, 1rem + 3vw, 4.5rem); margin: 0; padding: 0; list-style: none; }
   .hslide__features li { display: grid; justify-items: center; gap: 0.5rem; font-family: var(--font-display); font-size: clamp(1rem, 0.85rem + 0.5vw, 1.375rem); font-weight: 800; line-height: 1.2; text-align: center; color: var(--white); }
   .hslide__features :global(.icon) { width: 2.75rem; height: 2.75rem; stroke-width: 1.4; }
@@ -166,62 +184,61 @@ const shieldMobile = await getImage({ src: shieldHomeMobile, width: 800, format:
   .hslide__packs :global(.hslide__pack) { width: auto; height: calc(var(--packs-h) * 0.66); margin-inline: calc(var(--packs-h) * -0.05); }
   .hslide__packs :global(.hslide__pack--lead) { position: relative; z-index: 1; height: var(--packs-h); }
 
-  /* 2 · Shield */
-  .hslide--shield :global(.hslide__bg) { object-position: 60% 50%; }
-  .hslide__feature-pack { position: absolute; right: var(--side); bottom: calc(var(--overlap) + 2.5rem); z-index: 3; display: flex; align-items: flex-end; gap: var(--s-3); color: var(--white); text-decoration: none; }
-  .hslide__feature-pack :global(img) { width: auto; height: clamp(7rem, 4rem + 6vw, 11rem); filter: drop-shadow(0 18px 24px rgb(0 0 0 / 0.5)); transition: transform 500ms var(--ease-out); }
-  .hslide__feature-pack:hover :global(img) { transform: translateY(-5px); }
-  .hslide__feature-pack span { display: grid; padding: 0.55rem 0.9rem; margin-bottom: 0.75rem; border-left: 3px solid var(--orange-500); border-radius: 0 var(--r-sm) var(--r-sm) 0; background: rgb(10 12 40 / 0.6); font-size: 0.8125rem; color: rgb(255 255 255 / 0.82); }
-  .hslide__feature-pack strong { font-family: var(--font-display); font-size: 1rem; color: var(--white); }
-  .hslide__feature-pack:focus-visible { outline: 3px solid var(--white); outline-offset: 4px; border-radius: var(--r-sm); }
+  /* 2 · Villa: navy tone, exterior packs and a feature note */
+  .hslide--villa { --tone: 10 20 46; }
+  .hslide--villa :global(.hslide__bg) { object-position: 60% 45%; }
+  .hslide__exterior { position: absolute; right: var(--side); bottom: calc(var(--overlap) + 3.5rem); z-index: 3; display: grid; justify-items: end; gap: var(--s-3); }
+  .hslide__exterior-packs { display: flex; align-items: flex-end; filter: drop-shadow(0 20px 22px rgb(0 0 0 / 0.45)); }
+  .hslide__exterior-packs :global(.hslide__xpack) { width: auto; height: clamp(6rem, 3rem + 6vw, 10rem); margin-inline: -0.75rem; }
+  .hslide__exterior-packs :global(.hslide__xpack--lead) { position: relative; z-index: 1; height: clamp(8rem, 4rem + 8vw, 13rem); }
+  .hslide__note { display: grid; gap: 0.15rem; padding: 0.65rem 1rem; border-left: 3px solid var(--orange-500); border-radius: 0 var(--r-sm) var(--r-sm) 0; background: rgb(10 20 46 / 0.78); color: rgb(255 255 255 / 0.8); font-size: 0.8125rem; text-decoration: none; }
+  .hslide__note strong { font-family: var(--font-display); font-size: 0.9375rem; color: var(--white); }
+  .hslide__note:hover strong { color: var(--orange-300); }
 
-  /* 3 · Colour */
-  .hslide--colour :global(.hslide__room) { --painted-pos: 50% 62%; }
-  .shadebar {
-    position: absolute;
-    right: var(--side);
-    bottom: calc(var(--overlap) + 4.75rem);
-    z-index: 3;
-    display: flex;
-    align-items: center;
-    gap: var(--s-4);
-    padding: 0.55rem 0.7rem 0.55rem 0.55rem;
-    border-radius: var(--r-pill);
-    background: var(--white);
-    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1), 0 24px 48px -20px rgb(0 0 0 / 0.55);
-    color: var(--ink-deep);
-    white-space: nowrap;
-  }
-  .shadebar__code { display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.15rem 0.9rem 0.15rem 0.15rem; border-right: 1px solid var(--line); color: inherit; text-decoration: none; }
-  .shadebar__code:focus-visible { outline: 2.5px solid var(--ink-deep); outline-offset: 3px; border-radius: var(--r-pill); }
-  .shadebar__dot { width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--wall); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); transition: background-color 800ms var(--ease-in-out); }
-  .shadebar__text { display: grid; line-height: 1.15; }
-  .shadebar__label { font-size: 0.625rem; font-weight: 750; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange-700); }
-  .shadebar__text strong { font-family: var(--font-display); font-size: 1rem; }
-  .palette { display: flex; align-items: center; gap: 0.5rem; }
-  .hero__chip, .palette__more { position: relative; display: grid; place-items: center; flex: none; width: 2.4rem; height: 2.4rem; padding: 0; border: 0; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); transition: transform 220ms var(--ease-out); }
-  .hero__chip::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2.5px solid var(--orange-500); opacity: 0; transform: scale(0.7); transition: opacity 240ms var(--ease-out), transform 300ms var(--ease-out); }
-  .hero__chip:hover, .palette__more:hover { transform: scale(1.12); }
-  .hero__chip:focus-visible, .palette__more:focus-visible { outline: 2.5px solid var(--ink-deep); outline-offset: 5px; }
-  .hero__chip[aria-checked='true']::after { opacity: 1; transform: none; }
-  .hero__chip :global(.hero__chip-check) { width: 1rem; height: 1rem; stroke-width: 3; opacity: 0; transform: scale(0.4); transition: opacity 220ms, transform 300ms var(--ease-out); }
-  .hero__chip[data-ink='dark'] { color: var(--ink-deep); }
-  .hero__chip[data-ink='light'] { color: var(--white); }
-  .hero__chip[aria-checked='true'] :global(.hero__chip-check) { opacity: 1; transform: none; }
-  .palette__more { background: var(--orange-50); color: var(--orange-700); box-shadow: inset 0 0 0 1.5px var(--orange-200); text-decoration: none; }
-  .palette__more :global(.icon) { width: 1.1rem; height: 1.1rem; stroke-width: 2.25; }
+  /* 3 · Colours: shade cards for the walls in the photo */
+  .hslide--colours { --tone: 12 12 18; }
+  .hslide--colours :global(.hslide__bg) { object-position: 50% 40%; }
+  .hslide__swatches { position: absolute; right: var(--side); bottom: calc(var(--overlap) + 3.5rem); z-index: 3; display: grid; gap: var(--s-3); }
+  .hslide__swatches-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(255 255 255 / 0.85); text-shadow: 0 1px 8px rgb(0 0 0 / 0.5); }
+  .hslide__swatches ul { display: flex; gap: var(--s-3); margin: 0; padding: 0; list-style: none; }
+  .hslide__swatches a { display: grid; width: 7.5rem; padding: 0.5rem 0.5rem 0.65rem; border-radius: var(--r-sm); background: var(--white); color: var(--ink-deep); text-decoration: none; box-shadow: 0 18px 32px -16px rgb(0 0 0 / 0.6); transition: transform 300ms var(--ease-out); }
+  .hslide__swatches a:hover { transform: translateY(-5px); }
+  .hslide__swatches a:focus-visible { outline: 3px solid var(--orange-400); outline-offset: 3px; }
+  .hslide__chip { display: block; height: 4.25rem; margin-bottom: 0.45rem; border-radius: 6px; background: var(--c); }
+  .hslide__swatches strong { font-family: var(--font-display); font-size: 0.9375rem; }
+  .hslide__swatches a > span:last-child { font-size: 0.75rem; color: var(--ink-soft); }
+
+  /* 4 · Finish: warm brown tone, two product cards */
+  .hslide--finish { --tone: 38 26 16; }
+  .hslide--finish :global(.hslide__bg) { object-position: 60% 62%; }
+  .hslide__products { position: absolute; right: var(--side); bottom: calc(var(--overlap) + 3.5rem); z-index: 3; display: grid; gap: var(--s-3); width: min(24rem, 34vw); margin: 0; padding: 0; list-style: none; }
+  .hslide__products a { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); align-items: center; gap: var(--s-3); padding: 0.6rem 1rem 0.6rem 0.6rem; border-radius: var(--r-md); background: rgb(255 252 247 / 0.94); color: var(--ink); font-size: 0.8125rem; line-height: 1.4; text-decoration: none; box-shadow: 0 18px 32px -18px rgb(40 20 6 / 0.55); transition: transform 300ms var(--ease-out); }
+  .hslide__products a:hover { transform: translateX(-4px); }
+  .hslide__products a:focus-visible { outline: 3px solid var(--orange-500); outline-offset: 3px; }
+  .hslide__products :global(img) { width: 100%; height: auto; }
+  .hslide__products span { display: grid; gap: 0.1rem; }
+  .hslide__products strong { font-family: var(--font-display); font-size: 0.9375rem; color: var(--ink-deep); }
+
+  /* 5 · Quality: Retina green tone, verified credentials */
+  .hslide--quality { --tone: 14 36 24; }
+  .hslide--quality :global(.hslide__bg) { object-position: 50% 42%; }
+  .hslide__badges { position: absolute; right: var(--side); bottom: calc(var(--overlap) + 3.5rem); z-index: 3; display: flex; gap: var(--s-3); margin: 0; padding: 0; list-style: none; }
+  .hslide__badges li { display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 1rem; border: 1px solid rgb(255 255 255 / 0.25); border-radius: var(--r-md); background: rgb(14 36 24 / 0.72); font-size: 0.8125rem; line-height: 1.3; color: rgb(255 255 255 / 0.85); }
+  .hslide__badges :global(.icon) { flex: none; width: 1.75rem; height: 1.75rem; color: var(--leaf); }
+  .hslide__badges span { display: grid; }
+  .hslide__badges strong { font-family: var(--font-display); font-size: 0.9375rem; color: var(--white); }
 
   /* Controls */
-  .hero__arrow { position: absolute; top: 50%; z-index: 5; display: grid; place-items: center; width: 3.25rem; height: 3.25rem; padding: 0; border: 0; border-radius: 50%; background: rgb(255 255 255 / 0.82); color: var(--ink-deep); box-shadow: 0 8px 20px -8px rgb(0 0 0 / 0.5); transform: translateY(-50%); transition: background-color var(--t-fast), color var(--t-fast), transform var(--t-fast); }
+  .hero__arrow { position: absolute; top: 50%; z-index: 5; display: grid; place-items: center; width: 3.25rem; height: 3.25rem; padding: 0; border: 0; border-radius: 50%; background: rgb(255 255 255 / 0.82); color: var(--ink-deep); box-shadow: 0 8px 20px -8px rgb(0 0 0 / 0.5); transform: translateY(-50%); transition: background-color var(--t-fast), transform var(--t-fast); }
   .hero__arrow--prev { left: clamp(0.75rem, 0.25rem + 1vw, 1.75rem); }
   .hero__arrow--next { right: clamp(0.75rem, 0.25rem + 1vw, 1.75rem); }
-  .hero__arrow:hover { background: var(--orange-500); color: var(--ink-deep); transform: translateY(-50%) scale(1.06); }
+  .hero__arrow:hover { background: var(--orange-500); transform: translateY(-50%) scale(1.06); }
   .hero__arrow :global(.icon) { width: 1.25rem; height: 1.25rem; }
   .hero__arrow:focus-visible, .hero__pause:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
   .hero__controls { position: absolute; left: 50%; bottom: calc(var(--overlap) + 1.1rem); z-index: 5; display: flex; align-items: center; gap: 0.6rem; transform: translateX(-50%); }
   .hero__dots { display: flex; align-items: center; gap: 0.15rem; }
-  .hero__dots :global(.slideshow-dot) { position: relative; display: grid; place-items: center; width: 1.75rem; height: 1.75rem; padding: 0; border: 0; background: none; }
-  .hero__dots :global(.slideshow-dot)::before { content: ''; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: rgb(255 255 255 / 0.75); box-shadow: 0 0 0 0 transparent; transition: background-color var(--t-base), box-shadow var(--t-base), transform var(--t-base); }
+  .hero__dots :global(.slideshow-dot) { display: grid; place-items: center; width: 1.75rem; height: 1.75rem; padding: 0; border: 0; background: none; }
+  .hero__dots :global(.slideshow-dot)::before { content: ''; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: rgb(255 255 255 / 0.75); transition: background-color var(--t-base), box-shadow var(--t-base), transform var(--t-base); }
   .hero__dots :global(.slideshow-dot[aria-current='true'])::before { background: transparent; box-shadow: inset 0 0 0 2.5px var(--white); transform: scale(1.5); }
   .hero__dots :global(.slideshow-dot:focus-visible) { outline: 2.5px solid var(--white); outline-offset: -2px; border-radius: 50%; }
   .hero__pause { display: grid; place-items: center; width: 1.75rem; height: 1.75rem; padding: 0; border: 1.5px solid rgb(255 255 255 / 0.6); border-radius: 50%; background: rgb(0 0 0 / 0.25); color: var(--white); }
@@ -231,59 +248,71 @@ const shieldMobile = await getImage({ src: shieldHomeMobile, width: 800, format:
   .hero__pause[aria-pressed='true'] .i-pause { display: none; }
   .hero__pause[aria-pressed='true'] .i-play { display: block; }
 
-  /* Motion: slow zoom on the active background and a staggered text entrance */
+  /* Motion: slow zoom on the active photo, heading → text → CTA, then the accent */
   @media (prefers-reduced-motion: no-preference) {
     .hslide.is-active :global(.hslide__bg) { animation: hero-zoom 9s var(--ease-out) both; }
     .hslide.is-active .hslide__copy > * { animation: hero-rise 800ms var(--ease-out) both; }
-    .hslide.is-active .hslide__copy > :nth-child(2) { animation-delay: 120ms; }
+    .hslide.is-active .hslide__copy > :nth-child(2) { animation-delay: 100ms; }
     .hslide.is-active .hslide__copy > :nth-child(3) { animation-delay: 240ms; }
-    .hslide.is-active .hslide__packs, .hslide.is-active .hslide__feature-pack, .hslide.is-active .shadebar { animation: hero-rise 900ms var(--ease-out) 260ms both; }
-    .hslide.is-active .hslide__features { animation: hero-rise 800ms var(--ease-out) 360ms both; }
+    .hslide.is-active .hslide__copy > :nth-child(4) { animation-delay: 380ms; }
+    .hslide.is-active :is(.hslide__packs, .hslide__exterior, .hslide__swatches, .hslide__products, .hslide__badges) { animation: hero-slide 900ms var(--ease-out) 420ms both; }
+    .hslide.is-active .hslide__features { animation: hero-rise 800ms var(--ease-out) 500ms both; }
   }
   @media (prefers-reduced-motion: reduce) { .hslide, .hslide.is-active { transition: none; } }
-  @keyframes hero-zoom { from { transform: scale(1.07); } to { transform: none; } }
+  @keyframes hero-zoom { from { transform: scale(1.08); } to { transform: none; } }
   @keyframes hero-rise { from { opacity: 0; transform: translateY(22px); } }
+  @keyframes hero-slide { from { opacity: 0; transform: translateX(36px); } }
 
-  /* Laptops: a slightly smaller range keeps clear of the copy. */
+  /* Laptops */
   @media (max-width: 1440px) {
     .hslide__copy { max-width: 34rem; }
     .hslide__packs { --packs-h: clamp(9rem, 1rem + 11vw, 15rem); }
   }
-  @media (max-width: 1024px) { .hslide__feature-pack { display: none; } }
-  /* Laptops and tablets */
   @media (max-width: 1180px) {
     .hslide__features { display: none; }
     .hslide__packs { --packs-h: clamp(8rem, 2rem + 13vw, 14rem); }
+    .hslide__badges li:nth-child(2) { display: none; }
   }
-  @media (max-width: 960px) {
-    .hslide__copy { max-width: 32rem; }
-    .shadebar__code { display: none; }
+  /* Tablets: secondary accents give way to the copy */
+  @media (max-width: 1024px) {
+    .hslide__products, .hslide__note { display: none; }
+    .hslide__swatches-label { display: none; }
+    .hslide__swatches a { width: 6rem; }
+    .hslide__chip { height: 3rem; }
   }
 
   /* Phones: copy at the top, imagery and controls below it */
   @media (max-width: 760px) {
     .hero { --hero-h: clamp(38rem, calc(100svh - var(--header-h)), 46rem); --side: var(--gutter); }
-    .hslide::before { background: linear-gradient(180deg, rgb(14 10 8 / 0.82) 0%, rgb(14 10 8 / 0.55) 42%, rgb(14 10 8 / 0) 68%); }
-    .hslide__inner { align-content: start; padding-top: 2.25rem; padding-bottom: 0; }
-    .hslide--products .hslide__inner { padding-top: 2.25rem; padding-bottom: 0; }
-    .hslide__copy { gap: var(--s-4); }
-    .hslide__title { font-size: clamp(2.1rem, 1.2rem + 4.6vw, 3rem); }
+    .hslide::before { background: linear-gradient(180deg, rgb(var(--tone) / 0.86) 0%, rgb(var(--tone) / 0.6) 45%, rgb(var(--tone) / 0.1) 72%), linear-gradient(to top, rgb(var(--tone) / 0.55), transparent 30%); }
+    .hslide__inner, .hslide--living .hslide__inner { align-content: start; padding-top: 2.25rem; padding-bottom: 0; }
+    .hslide__copy { gap: var(--s-3); }
+    .hslide__eyebrow { font-size: 0.6875rem; }
+    .hslide__title { font-size: clamp(2rem, 1.1rem + 4.6vw, 2.9rem); }
     .hslide__text { font-size: 1rem; }
-    .hslide--products :global(.hslide__bg) { object-position: 70% 50%; }
-    .hslide__wave { height: 26%; }
+    .hslide--living :global(.hslide__bg) { object-position: 78% 50%; }
+    .hslide__wave { height: 24%; }
     .hslide__packs { --packs-h: clamp(6.25rem, 2rem + 21vw, 10rem); left: 50%; right: auto; bottom: calc(var(--overlap) + 4rem); transform: translateX(-50%); }
-    .hslide__feature-pack { display: none; }
-    .shadebar { left: var(--gutter); right: var(--gutter); bottom: calc(var(--overlap) + 4.25rem); justify-content: space-between; gap: var(--s-2); padding: 0.45rem; }
-    .palette { flex: 1; justify-content: space-between; gap: 0.25rem; }
-    .hero__chip, .palette__more { width: min(2.5rem, calc((100vw - 2 * var(--gutter) - 3rem) / 8)); height: auto; aspect-ratio: 1; }
+    .hslide__exterior { left: 50%; right: auto; bottom: calc(var(--overlap) + 4rem); transform: translateX(-50%); justify-items: center; }
+    .hslide__swatches { left: var(--gutter); right: var(--gutter); bottom: calc(var(--overlap) + 4.25rem); }
+    .hslide__swatches ul { justify-content: space-between; gap: var(--s-2); }
+    .hslide__swatches li { flex: 1; }
+    .hslide__swatches a { width: auto; }
+    .hslide__badges { left: var(--gutter); right: var(--gutter); bottom: calc(var(--overlap) + 4.25rem); justify-content: space-between; gap: var(--s-2); }
+    .hslide__badges li, .hslide__badges li:nth-child(2) { display: grid; justify-items: start; flex: 1; gap: 0.35rem; padding: 0.6rem; font-size: 0.75rem; }
+    .hslide__badges strong { font-size: 0.8125rem; }
+    .hslide__badges :global(.icon) { width: 1.35rem; height: 1.35rem; }
+    .hslide--finish :global(.hslide__bg) { object-position: 55% 70%; }
+    .hslide--quality :global(.hslide__bg) { object-position: 50% 35%; }
     .hero__arrow { top: auto; bottom: calc(var(--overlap) + 0.6rem); width: 2.75rem; height: 2.75rem; transform: none; }
     .hero__arrow:hover { transform: scale(1.06); }
-    /* Arrows sit either side of the dots, clear of the floating WhatsApp button. */
-    .hero__arrow--prev { left: calc(50% - 7rem); }
-    .hero__arrow--next { right: calc(50% - 7rem); }
-    .hero__controls { bottom: calc(var(--overlap) + 1.1rem); }
+    /* Arrows then dots, all on the left, so the right stays clear for the WhatsApp button. */
+    .hero__arrow--prev { left: var(--gutter); }
+    .hero__arrow--next { left: calc(var(--gutter) + 3.25rem); right: auto; }
+    .hero__controls { left: calc(var(--gutter) + 6.75rem); bottom: calc(var(--overlap) + 1.1rem); transform: none; }
+    .hero__dots :global(.slideshow-dot) { width: 1.5rem; height: 1.5rem; }
     @media (prefers-reduced-motion: no-preference) {
-      .hslide.is-active .hslide__packs { animation-name: hero-rise-centred; }
+      .hslide.is-active :is(.hslide__packs, .hslide__exterior) { animation-name: hero-rise-centred; }
     }
   }
   @keyframes hero-rise-centred { from { opacity: 0; transform: translate(-50%, 22px); } to { transform: translateX(-50%); } }

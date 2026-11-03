@@ -15,6 +15,8 @@ import DesignerCollections from '@/components/home/DesignerCollections.astro';
 import OneStop from '@/components/home/OneStop.astro';
 import PaintCalculator from '@/components/home/PaintCalculator.astro';
 import Inspiration from '@/components/home/Inspiration.astro';
+import BeforeAfter from '@/components/home/BeforeAfter.astro';
+import PaintFinder from '@/components/home/PaintFinder.astro';
 
 import exteriorHome from '@/assets/imagery/exterior-home.jpg';
 import storeInterior from '@/assets/imagery/store-interior.jpg';
@@ -76,9 +78,10 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     </div>
   </section>
 
-  <ColourCarousel />
   <FeaturedProducts />
   <CategoryGrid />
+  <ColourCarousel />
+  <BeforeAfter />
 
   <!-- ============ EXTERIOR PROTECTION ============ -->
   <section class="exterior on-dark" aria-labelledby="exterior-title">
@@ -149,6 +152,8 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
       </ol>
     </div>
   </section>
+
+  <PaintFinder />
 
   <!-- ============ BRAND STORY ============ -->
   <section class="section section--flush-top story" aria-labelledby="story-title">

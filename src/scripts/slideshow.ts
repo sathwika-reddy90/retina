@@ -74,6 +74,25 @@ export function initSlideshows(root: ParentNode = document) {
 
     // Any interaction inside a slide (e.g. picking a shade) also ends auto-play.
     slides.forEach((s) => s.addEventListener('pointerdown', interact));
+
+    // Touch swipe: a mostly-horizontal swipe changes slide. Vertical movement is left to
+    // the browser (touch-action: pan-y on the slides), so page scrolling is never blocked.
+    let startX = 0, startY = 0, tracking = false;
+    el.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      tracking = true;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+    el.addEventListener('touchend', (e) => {
+      if (!tracking) return;
+      tracking = false;
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      interact();
+      show(index + (dx < 0 ? 1 : -1));
+    }, { passive: true });
     el.addEventListener('keydown', (e) => {
       const t = e.target as HTMLElement;
       if (!t.closest('[data-slide-prev], [data-slide-next], [data-slide-dots]')) return;

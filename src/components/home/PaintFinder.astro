@@ -1,0 +1,127 @@
+---
+// "Find Your Perfect Paint": pick a surface, see the Retina products made for it.
+// Every product, summary and warranty comes from the product data; products without
+// a detail page link to their section of the products page.
+import { Image } from 'astro:assets';
+import Icon from '@/components/Icon.astro';
+import { productsIn, type CategoryId, type Product } from '@/data/products';
+
+const surfaces: { id: string; label: string; icon: string; intro: string; categories: CategoryId[] }[] = [
+  { id: 'interior', label: 'Interior walls', icon: 'home', intro: 'Emulsions and distempers for living rooms, bedrooms and everyday spaces.', categories: ['interior-emulsions', 'distempers'] },
+  { id: 'exterior', label: 'Exterior walls', icon: 'building', intro: 'Exterior emulsions made to stand up to sun, rain and dust.', categories: ['exterior-emulsions'] },
+  { id: 'damp', label: 'Damp & waterproofing', icon: 'droplet', intro: 'Waterproof and damp-proof primers for exterior walls.', categories: ['waterproof-primers'] },
+  { id: 'base', label: 'Primers & putty', icon: 'layers', intro: 'Primers, putty and textures for a smooth, lasting base.', categories: ['waterbased-primers', 'putty'] },
+  { id: 'wood-metal', label: 'Wood & metal', icon: 'brush', intro: 'Primers and enamels for doors, windows, grills and furniture.', categories: ['oilbased-primers', 'enamels'] },
+];
+const items = surfaces.map((s) => ({ ...s, products: s.categories.flatMap((c) => productsIn(c)) }));
+const link = (p: Product) => p.href ?? `/products/#${p.category}`;
+---
+
+<section class="section finder" aria-labelledby="finder-title">
+  <div class="container">
+    <div class="section-head section-head--center" data-reveal>
+      <p class="eyebrow">Product Guide</p>
+      <h2 class="t-h2" id="finder-title">Find Your Perfect Paint</h2>
+      <p class="t-lead">Tell us what you are painting and we will show you the Retina products made for it.</p>
+    </div>
+
+    <div class="finder__tabs" role="tablist" aria-label="Surface">
+      {items.map((s, i) => (
+        <button type="button" role="tab" id={`pf-tab-${s.id}`} aria-controls={`pf-panel-${s.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-pf-tab>
+          <Icon name={s.icon} /> {s.label}
+        </button>
+      ))}
+    </div>
+
+    {items.map((s, i) => (
+      <div class="finder__panel" role="tabpanel" id={`pf-panel-${s.id}`} aria-labelledby={`pf-tab-${s.id}`} hidden={i !== 0} tabindex="0">
+        <p class="finder__intro">{s.intro} <strong>{s.products.length} products</strong></p>
+        <ul role="list" class="finder__list">
+          {s.products.map((p) => (
+            <li class="pcard">
+              <span class="pcard__media"><Image src={p.image} alt="" width={150} height={156} loading="lazy" /></span>
+              <span class="pcard__body">
+                <h3 class="pcard__name"><a href={link(p)}>{p.name}</a></h3>
+                {p.summary && <span class="pcard__summary">{p.summary}</span>}
+                {p.warranty && <span class="pcard__warranty"><Icon name="award" /> {p.warranty} Years Warranty</span>}
+              </span>
+              <Icon name="arrow-up-right" class="pcard__arrow" />
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+
+    <div class="finder__cta" data-reveal>
+      <p>Not sure which paint is right for you?</p>
+      <div class="finder__actions">
+        <button type="button" class="btn" data-open-dialog="dialog-advice">Get Expert Advice <Icon name="arrow-right" /></button>
+        <a class="btn btn--secondary" href="/colors/"><Icon name="palette" /> Explore Colours</a>
+        <a class="btn btn--secondary" href="/find-a-store-near-you/"><Icon name="map-pin" /> Find a Store</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.finder').forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-pf-tab]'));
+    const show = (tab: HTMLButtonElement, focus = false) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        root.querySelector<HTMLElement>(`#${t.getAttribute('aria-controls')}`)!.hidden = !on;
+      });
+      if (focus) tab.focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => show(tab));
+      tab.addEventListener('keydown', (e) => {
+        const to = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : null;
+        if (to === null) return;
+        e.preventDefault();
+        show(tabs[(to + tabs.length) % tabs.length], true);
+      });
+    });
+  });
+</script>
+
+<style>
+  .finder__tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-bottom: var(--s-6); }
+  .finder__tabs button { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 46px; padding: 0.5rem 1.1rem; border: 1.5px solid var(--line-strong); border-radius: var(--r-pill); background: var(--white); font-family: var(--font-display); font-size: 0.9375rem; font-weight: 650; color: var(--ink-soft); transition: border-color var(--t-fast), background-color var(--t-fast), color var(--t-fast); }
+  .finder__tabs button :global(.icon) { width: 1.1rem; height: 1.1rem; }
+  .finder__tabs button:hover { border-color: var(--ink-deep); color: var(--ink-deep); }
+  .finder__tabs button[aria-selected='true'] { border-color: var(--orange-500); background: var(--orange-500); color: var(--ink-deep); }
+  .finder__panel:focus-visible { outline: 3px solid var(--ink-deep); outline-offset: 6px; border-radius: var(--r-md); }
+  .finder__intro { margin-bottom: var(--s-5); text-align: center; color: var(--ink-soft); }
+  .finder__intro strong { color: var(--ink-deep); }
+  .finder__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: var(--s-4); margin: 0; padding: 0; list-style: none; }
+  .pcard { position: relative; display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: center; gap: var(--s-4); padding: var(--s-4) var(--s-6) var(--s-4) var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--white); transition: border-color 260ms, box-shadow 260ms, transform 260ms var(--ease-out); }
+  .pcard:hover { border-color: var(--orange-300); box-shadow: var(--shadow-md); transform: translateY(-3px); }
+  .pcard:has(a:focus-visible) { outline: 3px solid var(--ink-deep); outline-offset: 3px; }
+  .pcard__media { display: grid; place-items: center; aspect-ratio: 1; border-radius: var(--r-sm); background: radial-gradient(circle at 50% 40%, var(--white), var(--sand) 80%); }
+  .pcard__media :global(img) { width: 82%; height: auto; transition: transform 400ms var(--ease-out); }
+  .pcard:hover .pcard__media :global(img) { transform: scale(1.06) rotate(-2deg); }
+  .pcard__body { display: grid; gap: 0.3rem; }
+  .pcard__name { font-size: 1.0625rem; line-height: 1.25; }
+  .pcard__name a { color: var(--ink-deep); text-decoration: none; }
+  .pcard__name a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+  .pcard__name a:focus-visible { outline: none; }
+  .pcard__summary { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8125rem; line-height: 1.45; color: var(--ink-soft); }
+  .pcard__warranty { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.75rem; font-weight: 700; color: var(--orange-700); }
+  .pcard__warranty :global(.icon) { width: 0.9rem; height: 0.9rem; }
+  .pcard :global(.pcard__arrow) { position: absolute; top: var(--s-4); right: var(--s-4); width: 1rem; height: 1rem; color: var(--ink-mute); transition: color var(--t-fast), transform var(--t-fast); }
+  .pcard:hover :global(.pcard__arrow) { color: var(--orange-600); transform: translate(2px, -2px); }
+  .finder__cta { display: grid; justify-items: center; gap: var(--s-4); margin-top: clamp(2.5rem, 2rem + 2vw, 4rem); padding: clamp(1.75rem, 1rem + 2vw, 2.75rem); border-radius: var(--r-lg); background: var(--ink-deep); color: var(--white); text-align: center; }
+  .finder__cta p { font-family: var(--font-display); font-size: clamp(1.25rem, 1rem + 0.8vw, 1.75rem); font-weight: 700; }
+  .finder__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-3); }
+  .finder__actions :global(.btn--secondary) { --btn-bg: transparent; --btn-fg: var(--white); --btn-bd: rgb(255 255 255 / 0.5); }
+  .finder__actions :global(.btn--secondary:hover) { --btn-bg: rgb(255 255 255 / 0.1); --btn-bd: var(--white); }
+  @media (max-width: 560px) {
+    .finder__tabs { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+    .finder__tabs::-webkit-scrollbar { display: none; }
+    .finder__tabs button { flex: none; }
+    .finder__actions { display: grid; width: 100%; }
+  }
+</style>

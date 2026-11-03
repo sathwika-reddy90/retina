@@ -8,6 +8,7 @@ import {
   emails,
   phones,
   social,
+  whatsappUrl,
   footerCompany,
   footerProducts,
   footerExplore,
@@ -19,6 +20,21 @@ const tel = (p: string) => `tel:${p.replace(/-/g, '')}`;
 
 <footer class="footer">
   <div class="container">
+    <!-- Quick actions and verified credentials -->
+    <div class="footer__band">
+      <ul role="list" class="footer__actions">
+        <li><a href="/find-a-store-near-you/"><Icon name="map-pin" /><span><strong>Find a Store</strong>Visit a Retina store near you</span></a></li>
+        <li><button type="button" data-open-dialog="dialog-advice"><Icon name="sparkles" /><span><strong>Expert Advice</strong>Help choosing the right paint</span></button></li>
+        <li><a href={whatsappUrl} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" /><span><strong>Chat on WhatsApp</strong>Opens in a new tab</span></a></li>
+        <li><a href="/franchise/"><Icon name="store" /><span><strong>Own a Franchise</strong>Grow with Retina Paints</span></a></li>
+      </ul>
+      <ul role="list" class="footer__creds" aria-label="Credentials">
+        <li><Icon name="certificate" /> ISO 9001:2015 certified</li>
+        <li><Icon name="trending-up" /> Listed on BSE SME</li>
+        <li><Icon name="badge-check" /> Logo registered under the Trademarks Act</li>
+      </ul>
+    </div>
+
     <div class="footer__top">
       <div class="footer__brand">
         <a href="/" aria-label="Retina Paints Limited — home">
@@ -88,6 +104,16 @@ const tel = (p: string) => `tel:${p.replace(/-/g, '')}`;
     height: 4px;
     background: linear-gradient(90deg, var(--orange-500) 0 22%, var(--orange-300) 22% 30%, var(--orange-100) 30% 36%, transparent 36%);
   }
+  .footer__band { display: grid; gap: var(--s-5); margin-bottom: clamp(2.5rem, 2rem + 2vw, 3.5rem); padding-bottom: clamp(2rem, 1.5rem + 1.5vw, 3rem); border-bottom: 1px solid var(--line-strong); }
+  .footer__actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-3); }
+  .footer__actions a, .footer__actions button { display: flex; align-items: center; gap: var(--s-3); width: 100%; height: 100%; padding: var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--white); color: var(--ink-soft); font: inherit; font-size: 0.8125rem; line-height: 1.35; text-align: left; text-decoration: none; cursor: pointer; transition: border-color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast); }
+  .footer__actions a:hover, .footer__actions button:hover { border-color: var(--orange-300); box-shadow: var(--shadow-sm); transform: translateY(-2px); }
+  .footer__actions :global(.icon) { flex: none; width: 2.5rem; height: 2.5rem; padding: 0.6rem; border-radius: 12px; background: var(--orange-100); color: var(--orange-700); }
+  .footer__actions span { display: grid; gap: 0.1rem; }
+  .footer__actions strong { font-family: var(--font-display); font-size: 0.9375rem; color: var(--ink-deep); }
+  .footer__creds { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2) var(--s-6); font-size: 0.8125rem; font-weight: 600; color: var(--ink-soft); }
+  .footer__creds li { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .footer__creds :global(.icon) { width: 1.05rem; height: 1.05rem; color: var(--orange-600); }
   .footer__top {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.6fr) minmax(0, 1fr);
@@ -152,10 +178,13 @@ const tel = (p: string) => `tel:${p.replace(/-/g, '')}`;
   .footer__social a:hover { background: var(--orange-500); border-color: var(--orange-500); color: var(--ink-deep); }
 
   @media (max-width: 1080px) {
+    .footer__actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .footer__top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
     .footer__cols { grid-column: 1 / -1; grid-row: 2; }
   }
   @media (max-width: 680px) {
+    .footer__actions { grid-template-columns: minmax(0, 1fr); }
+    .footer__creds { justify-content: flex-start; }
     .footer__top { grid-template-columns: minmax(0, 1fr); }
     .footer__cols { grid-row: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .footer__cols > div:last-child { grid-column: 1 / -1; }
