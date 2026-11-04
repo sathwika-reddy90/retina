@@ -14,7 +14,9 @@ import limewash from '@/assets/banners/limewash-interior.jpg';
 import painting from '@/assets/banners/painting-wall.jpg';
 
 const p = (slug: string) => productBySlug(slug)!;
-const range = ['x-gen', 'expo-ultimax', 'expo-advanced', 'eco-damp', 'weather-expert'].map(p);
+// Display order, left to right: Weather Expert leads from the exact centre, two packs either side.
+const range = ['x-gen', 'expo-ultimax', 'weather-expert', 'expo-advanced', 'eco-damp'].map(p);
+const leadPack = 2;
 const exteriors = ['expo-ultimax', 'weather-expert', 'expo-advanced'].map(p);
 const weatherExpert = p('weather-expert');
 const finishes = [p('royal-vogue'), p('texture')];
@@ -29,7 +31,7 @@ const sizes = '100vw';
 
 <section class="hero" aria-roledescription="carousel" aria-label="Retina Paints highlights" data-slideshow data-interval="6500">
   <div class="hero__slides">
-    <!-- 1 · Premium modern living: the full range on an orange base -->
+    <!-- 1 · Premium modern living: Weather Expert centred in the full range on an orange base -->
     <article class="hslide hslide--living is-active" data-slide data-title="The Power of Colour" aria-roledescription="slide" aria-label="1 of 5">
       <Image src={modernLiving} alt="A contemporary living room with a navy accent wall, warm pendant lights and a blue sofa" widths={[960, 1440, 1920]} sizes={sizes} class="hslide__bg" loading="eager" fetchpriority="high" />
       <svg class="hslide__wave" viewBox="0 0 1440 300" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 74C300 6 820 -6 1440 46V300H0Z" /></svg>
@@ -46,7 +48,13 @@ const sizes = '100vw';
         <li><Icon name="shield" /> Up to 8 Years <br />Warranty</li>
       </ul>
       <div class="hslide__packs">
-        {range.map((r, i) => <Image src={r.image} alt={i === 2 ? 'Retina Paints products: X-Gen+, Expo Ultimax, Expo Advanced, Eco Damp and Weather Expert' : ''} widths={[200, 360]} sizes="(max-width: 760px) 22vw, 220px" class:list={['hslide__pack', i === 2 && 'hslide__pack--lead']} loading="eager" />)}
+        {range.map((r, i) => (
+          <span class:list={['hslide__pack', i === leadPack && 'hslide__pack--lead']}>
+            {i === leadPack
+              ? <Image src={r.image} alt="Retina Weather Expert, shown with X-Gen+, Expo Ultimax, Expo Advanced and Eco Damp" widths={[240, 360, 500]} sizes="(max-width: 560px) 54vw, 360px" loading="eager" />
+              : <Image src={r.image} alt="" widths={[120, 200, 360]} sizes="(max-width: 560px) 26vw, 220px" loading="eager" />}
+          </span>
+        ))}
       </div>
     </article>
 
@@ -172,17 +180,34 @@ const sizes = '100vw';
   .hslide__text { max-width: 32rem; font-size: var(--fs-lead); line-height: 1.6; color: rgb(255 248 240 / 0.88); }
   .hslide__copy :global(.btn) { margin-top: var(--s-2); }
 
-  /* 1 · Living: orange curved base with the range of packs */
-  .hslide--living { --tone: 24 16 12; }
+  /* 1 · Living: orange curved base, Weather Expert centred in the range of packs.
+     Every pack is the same 500×522 canvas: the bucket fills 80.3% of its height, starts
+     10.7% from the top, ends 9% from the bottom and sits 1.3% left of centre. The margins
+     and offsets below cancel that padding, so sizes and gaps are those of the buckets. */
+  .hslide--living {
+    --tone: 24 16 12;
+    --packs-room: calc(var(--side) + 9.5rem); /* each end of the row clears the features */
+    --packs-h: min(calc(var(--hero-h) * 0.42), calc((100vw - 2 * var(--packs-room)) / 2.9), 23rem); /* the lead's canvas */
+    --pack-s: calc(var(--packs-h) / 1.65); /* the four flanking packs */
+    --packs-gap: calc(var(--packs-h) * 0.05);
+    --packs-lift: calc(var(--packs-h) * 0.035); /* flanking packs stand further back, so slightly higher */
+    --packs-base: calc(var(--overlap) + 4rem); /* floor line of the lead, above the slide dots */
+    --packs-clear: calc(var(--packs-base) + var(--packs-lift) + var(--pack-s) * 0.803 + 1rem); /* room kept under the copy */
+  }
   .hslide--living :global(.hslide__bg) { object-position: 70% 40%; }
-  .hslide--living .hslide__inner { align-content: start; padding-top: clamp(2.5rem, 1rem + 5vh, 5.5rem); padding-bottom: calc(var(--hero-h) * 0.36); }
-  .hslide__wave { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; width: 100%; height: 32%; fill: var(--orange-500); }
-  .hslide__features { position: absolute; left: var(--side); bottom: calc(var(--overlap) + 2.75rem); z-index: 3; display: flex; gap: clamp(1.5rem, 1rem + 3vw, 4.5rem); margin: 0; padding: 0; list-style: none; }
-  .hslide__features li { display: grid; justify-items: center; gap: 0.5rem; font-family: var(--font-display); font-size: clamp(1rem, 0.85rem + 0.5vw, 1.375rem); font-weight: 800; line-height: 1.2; text-align: center; color: var(--white); }
-  .hslide__features :global(.icon) { width: 2.75rem; height: 2.75rem; stroke-width: 1.4; }
-  .hslide__packs { --packs-h: clamp(9rem, 4rem + 12vw, 18rem); position: absolute; right: var(--side); bottom: calc(var(--overlap) + 3.5rem); z-index: 3; display: flex; align-items: flex-end; width: max-content; filter: drop-shadow(0 22px 22px rgb(60 25 5 / 0.35)); }
-  .hslide__packs :global(.hslide__pack) { width: auto; height: calc(var(--packs-h) * 0.66); margin-inline: calc(var(--packs-h) * -0.05); }
-  .hslide__packs :global(.hslide__pack--lead) { position: relative; z-index: 1; height: var(--packs-h); }
+  .hslide--living .hslide__inner { align-content: start; padding-top: clamp(2.5rem, 1rem + 5vh, 5.5rem); padding-bottom: var(--packs-clear); }
+  .hslide__wave { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; width: 100%; height: 35%; fill: var(--orange-500); }
+  /* The two features bracket the packs at either end of the wave, high enough to clear the WhatsApp button. */
+  .hslide__features { position: absolute; left: var(--side); right: var(--side); bottom: calc(var(--packs-base) + 1.5rem); z-index: 3; display: flex; justify-content: space-between; margin: 0; padding: 0; list-style: none; }
+  .hslide__features li { display: grid; justify-items: center; gap: 0.35rem; font-family: var(--font-display); font-size: clamp(0.95rem, 0.8rem + 0.4vw, 1.2rem); font-weight: 800; line-height: 1.2; text-align: center; color: var(--white); }
+  .hslide__features :global(.icon) { width: 2.25rem; height: 2.25rem; stroke-width: 1.4; }
+  .hslide__packs { position: absolute; left: 50%; bottom: var(--packs-base); z-index: 3; display: flex; align-items: flex-end; width: max-content; translate: -50% 0; }
+  .hslide__pack { --h: var(--pack-s); position: relative; isolation: isolate; flex: none; height: var(--h); aspect-ratio: 500 / 522; margin-inline: calc(var(--h) * -0.0875 + var(--packs-gap) / 2); margin-bottom: calc(var(--h) * -0.09 + var(--packs-lift)); translate: 1.3% 0; }
+  .hslide__pack--lead { --h: var(--packs-h); z-index: 1; margin-block: calc(var(--h) * -0.107) calc(var(--h) * -0.09); }
+  .hslide__pack :global(img) { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 8px rgb(60 25 5 / 0.2)); }
+  .hslide__pack--lead :global(img) { filter: drop-shadow(0 14px 18px rgb(60 25 5 / 0.3)); }
+  /* Contact shadow on the floor line */
+  .hslide__pack::after { content: ''; position: absolute; z-index: -1; left: 8%; width: 80%; bottom: 5.5%; height: 7%; border-radius: 50%; background: radial-gradient(closest-side, rgb(84 36 4 / 0.6), rgb(84 36 4 / 0)); }
 
   /* 2 · Villa: navy tone, exterior packs and a feature note */
   .hslide--villa { --tone: 10 20 46; }
@@ -255,7 +280,8 @@ const sizes = '100vw';
     .hslide.is-active .hslide__copy > :nth-child(2) { animation-delay: 100ms; }
     .hslide.is-active .hslide__copy > :nth-child(3) { animation-delay: 240ms; }
     .hslide.is-active .hslide__copy > :nth-child(4) { animation-delay: 380ms; }
-    .hslide.is-active :is(.hslide__packs, .hslide__exterior, .hslide__swatches, .hslide__products, .hslide__badges) { animation: hero-slide 900ms var(--ease-out) 420ms both; }
+    .hslide.is-active :is(.hslide__exterior, .hslide__swatches, .hslide__products, .hslide__badges) { animation: hero-slide 900ms var(--ease-out) 420ms both; }
+    .hslide.is-active .hslide__packs { animation: hero-rise 800ms var(--ease-out) 420ms both; }
     .hslide.is-active .hslide__features { animation: hero-rise 800ms var(--ease-out) 500ms both; }
   }
   @media (prefers-reduced-motion: reduce) { .hslide, .hslide.is-active { transition: none; } }
@@ -266,13 +292,27 @@ const sizes = '100vw';
   /* Laptops */
   @media (max-width: 1440px) {
     .hslide__copy { max-width: 34rem; }
-    .hslide__packs { --packs-h: clamp(9rem, 1rem + 11vw, 15rem); }
   }
   @media (max-width: 1180px) {
     .hslide__features { display: none; }
-    .hslide__packs { --packs-h: clamp(8rem, 2rem + 13vw, 14rem); }
+    .hslide--living { --packs-room: var(--gutter); --packs-clear: calc(var(--packs-base) + var(--packs-h) * 0.803 + 1rem); }
+    /* The wider headline runs past the side scrim: shade from the top instead. */
+    .hslide--living::before { background: linear-gradient(180deg, rgb(var(--tone) / 0.84) 0%, rgb(var(--tone) / 0.62) 42%, rgb(var(--tone) / 0) 68%); }
     .hslide__badges li:nth-child(2) { display: none; }
   }
+  /* Above phones the copy shares the slide with the row: keep the paragraph left of the lead,
+     and on short or narrow screens set the headline wider and smaller so the packs have room. */
+  @media (min-width: 761px) {
+    .hslide--living .hslide__title { font-size: min(clamp(2.4rem, 1.2rem + 3.5vw, 4.5rem), 8vh); }
+  }
+  @media (min-width: 1181px) {
+    .hslide--living .hslide__text { max-width: min(32rem, max(22rem, calc(50vw - var(--side) - var(--packs-h) * 0.4 - 1rem))); }
+  }
+  @media (min-width: 761px) and (max-height: 820px), (min-width: 761px) and (max-width: 1180px) {
+    .hslide--living .hslide__copy { max-width: 46rem; }
+    .hslide--living .hslide__title { font-size: min(clamp(2.4rem, 1.2rem + 3.5vw, 4.5rem), 7vh); }
+  }
+
   /* Tablets: secondary accents give way to the copy */
   @media (max-width: 1024px) {
     .hslide__products, .hslide__note { display: none; }
@@ -292,7 +332,8 @@ const sizes = '100vw';
     .hslide__text { font-size: 1rem; }
     .hslide--living :global(.hslide__bg) { object-position: 78% 50%; }
     .hslide__wave { height: 24%; }
-    .hslide__packs { --packs-h: clamp(6.25rem, 2rem + 21vw, 10rem); left: 50%; right: auto; bottom: calc(var(--overlap) + 4rem); transform: translateX(-50%); }
+    .hslide--living { --packs-base: calc(var(--overlap) + 4.5rem); }
+    .hslide--living .hslide__inner { padding-bottom: var(--packs-clear); }
     .hslide__exterior { left: 50%; right: auto; bottom: calc(var(--overlap) + 4rem); transform: translateX(-50%); justify-items: center; }
     .hslide__swatches { left: var(--gutter); right: var(--gutter); bottom: calc(var(--overlap) + 4.25rem); }
     .hslide__swatches ul { justify-content: space-between; gap: var(--s-2); }
@@ -312,8 +353,21 @@ const sizes = '100vw';
     .hero__controls { left: calc(var(--gutter) + 6.75rem); bottom: calc(var(--overlap) + 1.1rem); transform: none; }
     .hero__dots :global(.slideshow-dot) { width: 1.5rem; height: 1.5rem; }
     @media (prefers-reduced-motion: no-preference) {
-      .hslide.is-active :is(.hslide__packs, .hslide__exterior) { animation-name: hero-rise-centred; }
+      .hslide.is-active .hslide__exterior { animation-name: hero-rise-centred; }
     }
+  }
+
+  /* Small phones: five in a row would be illegible, and a sideways scroller would fight the
+     swipe between slides. Weather Expert stays centre with a stack of two on either side. */
+  @media (max-width: 560px) {
+    .hslide--living { --packs-h: min(54vw, 15rem); --pack-s: calc(var(--packs-h) * 0.48); --packs-gap: calc(var(--packs-h) * 0.04); --packs-lift: 0px; }
+    .hslide__packs { display: grid; grid-template-columns: repeat(3, auto); align-items: end; }
+    .hslide__pack { margin-block: calc(var(--h) * -0.107 + var(--packs-gap) / 4) calc(var(--h) * -0.09 + var(--packs-gap) / 4); }
+    .hslide__pack--lead { grid-area: 1 / 2 / 3 / 3; margin-block: calc(var(--h) * -0.107) calc(var(--h) * -0.09); }
+    .hslide__pack:nth-child(1) { grid-area: 1 / 1; }
+    .hslide__pack:nth-child(2) { grid-area: 2 / 1; }
+    .hslide__pack:nth-child(4) { grid-area: 1 / 3; }
+    .hslide__pack:nth-child(5) { grid-area: 2 / 3; }
   }
   @keyframes hero-rise-centred { from { opacity: 0; transform: translate(-50%, 22px); } to { transform: translateX(-50%); } }
 </style>
