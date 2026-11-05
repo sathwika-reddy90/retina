@@ -69,7 +69,7 @@ const groups = [
 </section>
 
 <style>
-  .beyond__title { margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem); text-align: center; font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.75rem); font-weight: 750; letter-spacing: var(--tracking-display); }
+  .beyond__title { margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem); text-align: center; font-size: var(--fs-h2); font-weight: 600; line-height: var(--lh-tight); letter-spacing: var(--tracking-display); }
   .beyond__groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(2rem, 1rem + 3vw, 4.5rem); }
   .bgroup {
     display: grid;
@@ -79,7 +79,7 @@ const groups = [
     gap: var(--s-3);
   }
   .bgroup__head { grid-area: head; display: grid; justify-items: start; align-content: start; gap: var(--s-4); padding-bottom: var(--s-3); }
-  .bgroup__title { font-size: clamp(2.75rem, 1.8rem + 3vw, 4.5rem); font-weight: 300; letter-spacing: var(--tracking-display); line-height: 1; }
+  .bgroup__title { font-size: var(--fs-h2); font-weight: 400; letter-spacing: var(--tracking-display); line-height: 1; }
   .btile { position: relative; overflow: hidden; border-radius: var(--r-md); background: var(--sand); isolation: isolate; color: var(--white); text-decoration: none; }
   .btile--a { grid-area: a; }
   .btile--b { grid-area: b; }
@@ -92,13 +92,12 @@ const groups = [
   .btile--pack::after { display: none; }
   .btile :global(.btile__pack) { flex: 1 1 0; min-height: 0; width: auto; max-height: 78%; object-fit: contain; filter: drop-shadow(0 14px 16px rgb(40 20 6 / 0.25)); transition: transform 500ms var(--ease-out); }
   .btile:hover :global(.btile__pack) { transform: translateY(-5px) rotate(-2deg); }
-  .btile__label { position: absolute; left: var(--s-3); bottom: var(--s-3); right: var(--s-3); z-index: 1; display: flex; align-items: center; gap: 0.35rem; font-family: var(--font-display); font-size: 0.875rem; font-weight: 700; line-height: 1.25; }
+  .btile__label { position: absolute; left: var(--s-3); bottom: var(--s-3); right: var(--s-3); z-index: 1; display: flex; align-items: center; gap: 0.35rem; font-family: var(--font-display); font-size: var(--fs-ui); font-weight: 600; line-height: 1.25; }
   .btile--pack .btile__label { position: static; justify-content: center; }
   .btile__label :global(.icon) { flex: none; width: 0.95rem; height: 0.95rem; opacity: 0.85; }
   .btile:focus-visible { outline: 3px solid var(--ink-deep); outline-offset: 3px; }
   @media (max-width: 960px) { .beyond__groups { grid-template-columns: minmax(0, 1fr); } }
   @media (max-width: 480px) {
     .bgroup { grid-template-rows: auto repeat(3, 8rem); }
-    .bgroup__title { font-size: 2.5rem; }
   }
 </style>

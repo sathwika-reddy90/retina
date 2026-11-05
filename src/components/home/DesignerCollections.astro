@@ -66,7 +66,7 @@ const collections = [
 <style>
   .designer { background: #f3ede4; }
   .designer__head { display: flex; align-items: end; justify-content: space-between; gap: var(--s-5); margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem); }
-  .designer__title { font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.75rem); font-weight: 750; letter-spacing: var(--tracking-display); line-height: 1.05; }
+  .designer__title { font-size: var(--fs-h2); font-weight: 600; letter-spacing: var(--tracking-display); line-height: var(--lh-tight); }
   .designer__track { gap: clamp(1.5rem, 1rem + 2vw, 3rem); margin: 0; padding: 1.5rem 0 0.5rem; list-style: none; }
   .dcard { position: relative; display: grid; justify-items: center; gap: var(--s-3); width: clamp(16rem, 13rem + 6vw, 19rem); text-align: center; }
   .dcard__stack { position: relative; width: 82%; aspect-ratio: 4 / 5; margin-bottom: var(--s-4); }
@@ -96,10 +96,10 @@ const collections = [
   .dcard:hover .dcard__sheet { transform: rotate(-11deg) translate(-14%, 1%); }
   .dcard:hover :global(.dcard__photo) { transform: rotate(0deg) translateY(-6px); }
   .dcard__name { font-size: clamp(1.5rem, 1.25rem + 0.8vw, 1.875rem); font-weight: 400; letter-spacing: var(--tracking-heading); }
-  .dcard__text { max-width: 17rem; font-size: 0.9375rem; line-height: 1.5; color: var(--ink-soft); }
+  .dcard__text { max-width: 17rem; font-size: var(--fs-small); line-height: 1.5; color: var(--ink-soft); }
   .dcard__swatches { display: flex; gap: 0.35rem; margin: var(--s-1) 0 0; padding: 0; list-style: none; }
   .dcard__swatches li { width: 1.5rem; height: 1.5rem; border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); }
-  .dcard__link { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: var(--s-2); font-family: var(--font-display); font-weight: 700; color: var(--ink-deep); text-decoration: none; }
+  .dcard__link { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: var(--s-2); font-family: var(--font-display); font-weight: 600; color: var(--ink-deep); text-decoration: none; }
   .dcard__link::after { content: ''; position: absolute; inset: 0; }
   .dcard__link :global(.icon) { width: 1.05rem; height: 1.05rem; color: var(--orange-600); transition: transform var(--t-base) var(--ease-out); }
   .dcard:hover .dcard__link :global(.icon) { transform: translateX(4px); }

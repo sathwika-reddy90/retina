@@ -209,7 +209,7 @@ const servicesNav: { label: string; href?: string; dialog?: string }[] = [
   .utility {
     background: var(--cream);
     border-bottom: 1px solid var(--line);
-    font-size: 0.8125rem;
+    font-size: var(--fs-label);
     color: var(--ink-soft);
   }
   .utility__inner { display: flex; align-items: center; justify-content: space-between; gap: var(--s-5); min-height: 38px; }
@@ -250,8 +250,8 @@ const servicesNav: { label: string; href?: string; dialog?: string }[] = [
     border-radius: var(--r-pill);
     background: none;
     font-family: var(--font-display);
-    font-size: 0.975rem;
-    font-weight: 600;
+    font-size: var(--fs-small);
+    font-weight: 500;
     color: var(--ink-deep);
     text-decoration: none;
     transition: color 220ms var(--ease-out);
@@ -303,7 +303,7 @@ const servicesNav: { label: string; href?: string; dialog?: string }[] = [
     display: block;
     padding: 0.65rem 0.9rem;
     border-radius: var(--r-sm);
-    font-size: 0.95rem;
+    font-size: var(--fs-small);
     font-weight: 500;
     text-decoration: none;
     color: var(--ink);
@@ -332,8 +332,8 @@ const servicesNav: { label: string; href?: string; dialog?: string }[] = [
     display: inline-block;
     font-family: var(--font-display);
     font-size: var(--fs-label);
-    font-weight: 700;
-    letter-spacing: 0.1em;
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     color: var(--ink-soft);
     text-decoration: none;
@@ -343,7 +343,7 @@ const servicesNav: { label: string; href?: string; dialog?: string }[] = [
   .mega__group li a {
     display: inline-block;
     padding: 0.3rem 0;
-    font-size: 0.975rem;
+    font-size: var(--fs-small);
     font-weight: 500;
     color: var(--ink-deep);
     text-decoration: none;
@@ -371,8 +371,8 @@ const servicesNav: { label: string; href?: string; dialog?: string }[] = [
   .mega__feature-media :global(img) { width: 100%; height: auto; filter: drop-shadow(0 16px 18px rgb(80 40 10 / 0.22)); transition: transform var(--t-slow) var(--ease-out); }
   .mega__feature:hover .mega__feature-media :global(img) { transform: translateY(-4px) rotate(-2deg); }
   .mega__feature-body { display: grid; gap: 0.5rem; justify-items: start; }
-  .mega__feature-title { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; color: var(--ink-deep); letter-spacing: -0.01em; }
-  .mega__feature-text { font-size: 0.875rem; line-height: 1.5; color: var(--ink-soft); }
+  .mega__feature-title { font-family: var(--font-display); font-weight: 600; font-size: 1.25rem; color: var(--ink-deep); letter-spacing: -0.01em; }
+  .mega__feature-text { font-size: var(--fs-ui); line-height: 1.5; color: var(--ink-soft); }
   .mega__foot {
     grid-column: 1 / -1;
     display: flex;
@@ -389,7 +389,7 @@ const servicesNav: { label: string; href?: string; dialog?: string }[] = [
     border: 0;
     background: none;
     padding: 0.25rem 0;
-    font-size: 0.925rem;
+    font-size: var(--fs-small);
     color: var(--ink-soft);
   }
   .mega__advice strong { color: var(--orange-700); font-weight: 600; text-decoration: underline; text-underline-offset: 0.2em; }
@@ -399,7 +399,7 @@ const servicesNav: { label: string; href?: string; dialog?: string }[] = [
   .mega__intro { display: grid; gap: var(--s-3); align-content: start; padding-right: var(--s-5); border-right: 1px solid var(--line); }
   .mega__intro-title { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; line-height: 1.35; color: var(--ink-deep); }
   .mega__cols--5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .mega--investors .mega__group li a { font-size: 0.9rem; line-height: 1.4; }
+  .mega--investors .mega__group li a { font-size: var(--fs-ui); line-height: 1.4; }
 
   .site-header__actions { display: flex; align-items: center; gap: var(--s-2); margin-left: auto; }
   .nav + .site-header__actions { margin-left: 0; }
@@ -425,7 +425,7 @@ const servicesNav: { label: string; href?: string; dialog?: string }[] = [
   /* Narrow desktops: tighter links so all seven items and the CTA stay on one line. */
   @media (min-width: 1181px) and (max-width: 1320px) {
     .site-header__inner { gap: var(--s-4); }
-    .nav__link { padding-inline: 0.6rem; font-size: 0.9375rem; }
+    .nav__link { padding-inline: 0.6rem; font-size: var(--fs-small); }
   }
   @media (max-width: 1180px) {
     .nav { display: none; }
@@ -486,7 +486,7 @@ const servicesNav: { label: string; href?: string; dialog?: string }[] = [
   .drawer__nav details li a, .drawer__btn { display: block; padding: 0.55rem 0; color: var(--ink); text-decoration: none; }
   .drawer__btn { width: 100%; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
   .drawer__group { padding-top: var(--s-2); }
-  .drawer__group-title { display: block; font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); text-decoration: none; padding: 0.4rem 0 0.1rem; }
+  .drawer__group-title { font-family: var(--font-display); display: block; font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); text-decoration: none; padding: 0.4rem 0 0.1rem; }
   .drawer__group ul { padding: 0 0 0 0.75rem !important; border-left: 2px solid var(--orange-100); }
   .drawer__foot { display: grid; gap: var(--s-3); padding: var(--s-5); border-top: 1px solid var(--line); }
 </style>

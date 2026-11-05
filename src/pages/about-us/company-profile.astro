@@ -55,17 +55,17 @@ const [lead, ...rest] = companyProfile.paragraphs;
   .profile__lead { font-family: var(--font-display); font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.85rem); font-weight: 500; line-height: 1.4; letter-spacing: -0.015em; color: var(--ink-deep); }
   .profile__text { color: var(--ink-soft); }
   .profile__highlights { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: var(--s-6) 0 0; list-style: none; border-top: 1px solid var(--line); }
-  .profile__highlights li { display: grid; gap: var(--s-3); font-size: 0.95rem; color: var(--ink); }
+  .profile__highlights li { display: grid; gap: var(--s-3); font-size: var(--fs-small); color: var(--ink); }
   .profile__highlights :global(.icon) { width: 1.75rem; height: 1.75rem; color: var(--orange-600); }
   .facts { position: sticky; top: calc(var(--header-h) + 5rem); display: grid; gap: var(--s-5); padding: var(--s-5); border-radius: var(--r-xl); background: var(--cream); border: 1px solid var(--line); }
   .facts :global(.facts__img) { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--r-lg); }
   .facts dl { display: grid; margin: 0; }
   .facts dl div { display: grid; gap: 0.2rem; padding: var(--s-4) 0; border-top: 1px solid var(--line-strong); }
   .facts dl div:first-child { border-top: 0; padding-top: 0; }
-  .facts dt { font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
-  .facts dd { margin: 0; font-size: 0.95rem; color: var(--ink-deep); overflow-wrap: anywhere; }
+  .facts dt { font-family: var(--font-display); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .facts dd { margin: 0; font-size: var(--fs-small); color: var(--ink-deep); overflow-wrap: anywhere; }
   .facts__doc { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); padding-top: var(--s-4); border-top: 1px solid var(--line-strong); }
-  .facts__doc-title { font-family: var(--font-display); font-weight: 700; color: var(--ink-deep); }
+  .facts__doc-title { font-family: var(--font-display); font-weight: 600; color: var(--ink-deep); }
   @media (max-width: 960px) {
     .profile { grid-template-columns: minmax(0, 1fr); }
     .facts { position: static; }

@@ -54,16 +54,16 @@ const slug = (n: string) => n.toLowerCase().replace(/[^a-z]+/g, '-');
   .director { display: grid; gap: var(--s-3); align-content: start; padding: var(--s-6); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--white); }
   .director__head { display: flex; gap: var(--s-4); align-items: center; padding-bottom: var(--s-4); border-bottom: 1px solid var(--line); }
   .director__head :global(.director__photo), .director__mono { flex: none; width: 4rem; height: 4rem; border-radius: 50%; object-fit: cover; }
-  .director__mono { display: grid; place-items: center; background: var(--orange-100); color: var(--orange-800); font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; }
-  .director__role { font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-text); margin-top: 0.2rem; }
+  .director__mono { display: grid; place-items: center; background: var(--orange-100); color: var(--orange-800); font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; }
+  .director__role { font-family: var(--font-display); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-text); margin-top: 0.2rem; }
   .director__qual { font-weight: 600; color: var(--ink-deep); }
-  .director__exp { font-size: 0.95rem; color: var(--ink-soft); }
-  .director__more { justify-self: start; display: inline-flex; align-items: center; gap: 0.45rem; margin-top: var(--s-2); padding: 0; border: 0; background: none; font-family: var(--font-display); font-weight: 700; font-size: 0.925rem; color: var(--ink-deep); }
+  .director__exp { font-size: var(--fs-small); color: var(--ink-soft); }
+  .director__more { justify-self: start; display: inline-flex; align-items: center; gap: 0.45rem; margin-top: var(--s-2); padding: 0; border: 0; background: none; font-family: var(--font-display); font-weight: 600; font-size: var(--fs-small); color: var(--ink-deep); }
   .director__more :global(.icon) { width: 1rem; height: 1rem; color: var(--orange-600); transition: transform var(--t-base); }
   .director__more:hover { color: var(--orange-700); }
   .director__more:hover :global(.icon) { transform: translateX(3px); }
   @media (max-width: 760px) { .board { grid-template-columns: minmax(0, 1fr); } }
-  .dir-table th, .dir-table td { padding: 0.7rem 0.75rem; text-align: left; border-bottom: 1px solid var(--line); font-size: 0.95rem; }
-  .dir-table th { font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); background: var(--cream); }
+  .dir-table th, .dir-table td { padding: 0.7rem 0.75rem; text-align: left; border-bottom: 1px solid var(--line); font-size: var(--fs-small); }
+  .dir-table th { font-family: var(--font-display); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); background: var(--cream); }
   .dir-table td:first-child { color: var(--ink-mute); width: 2.5rem; }
 </style>

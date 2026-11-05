@@ -66,20 +66,20 @@ const ld = {
   .jhead { padding-block: clamp(2rem, 1.5rem + 2vw, 3.5rem); background: var(--cream); border-bottom: 1px solid var(--line); }
   .jhead .container { display: grid; gap: var(--s-4); justify-items: start; }
   .jhead__meta { display: flex; flex-wrap: wrap; gap: var(--s-2); margin: var(--s-2) 0 0; padding: 0; list-style: none; }
-  .jhead__meta li { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.8rem; border-radius: var(--r-pill); background: var(--white); border: 1px solid var(--line); font-size: 0.875rem; color: var(--ink-soft); }
+  .jhead__meta li { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.8rem; border-radius: var(--r-pill); background: var(--white); border: 1px solid var(--line); font-size: var(--fs-ui); color: var(--ink-soft); }
   .jhead__meta :global(.icon) { width: 1rem; height: 1rem; color: var(--orange-600); }
   .jgrid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: start; }
   .jbody { color: var(--ink); }
   .jbody :global(p:has(> strong:only-child)) { margin-top: 1.6em; }
   .japply { position: sticky; top: calc(var(--header-h) + 1.5rem); display: grid; gap: var(--s-5); }
-  .jlabel { margin-bottom: var(--s-3); font-size: var(--fs-label); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-soft); }
+  .jlabel { font-family: var(--font-display); margin-bottom: var(--s-3); font-size: var(--fs-label); font-weight: 600; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-soft); }
   .jfeatures { padding: var(--s-5); border-radius: var(--r-md); background: var(--cream); }
   .jfeatures dl { margin: 0; display: grid; }
-  .jfeatures dl div { display: flex; justify-content: space-between; gap: var(--s-4); padding: 0.55rem 0; border-top: 1px solid var(--line-strong); font-size: 0.95rem; }
+  .jfeatures dl div { display: flex; justify-content: space-between; gap: var(--s-4); padding: 0.55rem 0; border-top: 1px solid var(--line-strong); font-size: var(--fs-small); }
   .jfeatures dt { color: var(--ink-soft); }
   .jfeatures dd { margin: 0; font-weight: 600; color: var(--ink-deep); }
   .japply__card { display: grid; gap: var(--s-5); padding: clamp(1.25rem, 1rem + 1.5vw, 2rem); border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--white); box-shadow: var(--shadow-md); }
-  .japply__alt { font-size: 0.875rem; color: var(--ink-soft); }
+  .japply__alt { font-size: var(--fs-ui); color: var(--ink-soft); }
   .japply__alt a { color: var(--orange-700); }
   @media (max-width: 960px) { .jgrid { grid-template-columns: minmax(0, 1fr); } .japply { position: static; } }
 </style>

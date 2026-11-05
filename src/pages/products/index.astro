@@ -119,14 +119,14 @@ const sections = categories.map((c) => ({ ...c, items: productsIn(c.id) })).filt
     padding: 0.4rem 0.6rem 0.4rem 1rem;
     border: 1px solid var(--line-strong);
     border-radius: var(--r-pill);
-    font-size: 0.875rem;
+    font-size: var(--fs-ui);
     font-weight: 600;
     color: var(--ink-soft);
     white-space: nowrap;
     text-decoration: none;
     transition: all var(--t-fast);
   }
-  .catbar__list a span { display: grid; place-items: center; min-width: 1.5rem; height: 1.5rem; padding: 0 0.35rem; border-radius: var(--r-pill); background: var(--cream); font-size: 0.75rem; color: var(--ink-soft); }
+  .catbar__list a span { display: grid; place-items: center; min-width: 1.5rem; height: 1.5rem; padding: 0 0.35rem; border-radius: var(--r-pill); background: var(--cream); font-size: var(--fs-caption); color: var(--ink-soft); }
   .catbar__list a:hover { color: var(--ink-deep); border-color: var(--ink-mute); }
   .catbar__list a[aria-current] { background: var(--ink-deep); border-color: var(--ink-deep); color: var(--white); }
   .catbar__list a[aria-current] span { background: rgb(255 255 255 / 0.18); color: var(--white); }
@@ -138,9 +138,9 @@ const sections = categories.map((c) => ({ ...c, items: productsIn(c.id) })).filt
   .cat__tile { display: grid; place-items: center; background: radial-gradient(70% 70% at 50% 45%, var(--orange-50), var(--orange-100)); }
   .cat__tile :global(img) { width: 46%; height: auto; filter: drop-shadow(0 14px 16px rgb(60 32 12 / 0.2)); }
   .cat__intro-body { display: grid; gap: var(--s-2); }
-  .cat__family { font-size: var(--fs-label); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--accent-text); }
+  .cat__family { font-family: var(--font-display); font-size: var(--fs-label); font-weight: 600; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--accent-text); }
   .cat__tagline { color: var(--ink-soft); }
-  .cat__count { font-size: 0.875rem; color: var(--ink-mute); }
+  .cat__count { font-size: var(--fs-ui); color: var(--ink-mute); }
   .cat__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; }
 
   @media (max-width: 1100px) { .cat__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

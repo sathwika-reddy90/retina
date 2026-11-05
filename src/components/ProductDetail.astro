@@ -189,7 +189,7 @@ const ld = {
     border-radius: var(--r-pill);
     background: var(--white);
     box-shadow: var(--shadow-sm);
-    font-size: 0.875rem;
+    font-size: var(--fs-ui);
     color: var(--ink-soft);
   }
   .pd-stage__warranty strong { color: var(--ink-deep); font-family: var(--font-display); }
@@ -215,7 +215,7 @@ const ld = {
   .specs__head { display: grid; gap: var(--s-4); justify-items: start; position: sticky; top: calc(var(--header-h) + 2rem); }
   .specs__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--grid-gap); margin: 0; }
   .specs__row { display: grid; gap: 0.25rem; padding: var(--s-4) 0; border-top: 1px solid var(--line-strong); }
-  .specs__row dt { font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+  .specs__row dt { font-family: var(--font-display); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
   .specs__row dd { margin: 0; font-family: var(--font-display); font-size: 1.0625rem; font-weight: 600; color: var(--ink-deep); }
   @media (max-width: 860px) {
     .specs__grid { grid-template-columns: minmax(0, 1fr); }
@@ -225,8 +225,8 @@ const ld = {
 
   .prep__list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; counter-reset: prep; }
   .prep__list li { display: grid; gap: var(--s-3); align-content: start; padding: var(--s-6) var(--s-5); border-radius: var(--r-lg); background: var(--white); border: 1px solid var(--line); }
-  .prep__num { font-family: var(--font-display); font-size: 2.25rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: var(--orange-500); }
-  .prep__list p { font-size: 0.95rem; color: var(--ink-soft); }
+  .prep__num { font-family: var(--font-display); font-size: 2.25rem; font-weight: 600; letter-spacing: var(--tracking-display); line-height: 1; color: var(--orange-500); }
+  .prep__list p { font-size: var(--fs-small); color: var(--ink-soft); }
   @media (max-width: 1000px) { .prep__list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 520px) { .prep__list { grid-template-columns: minmax(0, 1fr); } }
 

@@ -30,11 +30,11 @@ import { committees } from '@/data/investors';
   .committee { display: grid; gap: var(--s-3); }
   .committee h2 { padding-bottom: var(--s-2); border-bottom: 2px solid var(--orange-500); justify-self: start; }
   .committee__table { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
-  .committee__table th, .committee__table td { padding: 0.85rem var(--s-5); text-align: left; border-top: 1px solid var(--line); font-size: 0.95rem; }
-  .committee__table thead th { border-top: 0; background: var(--cream); font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .committee__table th, .committee__table td { padding: 0.85rem var(--s-5); text-align: left; border-top: 1px solid var(--line); font-size: var(--fs-small); }
+  .committee__table thead th { font-family: var(--font-display); border-top: 0; background: var(--cream); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
   .committee__table tbody th { font-weight: 600; color: var(--ink-deep); }
   .committee__table td { color: var(--ink-soft); }
-  .role { display: inline-block; padding: 0.15rem 0.6rem; border-radius: var(--r-pill); background: var(--cream); font-size: 0.8125rem; font-weight: 600; color: var(--ink-soft); }
+  .role { display: inline-block; padding: 0.15rem 0.6rem; border-radius: var(--r-pill); background: var(--cream); font-size: var(--fs-label); font-weight: 600; color: var(--ink-soft); }
   .role--chair { background: var(--orange-100); color: var(--orange-800); }
   @media (max-width: 640px) {
     .committee__table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }

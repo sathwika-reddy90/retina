@@ -78,7 +78,7 @@ Every route on the live site is preserved, including legacy slugs: `/products/em
 ## Design system
 
 - **Colour**: white and warm white dominate. `--orange-500` (#F28020, matched to the logo) is used for fills and accents. Text on orange is near-black (#1B1714, 6.4:1). Orange text on white uses `--orange-700` (#AD4C0A, 5.6:1). See `src/styles/tokens.css`.
-- **Type**: Manrope (display and UI) with Inter (body), self-hosted via Fontsource and preloaded. Fluid `clamp()` scale: display 42→76px, H2 30→48px, body 16→17px.
+- **Type**: Manrope throughout, self-hosted via Fontsource and preloaded. Hierarchy comes from weight (450 body, 500 navigation, 600 headings and buttons, 650 hero) and the fluid `clamp()` scale in `src/styles/tokens.css`: display 32→60px, H2 32→52px, body 16→17px, smallest size 12px.
 - **Layout**: 1320px container, fluid gutters, 8px spacing rhythm, 12-column grids.
 - **Motion**: CSS only, with no animation library. All of it is disabled under `prefers-reduced-motion`.
   - **Homepage hero**: a one-time staggered entrance (label → headline → copy → buttons → room → palette), then the paint-stroke highlight drawing in left to right.

@@ -30,7 +30,7 @@ const ld = {
 <script type="application/ld+json" set:html={JSON.stringify(ld)} />
 
 <style>
-  .crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; margin: 0; padding: 0; list-style: none; font-size: 0.875rem; }
+  .crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; margin: 0; padding: 0; list-style: none; font-size: var(--fs-ui); }
   .crumbs li { display: inline-flex; align-items: center; gap: 0.25rem; color: var(--ink-soft); }
   .crumbs :global(.icon) { width: 0.9rem; height: 0.9rem; color: var(--ink-mute); }
   .crumbs a { color: var(--ink-soft); text-decoration: none; }

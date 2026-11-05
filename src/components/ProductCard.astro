@@ -106,17 +106,17 @@ const tags = p.features.slice(0, p.warranty ? 2 : 3);
     transition: transform 300ms var(--ease-out);
   }
   .pcard:hover .pcard__warranty { transform: translateY(-2px) rotate(-3deg); }
-  .pcard__warranty strong { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; }
-  .pcard__warranty span { font-size: 0.625rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.1; }
+  .pcard__warranty strong { font-size: 1.25rem; font-weight: 600; letter-spacing: var(--tracking-display); }
+  .pcard__warranty span { font-family: var(--font-display); font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.1; }
 
   .pcard__body { display: flex; flex-direction: column; gap: 0.6rem; padding: var(--s-5) var(--s-5) var(--s-5); }
-  .pcard__cat { font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-text); }
+  .pcard__cat { font-family: var(--font-display); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-text); }
   .pcard__name { font-size: clamp(1.25rem, 1.15rem + 0.35vw, 1.45rem); line-height: 1.2; letter-spacing: var(--tracking-snug); }
   .pcard__link { text-decoration: none; color: inherit; }
   .pcard__link::after { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
   .pcard__link:focus-visible { outline: none; }
   .pcard__link:focus-visible::after { outline: 2.5px solid var(--focus); outline-offset: -2px; }
-  .pcard__summary { font-size: 0.925rem; line-height: 1.55; color: var(--ink-soft); }
+  .pcard__summary { font-size: var(--fs-small); line-height: 1.55; color: var(--ink-soft); }
   .pcard__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.15rem 0 0; padding: 0; }
   .pcard__foot { margin-top: auto; padding-top: var(--s-3); }
   .pcard__cta {
@@ -124,8 +124,8 @@ const tags = p.features.slice(0, p.warranty ? 2 : 3);
     align-items: center;
     gap: 0.45rem;
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 0.925rem;
+    font-weight: 600;
+    font-size: var(--fs-small);
     color: var(--ink-deep);
   }
   .pcard__cta :global(.icon) { width: 1.05rem; height: 1.05rem; color: var(--orange-600); transition: transform var(--t-base) var(--ease-out); }
@@ -141,8 +141,8 @@ const tags = p.features.slice(0, p.warranty ? 2 : 3);
     border: 0;
     background: none;
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 0.925rem;
+    font-weight: 600;
+    font-size: var(--fs-small);
     color: var(--ink-deep);
     text-align: left;
   }

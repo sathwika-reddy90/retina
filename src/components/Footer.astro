@@ -106,12 +106,12 @@ const tel = (p: string) => `tel:${p.replace(/-/g, '')}`;
   }
   .footer__band { display: grid; gap: var(--s-5); margin-bottom: clamp(2.5rem, 2rem + 2vw, 3.5rem); padding-bottom: clamp(2rem, 1.5rem + 1.5vw, 3rem); border-bottom: 1px solid var(--line-strong); }
   .footer__actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-3); }
-  .footer__actions a, .footer__actions button { display: flex; align-items: center; gap: var(--s-3); width: 100%; height: 100%; padding: var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--white); color: var(--ink-soft); font: inherit; font-size: 0.8125rem; line-height: 1.35; text-align: left; text-decoration: none; cursor: pointer; transition: border-color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast); }
+  .footer__actions a, .footer__actions button { display: flex; align-items: center; gap: var(--s-3); width: 100%; height: 100%; padding: var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--white); color: var(--ink-soft); font: inherit; font-size: var(--fs-label); line-height: 1.35; text-align: left; text-decoration: none; cursor: pointer; transition: border-color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast); }
   .footer__actions a:hover, .footer__actions button:hover { border-color: var(--orange-300); box-shadow: var(--shadow-sm); transform: translateY(-2px); }
   .footer__actions :global(.icon) { flex: none; width: 2.5rem; height: 2.5rem; padding: 0.6rem; border-radius: 12px; background: var(--orange-100); color: var(--orange-700); }
   .footer__actions span { display: grid; gap: 0.1rem; }
-  .footer__actions strong { font-family: var(--font-display); font-size: 0.9375rem; color: var(--ink-deep); }
-  .footer__creds { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2) var(--s-6); font-size: 0.8125rem; font-weight: 600; color: var(--ink-soft); }
+  .footer__actions strong { font-family: var(--font-display); font-size: var(--fs-small); color: var(--ink-deep); }
+  .footer__creds { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2) var(--s-6); font-size: var(--fs-label); font-weight: 600; color: var(--ink-soft); }
   .footer__creds li { display: inline-flex; align-items: center; gap: 0.4rem; }
   .footer__creds :global(.icon) { width: 1.05rem; height: 1.05rem; color: var(--orange-600); }
   .footer__top {
@@ -122,13 +122,14 @@ const tel = (p: string) => `tel:${p.replace(/-/g, '')}`;
   }
   .footer__brand { display: grid; gap: var(--s-5); align-content: start; justify-items: start; }
   .footer__brand :global(img) { height: 58px; width: auto; }
-  .footer__brand p { max-width: 24rem; font-size: 0.95rem; color: var(--ink-soft); }
+  .footer__brand p { max-width: 24rem; font-size: var(--fs-small); color: var(--ink-soft); }
 
   .footer__cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-6); }
   .footer__title {
+    font-family: var(--font-display);
     margin-bottom: var(--s-4);
     font-size: var(--fs-label);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     color: var(--ink-deep);
@@ -136,14 +137,14 @@ const tel = (p: string) => `tel:${p.replace(/-/g, '')}`;
   .footer ul { margin: 0; padding: 0; list-style: none; }
   .footer__cols li + li { margin-top: 0.55rem; }
   .footer__cols a {
-    font-size: 0.95rem;
+    font-size: var(--fs-small);
     color: var(--ink-soft);
     text-decoration: none;
     transition: color var(--t-fast);
   }
   .footer__cols a:hover { color: var(--orange-700); }
 
-  .footer__contact { font-style: normal; font-size: 0.95rem; color: var(--ink-soft); }
+  .footer__contact { font-style: normal; font-size: var(--fs-small); color: var(--ink-soft); }
   .footer__label { font-weight: 600; color: var(--ink-deep); margin-bottom: 0.35rem; }
   .footer__channels { margin-top: var(--s-5) !important; display: grid; gap: 0.6rem; }
   .footer__channels li { display: flex; gap: 0.6rem; align-items: flex-start; }
@@ -160,7 +161,7 @@ const tel = (p: string) => `tel:${p.replace(/-/g, '')}`;
     /* Extra bottom room for the floating WhatsApp button, so it never covers the last line of the page. */
     padding-block: var(--s-5) calc(var(--s-5) + 4.5rem + env(safe-area-inset-bottom, 0px));
     border-top: 1px solid var(--line-strong);
-    font-size: 0.875rem;
+    font-size: var(--fs-ui);
     color: var(--ink-soft);
   }
   .footer__social { display: flex; gap: var(--s-2); }

@@ -40,29 +40,36 @@
   --danger: #b42318;
 
   /* Typography */
-  --font-display: 'Manrope Variable', 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  /* One family for headings and body, as on asianpaints.com (Manrope throughout). */
-  --font-body: 'Manrope Variable', 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Manrope everywhere: hierarchy comes from weight and size, not from a second family. */
+  --font-sans: 'Manrope Variable', 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--font-sans);
+  --font-body: var(--font-sans);
 
-  --fs-display: clamp(2.625rem, 1.55rem + 4.3vw, 4.75rem);  /* 42 → 76 */
+  /* Weights: 450 body, 500 navigation and links, 600 headings, buttons and labels, 650 hero and page titles. */
+  --fw-body: 450;
+  --fw-hero: 650;
+
+  --fs-display: clamp(2rem, 1.35rem + 2.8vw, 3.75rem);       /* 32 → 60: hero */
   --fs-h1: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);          /* 36 → 60 */
-  --fs-h2: clamp(1.875rem, 1.45rem + 1.7vw, 3rem);           /* 30 → 48 */
+  --fs-h2: clamp(2rem, 1.5rem + 2vw, 3.25rem);               /* 32 → 52: every section title */
   --fs-h3: clamp(1.25rem, 1.12rem + 0.5vw, 1.625rem);        /* 20 → 26 */
   --fs-h4: clamp(1.0625rem, 1.02rem + 0.2vw, 1.1875rem);     /* 17 → 19 */
   --fs-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);        /* 17 → 20 */
   --fs-body: clamp(1rem, 0.98rem + 0.1vw, 1.0625rem);        /* 16 → 17 */
   --fs-small: 0.9375rem;                                      /* 15 */
+  --fs-ui: 0.875rem;                                          /* 14 */
   --fs-label: 0.8125rem;                                      /* 13 */
+  --fs-caption: 0.75rem;                                      /* 12: the smallest size used */
 
-  --lh-tight: 1.06;
+  --lh-tight: 1.1;
   --lh-heading: 1.15;
   --lh-snug: 1.3;
   --lh-body: 1.65;
 
-  --tracking-display: -0.025em;
+  --tracking-display: -0.02em;
   --tracking-heading: -0.015em;
   --tracking-snug: -0.01em;
-  --tracking-label: 0.12em;
+  --tracking-label: 0.1em;
 
   /* Spacing — 8px rhythm (4px half-step for fine adjustments) */
   --s-1: 0.25rem;

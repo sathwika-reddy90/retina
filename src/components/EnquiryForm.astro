@@ -167,7 +167,7 @@ const fallbackPhone = type === 'franchise' ? franchisePhone : phones[0];
   @media (max-width: 560px) { .enquiry__grid { grid-template-columns: minmax(0, 1fr); } }
   @media (max-width: 480px) { .enquiry__foot .btn { flex: 1 1 100%; white-space: normal; } }
   .enquiry__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); }
-  .enquiry__fine { font-size: 0.8125rem; color: var(--ink-soft); }
+  .enquiry__fine { font-size: var(--fs-label); color: var(--ink-soft); }
   .enquiry__fine span { color: var(--orange-700); }
   .enquiry button[type='submit'][aria-busy='true'] { opacity: 0.7; pointer-events: none; }
   .enquiry__status {
@@ -178,13 +178,13 @@ const fallbackPhone = type === 'franchise' ? franchisePhone : phones[0];
     border-radius: var(--r-md);
     background: var(--orange-50);
     border: 1px solid var(--orange-200);
-    font-size: 0.95rem;
+    font-size: var(--fs-small);
   }
   .enquiry__status[hidden] { display: none; }
   .enquiry__status[data-state='error'] { background: #fff4f2; border-color: #f5c2bb; }
   .enquiry__status > :global(.icon) { width: 1.5rem; height: 1.5rem; color: var(--success); }
   .enquiry__status[data-state='error'] > :global(.icon) { color: var(--danger); }
-  .enquiry__status-title { font-family: var(--font-display); font-weight: 700; color: var(--ink-deep); margin-bottom: 0.2rem; }
-  .enquiry__status-alt { margin-top: 0.5rem; color: var(--ink-soft); font-size: 0.875rem; }
+  .enquiry__status-title { font-family: var(--font-display); font-weight: 600; color: var(--ink-deep); margin-bottom: 0.2rem; }
+  .enquiry__status-alt { margin-top: 0.5rem; color: var(--ink-soft); font-size: var(--fs-ui); }
   .enquiry__status a { color: var(--orange-700); }
 </style>

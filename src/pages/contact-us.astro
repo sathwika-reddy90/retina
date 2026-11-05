@@ -81,15 +81,15 @@ const channels = [
   .office__name { font-size: var(--fs-h4); letter-spacing: 0.02em; }
   .office__label { font-weight: 600; color: var(--ink-deep); }
   .office address { font-style: normal; color: var(--ink-soft); line-height: 1.7; }
-  .contact__label { margin-bottom: var(--s-3); font-size: var(--fs-label); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-soft); }
+  .contact__label { font-family: var(--font-display); margin-bottom: var(--s-3); font-size: var(--fs-label); font-weight: 600; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-soft); }
   .contact__phones ul, .contact__emails ul { display: grid; gap: var(--s-2); margin: 0; padding: 0; list-style: none; }
   .contact__phones a { display: inline-flex; align-items: center; gap: 0.6rem; font-family: var(--font-display); font-size: 1.125rem; font-weight: 600; color: var(--ink-deep); text-decoration: none; }
   .contact__phones a:hover { color: var(--orange-700); }
-  .contact__phones a span { font-family: var(--font-body); font-size: 0.8125rem; font-weight: 500; color: var(--ink-soft); }
+  .contact__phones a span { font-family: var(--font-body); font-size: var(--fs-label); font-weight: 500; color: var(--ink-soft); }
   .contact__phones :global(.icon) { color: var(--orange-600); }
   .contact__emails li { display: flex; gap: var(--s-3); align-items: center; padding: var(--s-3) 0; border-top: 1px solid var(--line); }
   .contact__ch-icon { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--cream); color: var(--orange-700); flex: none; }
-  .contact__ch-label { display: block; font-size: 0.8125rem; color: var(--ink-soft); }
+  .contact__ch-label { display: block; font-size: var(--fs-label); color: var(--ink-soft); }
   .contact__emails a { color: var(--ink-deep); font-weight: 600; overflow-wrap: anywhere; }
   .contact__emails a:hover { color: var(--orange-700); }
   .contact__form { display: grid; gap: var(--s-3); padding: clamp(1.5rem, 1rem + 2vw, 2.75rem); border: 1px solid var(--line); border-radius: var(--r-xl); background: var(--white); box-shadow: var(--shadow-md); }

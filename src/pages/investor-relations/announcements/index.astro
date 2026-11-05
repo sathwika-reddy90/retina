@@ -34,7 +34,7 @@ const blurbs: Record<string, string> = {
   .ann-hub__icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: var(--r-sm); background: var(--orange-100); color: var(--orange-700); }
   .ann-hub__text { display: grid; gap: 0.15rem; }
   .ann-hub__text strong { font-family: var(--font-display); font-size: 1.125rem; color: var(--ink-deep); }
-  .ann-hub__text span { font-size: 0.875rem; color: var(--ink-soft); }
+  .ann-hub__text span { font-size: var(--fs-ui); color: var(--ink-soft); }
   .ann-hub a > :global(.icon:last-child) { color: var(--orange-600); transition: transform var(--t-base); }
   .ann-hub a:hover > :global(.icon:last-child) { transform: translateX(4px); }
   @media (max-width: 680px) { .ann-hub { grid-template-columns: minmax(0, 1fr); } }

@@ -81,14 +81,14 @@ const shades = ['QC0652', 'QC1212', 'QC0992', 'QC1095', 'QC0461'].map((c) => fin
   .diff__chip[data-ink='dark'] { color: var(--ink-deep); }
   .diff__chip[data-ink='light'] { color: var(--white); }
   .diff__chip[aria-checked='true'] :global(.icon) { opacity: 1; }
-  .diff__note { display: flex; gap: 0.5rem; font-size: 0.8125rem; line-height: 1.5; color: var(--ink-soft); }
+  .diff__note { display: flex; gap: 0.5rem; font-size: var(--fs-label); line-height: 1.5; color: var(--ink-soft); }
   .diff__note :global(.icon) { flex: none; width: 1rem; height: 1rem; margin-top: 0.15rem; color: var(--ink-mute); }
 
   .diff__stage { position: relative; aspect-ratio: 3 / 2; overflow: hidden; border-radius: var(--r-xl); box-shadow: var(--shadow-md); isolation: isolate; }
   .diff__stage :global(.diff__layer) { position: absolute; inset: 0; --painted-pos: 50% 60%; }
   .diff__after-wrap { position: absolute; inset: 0; clip-path: inset(0 0 0 var(--pos)); --wall: var(--after); }
   .diff__stage :global(.diff__before .painted__room) { filter: saturate(0.7) brightness(0.94); }
-  .diff__tag { position: absolute; top: var(--s-4); z-index: 2; padding: 0.35rem 0.75rem; border-radius: var(--r-pill); background: rgb(27 23 20 / 0.82); color: var(--white); font-family: var(--font-display); font-size: 0.8125rem; font-weight: 700; pointer-events: none; }
+  .diff__tag { position: absolute; top: var(--s-4); z-index: 2; padding: 0.35rem 0.75rem; border-radius: var(--r-pill); background: rgb(27 23 20 / 0.82); color: var(--white); font-family: var(--font-display); font-size: var(--fs-label); font-weight: 600; pointer-events: none; }
   .diff__tag--before { left: var(--s-4); }
   .diff__tag--after { right: var(--s-4); background: var(--white); color: var(--ink-deep); }
   .diff__divider { position: absolute; top: 0; bottom: 0; left: var(--pos); z-index: 2; width: 3px; margin-left: -1.5px; background: var(--white); box-shadow: 0 0 14px rgb(0 0 0 / 0.35); pointer-events: none; }

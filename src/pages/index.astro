@@ -371,7 +371,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     background: none;
     font-family: var(--font-display);
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.3;
     color: var(--ink-deep);
     text-align: left;
@@ -381,7 +381,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .quick__title::after { content: ''; position: absolute; inset: 0; }
   .quick__title:focus-visible { outline: none; }
   .quick__item:has(.quick__title:focus-visible) { outline: 3px solid var(--ink-deep); outline-offset: -3px; }
-  .quick__desc { font-size: 0.8125rem; line-height: 1.5; color: var(--ink-soft); }
+  .quick__desc { font-size: var(--fs-label); line-height: 1.5; color: var(--ink-soft); }
   .quick__item :global(.quick__arrow) { position: absolute; right: var(--s-5); top: var(--s-6); width: 1.1rem; height: 1.1rem; color: var(--orange-600); opacity: 0; transform: translateX(-4px); transition: opacity var(--t-base), transform var(--t-base) var(--ease-out); }
   .quick__item:hover :global(.quick__arrow) { opacity: 1; transform: none; }
   @media (max-width: 1180px) {
@@ -451,7 +451,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .exterior__item:hover { background: rgb(255 255 255 / 0.2); border-color: rgb(255 255 255 / 0.45); }
   .exterior__item :global(.exterior__pack) { width: 3.75rem; height: auto; }
   .exterior__item strong { display: block; font-family: var(--font-display); font-size: 1.0625rem; }
-  .exterior__item span span { font-size: 0.85rem; color: var(--orange-200); }
+  .exterior__item span span { font-size: var(--fs-ui); color: var(--orange-200); }
   .exterior__item > :global(.icon) { color: var(--orange-300); }
   @media (max-width: 960px) {
     .exterior__inner { grid-template-columns: minmax(0, 1fr); }
@@ -472,10 +472,10 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .why__item:hover::before { width: 100%; }
   .why__item .why__icon { transition: background-color 260ms var(--ease-out), color 260ms var(--ease-out); }
   .why__item:hover .why__icon { background: var(--orange-500); color: var(--ink-deep); }
-  .why__num { position: absolute; top: var(--s-6); right: 0; font-family: var(--font-display); font-size: 0.875rem; font-weight: 700; color: var(--orange-700); }
+  .why__num { position: absolute; top: var(--s-6); right: 0; font-family: var(--font-display); font-size: var(--fs-ui); font-weight: 600; color: var(--orange-700); }
   .why__icon { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; border-radius: var(--r-md); background: var(--orange-100); color: var(--orange-700); margin-bottom: var(--s-2); }
   .why__icon :global(.icon) { width: 1.5rem; height: 1.5rem; }
-  .why__item p { color: var(--ink-soft); font-size: 0.975rem; }
+  .why__item p { color: var(--ink-soft); font-size: var(--fs-small); }
   @media (max-width: 960px) {
     .why__grid { grid-template-columns: minmax(0, 1fr); }
     .why__head { position: static; }
@@ -508,17 +508,17 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     color: var(--ink-deep);
     box-shadow: var(--shadow-md);
   }
-  .story__stat strong { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; line-height: 1; letter-spacing: var(--tracking-display); }
-  .story__stat span { font-size: 0.875rem; font-weight: 600; }
+  .story__stat strong { font-family: var(--font-display); font-size: 2.5rem; font-weight: 600; line-height: 1; letter-spacing: var(--tracking-display); }
+  .story__stat span { font-size: var(--fs-ui); font-weight: 600; }
   .story__copy { display: grid; gap: var(--s-5); justify-items: start; }
   .story__vm { display: grid; gap: var(--s-3); margin: 0; padding: var(--s-5); border-radius: var(--r-md); background: var(--cream); width: 100%; }
   .story__vm div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: var(--s-3); }
-  .story__vm dt { font-family: var(--font-display); font-weight: 700; color: var(--ink-deep); }
+  .story__vm dt { font-family: var(--font-display); font-weight: 600; color: var(--ink-deep); }
   .story__vm dd { margin: 0; color: var(--ink-soft); }
   .story__stats { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: var(--s-7); margin: 0; }
   .story__stats div { display: flex; flex-direction: column-reverse; }
-  .story__stats dd { margin: 0; font-family: var(--font-display); font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem); font-weight: 750; letter-spacing: var(--tracking-display); color: var(--orange-600); line-height: 1.1; }
-  .story__stats dt { font-size: 0.875rem; color: var(--ink-soft); }
+  .story__stats dd { margin: 0; font-family: var(--font-display); font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem); font-weight: 600; letter-spacing: var(--tracking-display); color: var(--orange-600); line-height: 1.1; }
+  .story__stats dt { font-size: var(--fs-ui); color: var(--ink-soft); }
   .creds {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -528,7 +528,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     list-style: none;
     border-top: 1px solid var(--line);
   }
-  .creds li { display: flex; gap: var(--s-3); align-items: flex-start; font-size: 0.925rem; color: var(--ink-soft); line-height: 1.5; }
+  .creds li { display: flex; gap: var(--s-3); align-items: flex-start; font-size: var(--fs-small); color: var(--ink-soft); line-height: 1.5; }
   .creds :global(.icon) { width: 1.5rem; height: 1.5rem; color: var(--orange-600); }
   @media (max-width: 960px) {
     .story__grid { grid-template-columns: minmax(0, 1fr); }
@@ -580,7 +580,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .franchise__eyebrow { color: var(--ink-deep); }
   .franchise__lead { font-size: var(--fs-lead); color: rgb(27 23 20 / 0.82); max-width: 34rem; }
   .franchise__points { display: grid; gap: var(--s-3); margin: 0; padding: 0; list-style: none; }
-  .franchise__points li { display: flex; gap: var(--s-3); align-items: flex-start; font-size: 0.975rem; }
+  .franchise__points li { display: flex; gap: var(--s-3); align-items: flex-start; font-size: var(--fs-small); }
   .franchise__points :global(.icon) { flex: none; width: 1.4rem; height: 1.4rem; padding: 0.2rem; border-radius: 50%; background: var(--ink-deep); color: var(--orange-400); margin-top: 0.1rem; }
   .franchise__call { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; }
   .franchise__call a { color: inherit; }
@@ -599,8 +599,8 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   }
   .franchise__stats div { display: grid; padding: var(--s-4) var(--s-5); }
   .franchise__stats div + div { border-left: 1px solid var(--line); }
-  .franchise__stats dd { margin: 0; font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; letter-spacing: var(--tracking-display); line-height: 1.1; color: var(--orange-700); }
-  .franchise__stats dt { font-size: 0.8125rem; color: var(--ink-soft); }
+  .franchise__stats dd { margin: 0; font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; letter-spacing: var(--tracking-display); line-height: 1.1; color: var(--orange-700); }
+  .franchise__stats dt { font-size: var(--fs-label); color: var(--ink-soft); }
   @media (max-width: 960px) {
     .franchise__card { grid-template-columns: minmax(0, 1fr); }
     .franchise__stats { left: 1rem; }
@@ -614,16 +614,16 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .post__media :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform var(--t-slow) var(--ease-out); }
   .post:hover .post__media :global(img) { transform: scale(1.04); }
   .post__body { display: grid; gap: var(--s-3); align-content: start; padding: var(--s-5); }
-  .post__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); font-size: 0.8125rem; color: var(--ink-soft); }
+  .post__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); font-size: var(--fs-label); color: var(--ink-soft); }
   .post__cat { padding: 0.15rem 0.6rem; border-radius: var(--r-pill); background: var(--orange-100); color: var(--orange-800); font-weight: 600; }
   .post h3 a { text-decoration: none; color: inherit; }
   .post h3 a::after { content: ''; position: absolute; inset: 0; }
   .post:hover h3 a { color: var(--orange-700); }
   .ann { display: grid; gap: var(--s-4); align-content: start; padding: var(--s-6); border-radius: var(--r-lg); background: var(--orange-50); border: 1px solid var(--orange-100); }
-  .ann__title { font-size: var(--fs-label); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-deep); }
+  .ann__title { font-family: var(--font-display); font-size: var(--fs-label); font-weight: 600; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-deep); }
   .ann ul { margin: 0; padding: 0; list-style: none; display: grid; }
   .ann li + li { border-top: 1px solid var(--line-strong); }
-  .ann li a { display: flex; gap: var(--s-3); padding: 0.8rem 0; font-size: 0.925rem; line-height: 1.45; color: var(--ink); text-decoration: none; }
+  .ann li a { display: flex; gap: var(--s-3); padding: 0.8rem 0; font-size: var(--fs-small); line-height: 1.45; color: var(--ink); text-decoration: none; }
   .ann li a:hover { color: var(--orange-700); }
   .ann li :global(.icon) { width: 1.1rem; height: 1.1rem; margin-top: 0.15rem; color: var(--orange-600); }
   @media (max-width: 1080px) { .news__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ann { grid-column: 1 / -1; } }
@@ -644,7 +644,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
     border: 1px solid var(--line);
     border-top: 4px solid var(--orange-500);
     box-shadow: var(--shadow-lg);
-    font-size: 0.925rem;
+    font-size: var(--fs-small);
     color: var(--ink-soft);
   }
   .promo[hidden] { display: none; }
@@ -654,7 +654,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day
   .promo__close { position: absolute; top: 0.6rem; right: 0.6rem; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--cream); }
   .promo__close :global(.icon) { width: 1.1rem; height: 1.1rem; }
   .promo__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin-top: var(--s-2); }
-  .promo__later { border: 0; background: none; padding: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 0.2em; }
+  .promo__later { border: 0; background: none; padding: 0.5rem; font-size: var(--fs-ui); font-weight: 600; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 0.2em; }
   /* Phones: a compact card that leaves most of the screen (and the WhatsApp button) clear. */
   @media (max-width: 560px) {
     .promo { bottom: max(1rem, env(safe-area-inset-bottom)); padding: var(--s-4); gap: var(--s-1); }
